@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  UMKM
+  INVESTOR
+  ADMIN
+}
+
+enum ProjectStatus {
+  PENDING
+  FUNDING
+  FUNDED
+  SUCCESS
+  FAILED
+}
+
+enum TransactionType {
+  TOPUP
+  FUND
+  EXCHANGE
+  RELEASE
+  REFUND
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @unique
+  password     String
+  role         Role
+  name         String
+  phone        String?
+  address      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  wallet       Wallet?
+  projects     Project[]
+  transactions Transaction[]
+  investments  Investment[]
+  orders       Order[]
+  topUps       TopUp[]
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   BigInt   @default(0)
+  hold      BigInt   @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TopUp {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  amount     BigInt
+  status     String   @default("PENDING") // PENDING, PAID, EXPIRED
+  invoiceUrl String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Project {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  title           String
+  description     String
+  targetAmount    BigInt
+  markupAmount    BigInt        
+  collectedAmount BigInt        @default(0)
+  status          ProjectStatus @default(PENDING)
+  failedReason    String?
+  failedProofUrl  String?
+  imageUrl        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  investments     Investment[]
+}
+
+model Investment {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  investorId  String
+  investor    User     @relation(fields: [investorId], references: [id])
+  amount      BigInt
+  rewardOptIn Boolean  @default(true)
+  status      String   @default("PENDING") // PENDING, SUCCESS, RECEIVED, REFUNDED
+  trackingResi String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  type        TransactionType
+  amount      BigInt
+  referenceId String?         // ID of Project, Order, or Investment
+  createdAt   DateTime        @default(now())
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       BigInt
+  stock       Int      @default(0)
+  imageUrl    String?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders      Order[]
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  itemId     String
+  item       Item     @relation(fields: [itemId], references: [id])
+  quantity   Int
+  totalPrice BigInt
+  status     String   @default("PENDING") // PENDING, PROCESSED, SHIPPED, DELIVERED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
