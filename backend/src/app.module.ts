@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
-// import { WalletModule } from './wallet/wallet.module';
+import { WalletModule } from './wallet/wallet.module';
 import { InvestmentModule } from './investment/investment.module';
 // import { KoperasiModule } from './koperasi/koperasi.module';
 // import { UploadModule } from './upload/upload.module';
@@ -25,7 +25,7 @@ import { InvestmentModule } from './investment/investment.module';
     AuthModule,
     UserModule,
     ProjectModule,
-    // WalletModule,
+    WalletModule,
     InvestmentModule,
     // KoperasiModule,
     // UploadModule,
