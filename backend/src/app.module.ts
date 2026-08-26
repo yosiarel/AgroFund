@@ -9,7 +9,7 @@ import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
 import { WalletModule } from './wallet/wallet.module';
 import { InvestmentModule } from './investment/investment.module';
-// import { KoperasiModule } from './koperasi/koperasi.module';
+import { KoperasiModule } from './koperasi/koperasi.module';
 // import { UploadModule } from './upload/upload.module';
 // import { AdminModule } from './admin/admin.module';
 
@@ -27,7 +27,7 @@ import { InvestmentModule } from './investment/investment.module';
     ProjectModule,
     WalletModule,
     InvestmentModule,
-    // KoperasiModule,
+    KoperasiModule,
     // UploadModule,
     // AdminModule,
   ],
