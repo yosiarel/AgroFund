@@ -113,12 +113,17 @@ export class FinanceService {
 
     const externalId = dto.external_id;
 
+    // Bypass for Xendit Dashboard "Test and Save" dummy payload
+    if (externalId === 'invoice_123124123') {
+      return { message: 'Test webhook successfully received' };
+    }
+
     if (externalId.startsWith('GUARANTEE_')) {
       const projectId = externalId.split('_')[1];
-      if (!projectId) throw new BadRequestException('Invalid external_id for Guarantee');
+      if (!projectId) return { success: true, message: 'Ignored (Invalid external_id for Guarantee)' };
 
       const project = await this.prisma.project.findUnique({ where: { id: projectId } });
-      if (!project) throw new NotFoundException('Project tidak ditemukan');
+      if (!project) return { success: true, message: 'Ignored (Project tidak ditemukan)' };
 
       // Update project guarantee status and create transaction
       await this.prisma.$transaction(async (tx) => {
@@ -153,7 +158,7 @@ export class FinanceService {
         include: { project: true }
       });
 
-      if (!contribution) throw new NotFoundException('Contribution tidak ditemukan');
+      if (!contribution) return { success: true, message: 'Ignored (Contribution tidak ditemukan)' };
       if (contribution.status === 'PAID') return { message: 'Already paid' };
 
       await this.prisma.$transaction(async (tx) => {
