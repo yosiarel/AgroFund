@@ -10,6 +10,7 @@ import { ProjectModule } from './project/project.module';
 import { KoperasiModule } from './koperasi/koperasi.module';
 import { UploadModule } from './upload/upload.module';
 import { AdminModule } from './admin/admin.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AdminModule } from './admin/admin.module';
     KoperasiModule,
     UploadModule,
     AdminModule,
+    FinanceModule,
   ],
   controllers: [AppController],
   providers: [
