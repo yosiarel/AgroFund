@@ -39,6 +39,22 @@ export class AdminService {
     return koperasi;
   }
 
+  async getCooperatives() {
+    return this.prisma.user.findMany({
+      where: { role: Role.KOPERASI },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   async getAnalyticsSummary() {
     try {
       const [

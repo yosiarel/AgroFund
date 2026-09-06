@@ -11,16 +11,16 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User registered successfully.' })
+  @ApiOperation({ summary: 'Mendaftarkan pengguna baru' })
+  @ApiResponse({ status: 201, description: 'Berhasil mendaftarkan pengguna baru' })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login and set HttpOnly cookie' })
-  @ApiResponse({ status: 200, description: 'Logged in successfully.' })
+  @ApiOperation({ summary: 'Masuk dan mengatur sesi' })
+  @ApiResponse({ status: 200, description: 'Berhasil masuk' })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { access_token } = await this.authService.login(dto);
     res.cookie('Authentication', access_token, {
@@ -29,12 +29,13 @@ export class AuthController {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
-    return { message: 'Logged in successfully' };
+    return { message: 'Berhasil masuk' };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Logout and clear cookie' })
+  @ApiOperation({ summary: 'Keluar dan menghapus sesi' })
+  @ApiResponse({ status: 200, description: 'Berhasil keluar' })
   async logout(@Res({ passthrough: true }) res: Response) {
     res.cookie('Authentication', '', {
       httpOnly: true,
@@ -42,11 +43,12 @@ export class AuthController {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       expires: new Date(0),
     });
-    return { message: 'Logged out successfully' };
+    return { message: 'Berhasil Logout' };
   }
 
   @Get('seed-admin')
-  @ApiOperation({ summary: 'Temporary endpoint to seed an admin user' })
+  @ApiOperation({ summary: 'Endpoint sementara untuk membuat akun admin awal' })
+  @ApiResponse({ status: 200, description: 'Berhasil membuat akun admin' })
   seedAdmin() {
     return this.authService.seedAdmin();
   }
