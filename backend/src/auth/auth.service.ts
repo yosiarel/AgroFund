@@ -13,6 +13,10 @@ export class AuthService {
   ) { }
 
   async register(dto: RegisterDto) {
+    if (dto.role === 'KOPERASI' || dto.role === 'AGROFUND') {
+      throw new BadRequestException('Role ini tidak bisa didaftarkan secara publik');
+    }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { username: dto.username },
     });
@@ -29,12 +33,6 @@ export class AuthService {
         role: dto.role,
         phone: dto.phone,
         address: dto.address,
-        wallet: {
-          create: {
-            balance: 0,
-            hold: 0,
-          },
-        },
       },
     });
 
@@ -62,7 +60,7 @@ export class AuthService {
   }
 
   async seedAdmin() {
-    const admin = await this.prisma.user.findFirst({ where: { role: 'ADMIN' } });
+    const admin = await this.prisma.user.findFirst({ where: { role: 'AGROFUND' } });
     if (admin) return { message: 'Admin already exists' };
 
     const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@AkarMakmur2026!';
@@ -72,8 +70,7 @@ export class AuthService {
         name: 'Super Admin',
         username: 'admin',
         password: hashedPassword,
-        role: 'ADMIN',
-        wallet: { create: { balance: 0, hold: 0 } }
+        role: 'AGROFUND',
       }
     });
     return { message: 'Admin created successfully', username: newAdmin.username };

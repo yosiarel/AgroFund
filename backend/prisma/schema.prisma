@@ -12,133 +12,275 @@ datasource db {
 }
 
 enum Role {
+  PENDANA
   UMKM
-  INVESTOR
-  ADMIN
+  KOPERASI
+  AGROFUND
 }
 
 enum ProjectStatus {
-  PENDING
-  FUNDING
-  FUNDED
-  SUCCESS
-  FAILED
+  DRAFT
+  COOPERATIVE_ASSESSMENT
+  PUBLICATION_REVIEW
+  GUARANTEE_PLACEMENT
+  FUNDRAISING
+  DANA_TERPENUHI
+  PROCUREMENT
+  EXECUTION
+  NATURA_FULFILLMENT
+  SUKSES_DITUTUP
+  GAGAL_DITUTUP
 }
 
-enum TransactionType {
-  TOPUP
-  FUND
-  EXCHANGE
-  RELEASE
-  REFUND
+enum GuaranteeStatus {
+  PENDING_PAYMENT
+  HELD
+  PARTIALLY_USED
+  USED
+  RETURNED
+  RECOVERY_POOL
+}
+
+enum AssessmentStatus {
+  PENDING
+  APPROVED
+  NEEDS_CORRECTION
+  REJECTED
 }
 
 model User {
-  id           String        @id @default(uuid())
-  username     String        @unique
-  password     String
-  role         Role
-  name         String
-  phone        String?
-  address      String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  wallet       Wallet?
-  projects     Project[]
-  transactions Transaction[]
-  investments  Investment[]
-  orders       Order[]
-  topUps       TopUp[]
-}
-
-model Wallet {
   id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  balance   BigInt   @default(0)
-  hold      BigInt   @default(0)
+  username  String   @unique
+  password  String
+  role      Role
+  name      String
+  email     String?  @unique
+  phone     String?
+  address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
 
-model TopUp {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  amount     BigInt
-  status     String   @default("PENDING") // PENDING, PAID, EXPIRED
-  invoiceUrl String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  projects            Project[]      @relation("UmkmProjects")
+  cooperativeProjects Project[]      @relation("KoperasiProjects")
+  contributions       Contribution[]
+  assessedAssessments Assessment[]   @relation("KoperasiAssessor")
 }
 
 model Project {
-  id              String        @id @default(uuid())
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  title           String
-  description     String
-  targetAmount    BigInt
-  markupAmount    BigInt        
-  collectedAmount BigInt        @default(0)
-  status          ProjectStatus @default(PENDING)
-  failedReason    String?
-  failedProofUrl  String?
-  imageUrl        String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id         String  @id @default(uuid())
+  userId     String
+  user       User    @relation("UmkmProjects", fields: [userId], references: [id])
+  koperasiId String?
+  koperasi   User?   @relation("KoperasiProjects", fields: [koperasiId], references: [id])
 
-  investments     Investment[]
+  title       String
+  description String
+
+  basicProcurementCapital BigInt
+  priceReserve            BigInt @default(0)
+  cooperativeFeeProvision BigInt @default(0)
+  agrofundServiceFee      BigInt @default(0)
+  naturaCost              BigInt @default(0)
+  mandatoryTaxes          BigInt @default(0)
+  targetAmount            BigInt // Computed/Sum of above
+
+  fundedAmount BigInt        @default(0)
+  status       ProjectStatus @default(DRAFT)
+
+  guaranteeAmount BigInt          @default(0)
+  guaranteeStatus GuaranteeStatus @default(PENDING_PAYMENT)
+
+  fundraisingDeadline DateTime?
+  publishedAt         DateTime?
+  failedReason        String?
+  imageUrl            String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  naturaPackages        NaturaPackage[]
+  contributions         Contribution[]
+  procurementRequests   ProcurementRequest[]
+  milestones            Milestone[]
+  incidents             Incident[]
+  financialLedgers      ProjectFinancialLedger[]
+  assessments           Assessment[]
+  guaranteeTransactions GuaranteeTransaction[]
 }
 
-model Investment {
+model Assessment {
+  id         String           @id @default(uuid())
+  projectId  String
+  project    Project          @relation(fields: [projectId], references: [id])
+  type       String // COOPERATIVE, AGROFUND
+  assessorId String
+  assessor   User             @relation("KoperasiAssessor", fields: [assessorId], references: [id])
+  status     AssessmentStatus @default(PENDING)
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model NaturaPackage {
+  id                   String    @id @default(uuid())
+  projectId            String
+  project              Project   @relation(fields: [projectId], references: [id])
+  name                 String
+  description          String
+  amount               BigInt
+  expectedDeliveryDate DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  contributions Contribution[]
+}
+
+model Contribution {
+  id               String         @id @default(uuid())
+  projectId        String
+  project          Project        @relation(fields: [projectId], references: [id])
+  investorId       String
+  investor         User           @relation(fields: [investorId], references: [id])
+  amount           BigInt
+  processingFee    BigInt         @default(0)
+  totalPayment     BigInt // amount + processingFee
+  naturaPackageId  String?
+  naturaPackage    NaturaPackage? @relation(fields: [naturaPackageId], references: [id])
+  status           String         @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAID, CANCELLED, REFUNDED
+  paymentReference String?        @unique
+  paymentUrl       String?
+  idempotencyKey   String?        @unique
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model GuaranteeTransaction {
   id          String   @id @default(uuid())
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
-  investorId  String
-  investor    User     @relation(fields: [investorId], references: [id])
   amount      BigInt
-  rewardOptIn Boolean  @default(true)
-  status      String   @default("PENDING") // PENDING, SUCCESS, RECEIVED, REFUNDED
-  trackingResi String?
+  reason      String?
+  referenceId String?
+  status      String   @default("HELD") // HELD, USED, RETURNED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Transaction {
-  id          String          @id @default(uuid())
-  userId      String
-  user        User            @relation(fields: [userId], references: [id])
-  type        TransactionType
-  amount      BigInt
-  referenceId String?         // ID of Project, Order, or Investment
-  createdAt   DateTime        @default(now())
+model ProcurementRequest {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  status    String   @default("REQUESTED") // REQUESTED, APPROVED, REJECTED, PO_ISSUED
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items  ProcurementItem[]
+  orders PurchaseOrder[]
 }
 
-model Item {
-  id          String   @id @default(uuid())
+model ProcurementItem {
+  id                   String             @id @default(uuid())
+  procurementRequestId String
+  request              ProcurementRequest @relation(fields: [procurementRequestId], references: [id])
+  name                 String
+  quantity             Int
+  estimatedUnitPrice   BigInt
+  createdAt            DateTime           @default(now())
+}
+
+model SupplierRecord {
+  id                  String   @id @default(uuid())
+  name                String
+  contactInfo         String?
+  businessInformation String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id                   String             @id @default(uuid())
+  procurementRequestId String
+  request              ProcurementRequest @relation(fields: [procurementRequestId], references: [id])
+  supplierId           String
+  supplier             SupplierRecord     @relation(fields: [supplierId], references: [id])
+  quotedTotal          BigInt
+  status               String             @default("DRAFT") // DRAFT, VALID, PROCUREMENT_COMMITTED, PAID
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  evidences Evidence[]
+}
+
+model Evidence {
+  id            String         @id @default(uuid())
+  referenceType String // PO, PROGRESS_REPORT, INCIDENT
+  referenceId   String
+  purchaseOrder PurchaseOrder? @relation(fields: [referenceId], references: [id], map: "ev_po_fkey")
+  fileUrl       String
+  description   String?
+  type          String // RECEIPT, PHOTO, DOCUMENT
+  status        String         @default("SUBMITTED")
+  createdAt     DateTime       @default(now())
+}
+
+model ProjectFinancialLedger {
+  id               String   @id @default(uuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id])
+  remainingBalance BigInt
+  updatedAt        DateTime @updatedAt
+}
+
+model FinancialTransaction {
+  id            String   @id @default(uuid())
+  projectId     String
+  type          String // CONTRIBUTION, PROCUREMENT_PAYMENT, FEE_PAYMENT, REFUND
+  direction     String // IN, OUT
+  amount        BigInt
+  currency      String   @default("IDR")
+  source        String
+  destination   String
+  referenceType String?
+  referenceId   String?
+  status        String   @default("SUCCESS")
+  createdAt     DateTime @default(now())
+}
+
+model Milestone {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
   name        String
   description String?
-  price       BigInt
-  stock       Int      @default(0)
-  imageUrl    String?
-  category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  plannedDate DateTime?
+  status      String    @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  orders      Order[]
+  reports ProgressReport[]
 }
 
-model Order {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  itemId     String
-  item       Item     @relation(fields: [itemId], references: [id])
-  quantity   Int
-  totalPrice BigInt
-  status     String   @default("PENDING") // PENDING, PROCESSED, SHIPPED, DELIVERED
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model ProgressReport {
+  id                 String    @id @default(uuid())
+  milestoneId        String
+  milestone          Milestone @relation(fields: [milestoneId], references: [id])
+  progressPercentage Int
+  description        String
+  status             String    @default("SUBMITTED")
+  createdAt          DateTime  @default(now())
+}
+
+model Incident {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  category    String // DELAY, DAMAGE, FRAUD
+  severity    String // LOW, MEDIUM, HIGH
+  description String
+  status      String   @default("UNDER_REVIEW") // UNDER_REVIEW, RESOLVED
+  decision    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

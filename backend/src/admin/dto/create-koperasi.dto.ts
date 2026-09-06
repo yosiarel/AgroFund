@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsEnum, MinLength, IsOptional, IsIn } from 'class-validator';
-import { Role } from '@prisma/client';
+import { IsString, IsNotEmpty, MinLength, IsEmail, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RegisterDto {
+export class CreateKoperasiDto {
   @ApiProperty()
   @IsString({ message: 'Username harus berupa teks' })
   @IsNotEmpty({ message: 'Username tidak boleh kosong' })
@@ -14,15 +13,15 @@ export class RegisterDto {
   @MinLength(6, { message: 'Password minimal 6 karakter' })
   password: string;
 
-  @ApiProperty({ enum: ['PENDANA', 'UMKM'] })
-  @IsEnum(Role, { message: 'Role tidak valid' })
-  @IsIn(['PENDANA', 'UMKM'], { message: 'Pendaftaran publik hanya bisa sebagai PENDANA atau UMKM' })
-  role: Role;
-
   @ApiProperty()
-  @IsString({ message: 'Nama harus berupa teks' })
-  @IsNotEmpty({ message: 'Nama tidak boleh kosong' })
+  @IsString({ message: 'Nama koperasi harus berupa teks' })
+  @IsNotEmpty({ message: 'Nama koperasi tidak boleh kosong' })
   name: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmail({}, { message: 'Email tidak valid' })
+  email?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
