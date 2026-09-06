@@ -11,6 +11,8 @@ import { KoperasiModule } from './koperasi/koperasi.module';
 import { UploadModule } from './upload/upload.module';
 import { AdminModule } from './admin/admin.module';
 import { FinanceModule } from './finance/finance.module';
+import { ProcurementModule } from './procurement/procurement.module';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { FinanceModule } from './finance/finance.module';
     UploadModule,
     AdminModule,
     FinanceModule,
+    ProcurementModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [
