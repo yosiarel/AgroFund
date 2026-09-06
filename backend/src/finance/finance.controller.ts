@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Param, UseGuards, Request, Headers } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { ContributeDto, WebhookDto } from './dto/finance.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -9,33 +9,35 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagg
 @ApiTags('finance')
 @Controller('finance')
 export class FinanceController {
-  constructor(private readonly financeService: FinanceService) {}
+  constructor(private readonly financeService: FinanceService) { }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('UMKM')
-  @Post('projects/:id/guarantee/pay')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Mendapatkan link pembayaran Uang Jaminan oleh UMKM' })
-  @ApiResponse({ status: 201, description: 'Berhasil membuat tagihan jaminan' })
+  @Post('projects/:id/guarantee/pay')
+  @ApiOperation({ summary: 'Membuat tagihan jaminan (Oleh UMKM) via Xendit' })
+  @ApiResponse({ status: 201, description: 'Berhasil membuat link pembayaran jaminan' })
   generateGuaranteePayment(@Param('id') id: string, @Request() req: any) {
     return this.financeService.generateGuaranteePayment(id, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('PENDANA')
-  @Post('projects/:id/contribute')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Memberikan pendanaan ke Proyek oleh Pendana (Investor)' })
-  @ApiResponse({ status: 201, description: 'Berhasil membuat tagihan pendanaan' })
+  @Post('projects/:id/contribute')
+  @ApiOperation({ summary: 'Memberikan pendanaan ke Proyek (Oleh Pendana) via Xendit' })
+  @ApiResponse({ status: 201, description: 'Berhasil membuat tagihan investasi' })
   contribute(@Param('id') id: string, @Request() req: any, @Body() dto: ContributeDto) {
     return this.financeService.contribute(id, req.user.userId, dto);
   }
 
-  // Webhook is public (in real life it should validate signature from Xendit)
   @Post('webhook/xendit')
-  @ApiOperation({ summary: 'Endpoint simulasi Webhook dari Payment Gateway' })
-  @ApiResponse({ status: 201, description: 'Berhasil memproses pembayaran' })
-  handleWebhook(@Body() dto: WebhookDto) {
-    return this.financeService.handleWebhook(dto);
+  @ApiOperation({ summary: 'Webhook URL untuk dipanggil oleh Xendit Invoices (Jangan dipanggil manual jika tidak tahu Webhook Token)' })
+  @ApiResponse({ status: 200, description: 'Berhasil memproses Webhook' })
+  handleWebhook(
+    @Headers('x-callback-token') callbackToken: string,
+    @Body() dto: WebhookDto
+  ) {
+    return this.financeService.handleWebhook(callbackToken, dto);
   }
 }

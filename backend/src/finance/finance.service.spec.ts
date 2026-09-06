@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FinanceService } from './finance.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProjectStatus, GuaranteeStatus } from '@prisma/client';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+
+// Override env for testing
+process.env.XENDIT_WEBHOOK_TOKEN = 'test_token';
 
 const mockPrismaService: any = {
   project: {
@@ -57,7 +60,7 @@ describe('FinanceService', () => {
 
       const result = await service.generateGuaranteePayment('proj-1', 'user-1');
       expect(result.paymentUrl).toBeDefined();
-      expect(result.referenceId).toContain('GUARANTEE_proj-1_');
+      expect(result.externalId).toContain('GUARANTEE_proj-1_');
     });
 
     it('should throw ForbiddenException if user is not the owner', async () => {
@@ -85,13 +88,19 @@ describe('FinanceService', () => {
   });
 
   describe('handleWebhook', () => {
+    it('should throw UnauthorizedException if token mismatch', async () => {
+      await expect(service.handleWebhook('wrong_token', {
+        external_id: 'GUARANTEE_proj-1_12345',
+        status: 'PAID'
+      })).rejects.toThrow(UnauthorizedException);
+    });
+
     it('should process Guarantee webhook and update project status', async () => {
       const project = { id: 'proj-1', guaranteeAmount: 500000n };
       prisma.project.findUnique.mockResolvedValue(project);
       
-      await service.handleWebhook({
-        referenceId: 'GUARANTEE_proj-1_12345',
-        type: 'GUARANTEE',
+      await service.handleWebhook('test_token', {
+        external_id: 'GUARANTEE_proj-1_12345',
         status: 'PAID'
       });
 
@@ -105,9 +114,8 @@ describe('FinanceService', () => {
     });
 
     it('should return immediately for non-PAID status', async () => {
-      const result = await service.handleWebhook({
-        referenceId: 'GUARANTEE_proj-1_12345',
-        type: 'GUARANTEE',
+      const result = await service.handleWebhook('test_token', {
+        external_id: 'GUARANTEE_proj-1_12345',
         status: 'FAILED'
       });
 
@@ -125,9 +133,8 @@ describe('FinanceService', () => {
         .mockResolvedValueOnce(existingLedger) // initial check
         .mockResolvedValueOnce({ id: 'ledger-1', remainingBalance: 1000000n }); // check after increment
 
-      await service.handleWebhook({
-        referenceId: 'contrib-1',
-        type: 'CONTRIBUTION',
+      await service.handleWebhook('test_token', {
+        external_id: 'contrib-1',
         status: 'PAID'
       });
 

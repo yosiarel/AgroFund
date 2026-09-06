@@ -1,11 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContributeDto, WebhookDto } from './dto/finance.dto';
 import { ProjectStatus, GuaranteeStatus } from '@prisma/client';
+import { Xendit } from 'xendit-node';
 
 @Injectable()
 export class FinanceService {
-  constructor(private readonly prisma: PrismaService) { }
+  private xenditClient: any;
+
+  constructor(private readonly prisma: PrismaService) {
+    const xenditSecret = process.env.XENDIT_SECRET_KEY;
+    if (xenditSecret) {
+      this.xenditClient = new Xendit({ secretKey: xenditSecret });
+    } else {
+      console.warn('XENDIT_SECRET_KEY is not set in .env');
+    }
+  }
 
   async generateGuaranteePayment(projectId: string, userId: string) {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
@@ -18,14 +28,28 @@ export class FinanceService {
       throw new BadRequestException('Uang jaminan sudah disetorkan');
     }
 
-    const mockReferenceId = `GUARANTEE_${projectId}_${Date.now()}`;
-    const mockPaymentUrl = `https://mock-payment-gateway.com/pay/${mockReferenceId}`;
+    const externalId = `GUARANTEE_${projectId}_${Date.now()}`;
+
+    // Create Real Xendit Invoice
+    if (!this.xenditClient) {
+      throw new BadRequestException('Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)');
+    }
+
+    const invoice = await this.xenditClient.Invoice.createInvoice({
+      data: {
+        externalId: externalId,
+        amount: Number(project.guaranteeAmount),
+        description: `Pembayaran Jaminan Proyek: ${project.title}`
+      }
+    });
+
+    const paymentUrl = invoice.invoiceUrl;
 
     return {
       message: 'Silakan lakukan pembayaran jaminan',
       guaranteeAmount: project.guaranteeAmount.toString(),
-      paymentUrl: mockPaymentUrl,
-      referenceId: mockReferenceId, // The user will copy this to test the webhook
+      paymentUrl: paymentUrl,
+      externalId: externalId,
     };
   }
 
@@ -36,7 +60,7 @@ export class FinanceService {
       throw new BadRequestException('Project ini tidak sedang menggalang dana');
     }
 
-    const processingFee = 0; // Flat fee or percentage can go here
+    const processingFee = 0;
     const totalPayment = BigInt(dto.amount) + BigInt(processingFee);
 
     const contribution = await this.prisma.contribution.create({
@@ -51,43 +75,60 @@ export class FinanceService {
       }
     });
 
-    const mockPaymentUrl = `https://mock-payment-gateway.com/pay/${contribution.id}`;
+    const externalId = contribution.id;
+
+    // Create Real Xendit Invoice
+    if (!this.xenditClient) {
+      throw new BadRequestException('Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)');
+    }
+
+    const invoice = await this.xenditClient.Invoice.createInvoice({
+      data: {
+        externalId: externalId,
+        amount: Number(totalPayment),
+        description: `Investasi Proyek: ${project.title}`
+      }
+    });
+
+    const paymentUrl = invoice.invoiceUrl;
 
     return {
       message: 'Silakan selesaikan pembayaran investasi Anda',
       contributionId: contribution.id,
       amount: totalPayment.toString(),
-      paymentUrl: mockPaymentUrl,
+      paymentUrl: paymentUrl,
     };
   }
 
-  async handleWebhook(dto: WebhookDto) {
+  async handleWebhook(callbackToken: string, dto: WebhookDto) {
+    // Verify Webhook Token
+    const expectedToken = process.env.XENDIT_WEBHOOK_TOKEN;
+    if (expectedToken && callbackToken !== expectedToken) {
+      throw new UnauthorizedException('Invalid callback token');
+    }
+
     if (dto.status !== 'PAID') {
       return { message: 'Ignored non-PAID status' };
     }
 
-    if (dto.type === 'GUARANTEE') {
-      let projectId = '';
-      if (dto.referenceId.includes('_')) {
-        projectId = dto.referenceId.split('_')[1];
-      } else {
-        const parts = dto.referenceId.split('-');
-        projectId = parts.slice(1, parts.length - 1).join('-');
-      }
+    const externalId = dto.external_id;
 
-      if (!projectId) throw new BadRequestException('Invalid referenceId for Guarantee');
+    if (externalId.startsWith('GUARANTEE_')) {
+      const projectId = externalId.split('_')[1];
+      if (!projectId) throw new BadRequestException('Invalid external_id for Guarantee');
 
       const project = await this.prisma.project.findUnique({ where: { id: projectId } });
       if (!project) throw new NotFoundException('Project tidak ditemukan');
 
+      // Update project guarantee status and create transaction
       await this.prisma.$transaction(async (tx) => {
         await tx.project.update({
           where: { id: projectId },
           data: {
             guaranteeStatus: GuaranteeStatus.HELD,
-            status: ProjectStatus.FUNDRAISING,
+            status: ProjectStatus.FUNDRAISING, // Auto-publish
             publishedAt: new Date(),
-            fundraisingDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+            fundraisingDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // +60 days
           }
         });
 
@@ -97,15 +138,16 @@ export class FinanceService {
             amount: project.guaranteeAmount,
             status: 'HELD',
             reason: 'Setoran Awal UMKM',
-            referenceId: dto.referenceId
+            referenceId: externalId
           }
         });
       });
 
       return { message: 'Guarantee Payment Processed' };
     }
-    else if (dto.type === 'CONTRIBUTION') {
-      const contributionId = dto.referenceId;
+    else {
+      // Treat as Contribution UUID
+      const contributionId = externalId;
       const contribution = await this.prisma.contribution.findUnique({
         where: { id: contributionId },
         include: { project: true }
@@ -115,11 +157,13 @@ export class FinanceService {
       if (contribution.status === 'PAID') return { message: 'Already paid' };
 
       await this.prisma.$transaction(async (tx) => {
+        // Mark contribution as PAID
         await tx.contribution.update({
           where: { id: contributionId },
           data: { status: 'PAID' }
         });
 
+        // Record to FinancialTransaction (Ledger Entry)
         await tx.financialTransaction.create({
           data: {
             projectId: contribution.projectId,
@@ -134,7 +178,8 @@ export class FinanceService {
           }
         });
 
-        const ledger = await tx.projectFinancialLedger.findFirst({
+        // Update Project Financial Ledger
+        let ledger = await tx.projectFinancialLedger.findFirst({
           where: { projectId: contribution.projectId }
         });
 
@@ -152,6 +197,7 @@ export class FinanceService {
           });
         }
 
+        // Check if target is met
         const newLedger = await tx.projectFinancialLedger.findFirst({
           where: { projectId: contribution.projectId }
         });

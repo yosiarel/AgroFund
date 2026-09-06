@@ -2,29 +2,30 @@ import { IsString, IsNotEmpty, IsNumber, Min, IsOptional } from 'class-validator
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ContributeDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Jumlah uang yang diinvestasikan', example: 500000 })
   @IsNumber()
   @Min(10000)
   amount: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, description: 'ID Paket Natura (jika memilih natura)' })
   @IsOptional()
   @IsString()
   naturaPackageId?: string;
 }
 
 export class WebhookDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'ID Eksternal dari Invoice (contoh: GUARANTEE_projId_timestamp atau contributionId)' })
   @IsString()
   @IsNotEmpty()
-  referenceId: string; // The ID of the Guarantee or Contribution
+  external_id: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Status dari Invoice (contoh: PAID atau FAILED)' })
   @IsString()
   @IsNotEmpty()
-  type: 'GUARANTEE' | 'CONTRIBUTION';
+  status: string;
 
-  @ApiProperty()
-  @IsString()
-  status: 'PAID' | 'FAILED';
+  @ApiProperty({ description: 'Total jumlah uang yang dibayarkan' })
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
 }
