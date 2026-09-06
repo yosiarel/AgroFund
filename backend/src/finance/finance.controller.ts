@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, UseGuards, Request, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Param, UseGuards, Request, Headers, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { ContributeDto, WebhookDto } from './dto/finance.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -32,6 +32,7 @@ export class FinanceController {
   }
 
   @Post('webhook/xendit')
+  @UsePipes(new ValidationPipe({ whitelist: false, forbidNonWhitelisted: false }))
   @ApiOperation({ summary: 'Webhook URL untuk dipanggil oleh Xendit Invoices (Jangan dipanggil manual jika tidak tahu Webhook Token)' })
   @ApiResponse({ status: 200, description: 'Berhasil memproses Webhook' })
   handleWebhook(
