@@ -1,111 +1,267 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  /* =====================================================
+   * FONT
+   * ===================================================== */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* =====================================================
+   * BRAND COLORS — Primary (Doc 5, Sec 5.1)
+   * ===================================================== */
+  --color-primary-700: #2F6B4F;
+  --color-primary-600: #3F7D5F;
+  --color-primary-500: #4F8F6D;
+  --color-primary-400: #6BA385;
+  --color-primary-100: #E6F0E9;
+  --color-primary-50:  #F3F8F5;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* =====================================================
+   * BRAND COLORS — Accent (Doc 5, Sec 5.1)
+   * ===================================================== */
+  --color-accent-600: #C98A2E;
+  --color-accent-500: #D9A441;
+  --color-accent-100: #F8EFD9;
+
+  /* =====================================================
+   * NEUTRAL COLORS (Doc 5, Sec 6)
+   * ===================================================== */
+  --color-neutral-950: #172026;
+  --color-neutral-900: #1F2933;
+  --color-neutral-800: #323F4B;
+  --color-neutral-700: #52606D;
+  --color-neutral-600: #616E7C;
+  --color-neutral-500: #7B8794;
+  --color-neutral-400: #9AA5B1;
+  --color-neutral-300: #CBD2D9;
+  --color-neutral-200: #D9E2EC;
+  --color-neutral-100: #E4E7EB;
+  --color-neutral-50:  #F5F7FA;
+  --color-neutral-white: #FFFFFF;
+
+  /* =====================================================
+   * SEMANTIC COLORS — Success (Doc 5, Sec 7)
+   * ===================================================== */
+  --color-success-700: #236B2A;
+  --color-success-500: #2E7D32;
+  --color-success-100: #E7F4E8;
+
+  /* =====================================================
+   * SEMANTIC COLORS — Warning (Doc 5, Sec 7)
+   * ===================================================== */
+  --color-warning-700: #8A5600;
+  --color-warning-500: #B26A00;
+  --color-warning-100: #FFF4DC;
+
+  /* =====================================================
+   * SEMANTIC COLORS — Risk (Doc 5, Sec 7)
+   * Risk ≠ Failure. Risk ≠ Error.
+   * ===================================================== */
+  --color-risk-700: #8A4B08;
+  --color-risk-500: #C06A12;
+  --color-risk-100: #FFF0E2;
+
+  /* =====================================================
+   * SEMANTIC COLORS — Error (Doc 5, Sec 7)
+   * ===================================================== */
+  --color-error-700: #9B1C1C;
+  --color-error-500: #C62828;
+  --color-error-100: #FDECEC;
+
+  /* =====================================================
+   * SEMANTIC COLORS — Info (Doc 5, Sec 7)
+   * ===================================================== */
+  --color-info-700: #0D47A1;
+  --color-info-500: #1565C0;
+  --color-info-100: #E8F1FC;
+
+  /* =====================================================
+   * TYPOGRAPHY SCALE (Doc 5, Sec 10)
+   * ===================================================== */
+  --text-display-xl: 48px;
+  --text-display-xl--line-height: 56px;
+  --text-display-l: 40px;
+  --text-display-l--line-height: 48px;
+  --text-h1: 32px;
+  --text-h1--line-height: 40px;
+  --text-h2: 28px;
+  --text-h2--line-height: 36px;
+  --text-h3: 24px;
+  --text-h3--line-height: 32px;
+  --text-h4: 20px;
+  --text-h4--line-height: 28px;
+  --text-body-l: 18px;
+  --text-body-l--line-height: 28px;
+  --text-body-m: 16px;
+  --text-body-m--line-height: 24px;
+  --text-body-s: 14px;
+  --text-body-s--line-height: 20px;
+  --text-label: 14px;
+  --text-label--line-height: 20px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+
+  /* =====================================================
+   * SPACING SYSTEM — Base: 4px (Doc 5, Sec 12)
+   * ===================================================== */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+
+  /* =====================================================
+   * SIZING SYSTEM (Doc 5, Sec 13)
+   * ===================================================== */
+  --size-control-sm: 32px;
+  --size-control-md: 40px;
+  --size-control-lg: 48px;
+  --size-touch-target: 44px;
+
+  /* =====================================================
+   * RADIUS SYSTEM (Doc 5, Sec 14)
+   * ===================================================== */
+  --radius-xs: 4px;
+  --radius-s:  6px;
+  --radius-m:  8px;   /* Input, Button */
+  --radius-l:  12px;  /* Card */
+  --radius-xl: 16px;  /* Modal */
+  --radius-full: 9999px; /* Badge/Pill */
+
+  /* =====================================================
+   * BORDER SYSTEM (Doc 5, Sec 15)
+   * ===================================================== */
+  --border-default: 1px solid #D9E2EC; /* Neutral 200 */
+  --border-focus: 2px solid #4F8F6D;   /* Primary 500 */
+  --border-error: 1px solid #C62828;   /* Error 500 */
+  --border-selected: 1px solid #4F8F6D; /* Primary 500 */
+
+  /* =====================================================
+   * ELEVATION / SHADOW (Doc 5, Sec 16)
+   * ===================================================== */
+  --shadow-e0: none;
+  --shadow-e1: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+  --shadow-e2: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --shadow-e3: 0 10px 24px -4px rgb(0 0 0 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.06);
+
+  /* =====================================================
+   * LAYOUT (Doc 5, Sec 17)
+   * ===================================================== */
+  --layout-max-width: 1280px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* =====================================================
+ * GLOBAL BASE STYLES
+ * ===================================================== */
+@layer base {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    color-scheme: light;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  html {
+    font-family: var(--font-sans);
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--color-neutral-800);
+    background-color: var(--color-neutral-50);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  /* Typography scale (Doc 5, Sec 10 & 11) */
+  h1 {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    font-weight: 700;
+    color: var(--color-neutral-950);
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+  }
+
+  h4 {
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+  }
+
+  /* Reduce motion for accessibility (Doc 5, Sec 65) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+/* =====================================================
+ * UTILITIES
+ * ===================================================== */
+@layer utilities {
+  /* Focus ring — 2px Primary 500, 2px offset (Doc 5, Sec 67) */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    --tw-ring-color: var(--color-primary-500);
+  }
 
-body {
-  margin: 0;
-}
+  /* Typography utilities */
+  .text-display-xl { font-size: var(--text-display-xl); line-height: var(--text-display-xl--line-height); font-weight: 700; }
+  .text-display-l  { font-size: var(--text-display-l);  line-height: var(--text-display-l--line-height);  font-weight: 700; }
+  .text-h1         { font-size: var(--text-h1);  line-height: var(--text-h1--line-height);  font-weight: 700; }
+  .text-h2         { font-size: var(--text-h2);  line-height: var(--text-h2--line-height);  font-weight: 700; }
+  .text-h3         { font-size: var(--text-h3);  line-height: var(--text-h3--line-height);  font-weight: 600; }
+  .text-h4         { font-size: var(--text-h4);  line-height: var(--text-h4--line-height);  font-weight: 600; }
+  .text-body-l     { font-size: var(--text-body-l);  line-height: var(--text-body-l--line-height);  font-weight: 400; }
+  .text-body-m     { font-size: var(--text-body-m);  line-height: var(--text-body-m--line-height);  font-weight: 400; }
+  .text-body-s     { font-size: var(--text-body-s);  line-height: var(--text-body-s--line-height);  font-weight: 400; }
+  .text-label      { font-size: var(--text-label);   line-height: var(--text-label--line-height);   font-weight: 500; }
+  .text-caption    { font-size: var(--text-caption); line-height: var(--text-caption--line-height); font-weight: 500; }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
+  /* Container */
+  .container-app {
+    width: 100%;
+    max-width: var(--layout-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-8);
+    padding-right: var(--spacing-8);
+  }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    .container-app {
+      padding-left: var(--spacing-6);
+      padding-right: var(--spacing-6);
+    }
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  @media (max-width: 768px) {
+    .container-app {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
   }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }
