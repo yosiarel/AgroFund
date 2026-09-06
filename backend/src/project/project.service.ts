@@ -7,7 +7,7 @@ import { ProjectStatus, Role, AssessmentStatus } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private calculateFinancials(basic: number, reserve: number, natura: number) {
     const cooperativeFee = Math.round(0.025 * (basic + reserve));
@@ -96,7 +96,7 @@ export class ProjectService {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
     if (project.userId !== userId) throw new ForbiddenException('Akses ditolak');
-    
+
     if (project.status !== ProjectStatus.DRAFT && project.status !== ProjectStatus.COOPERATIVE_ASSESSMENT) {
       throw new BadRequestException('Status project tidak valid untuk request assessment');
     }
@@ -161,19 +161,16 @@ export class ProjectService {
   async publishProject(projectId: string) {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
-    
-    // Check if GUARANTEE is HELD (will be implemented in phase 3, for now just check status)
+
     if (project.status !== ProjectStatus.GUARANTEE_PLACEMENT) {
       throw new BadRequestException('Project harus berada pada status GUARANTEE_PLACEMENT');
     }
-
-    // In a real scenario, check Guarantee Ledger here. Assuming it is paid for now.
     const deadline = new Date();
     deadline.setDate(deadline.getDate() + 60);
 
     return this.prisma.project.update({
       where: { id: projectId },
-      data: { 
+      data: {
         status: ProjectStatus.FUNDRAISING,
         publishedAt: new Date(),
         fundraisingDeadline: deadline

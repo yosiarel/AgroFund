@@ -5,13 +5,13 @@ import { ProjectStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class ProcurementService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async requestProcurement(projectId: string, userId: string, dto: CreateProcurementDto) {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
     if (project.userId !== userId) throw new ForbiddenException('Akses ditolak');
-    
+
     if (project.status !== ProjectStatus.DANA_TERPENUHI && project.status !== ProjectStatus.EXECUTION) {
       throw new BadRequestException('Project belum dalam tahap pelaksanaan atau dana belum terpenuhi');
     }
@@ -49,15 +49,14 @@ export class ProcurementService {
   }
 
   async approveProcurement(requestId: string, userId: string, dto: ApproveProcurementDto) {
-    const request = await this.prisma.procurementRequest.findUnique({ 
+    const request = await this.prisma.procurementRequest.findUnique({
       where: { id: requestId },
       include: { project: true }
     });
-    
+
     if (!request) throw new NotFoundException('Procurement Request tidak ditemukan');
     if (request.status !== 'REQUESTED') throw new BadRequestException('Request ini sudah diproses');
 
-    // In MVP, Koperasi is the one who approves
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (user?.role !== Role.KOPERASI && user?.role !== Role.AGROFUND) {
       throw new ForbiddenException('Akses ditolak, hanya Koperasi atau Admin yang dapat menyetujui');
@@ -75,7 +74,6 @@ export class ProcurementService {
       }
     });
 
-    // If approved, change project status to PROCUREMENT if it's currently DANA_TERPENUHI
     if (dto.status === 'APPROVED' && request.project.status === ProjectStatus.DANA_TERPENUHI) {
       await this.prisma.project.update({
         where: { id: request.projectId },

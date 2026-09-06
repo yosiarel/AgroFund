@@ -1,24 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectService } from './project.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { BadRequestException } from '@nestjs/common';
-import { ProjectStatus } from '@prisma/client';
+import { ProjectStatus, Role, AssessmentStatus } from '@prisma/client';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+
+const mockPrismaService = {
+  project: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+    findUnique: jest.fn(),
+    update: jest.fn(),
+    findMany: jest.fn(),
+  },
+  assessment: {
+    create: jest.fn(),
+  }
+};
 
 describe('ProjectService', () => {
   let service: ProjectService;
-  let prisma: PrismaService;
-
-  const mockPrismaService = {
-    project: {
-      create: jest.fn(),
-    },
-  };
+  let prisma: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProjectService,
-        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: PrismaService, useValue: mockPrismaService }
       ],
     }).compile();
 
@@ -30,58 +37,108 @@ describe('ProjectService', () => {
     jest.clearAllMocks();
   });
 
-  describe('create()', () => {
-    const userId = 'user-1';
+  describe('createDraft', () => {
+    it('should calculate financials correctly when creating draft', async () => {
+      const userId = 'user-1';
+      const dto = {
+        title: 'Kebun',
+        description: 'Test',
+        koperasiId: 'kop-1',
+        basicProcurementCapital: 10000000,
+        priceReserve: 1000000,
+        naturaCost: 500000,
+      };
 
-    it('harus menolak pembuatan proyek dengan kata terlarang (Banned Words)', async () => {
-      await expect(service.create(userId, {
-        title: 'Proyek Judi Online',
-        description: 'Ini adalah proyek yang sangat bagus sekali.',
-        targetAmount: 1000000,
-        imageUrl: '',
-      })).rejects.toThrow(BadRequestException);
+      prisma.project.findFirst.mockResolvedValue(null);
+      prisma.project.create.mockImplementation(({ data }: any) => Promise.resolve({ id: 'proj-1', ...data }));
+
+      const result = await service.createDraft(userId, dto);
+
+      const expectedCooperativeFee = Math.round(0.025 * (10000000 + 1000000)); // 275,000
+      const expectedAgrofundFee = Math.round(0.025 * 10000000); // 250,000
+      const expectedTargetAmount = 10000000 + 1000000 + expectedCooperativeFee + expectedAgrofundFee + 500000;
+      const expectedGuaranteeAmount = Math.round(0.05 * 10000000); // 500,000
+
+      expect(result.cooperativeFeeProvision).toBe(expectedCooperativeFee);
+      expect(result.agrofundServiceFee).toBe(expectedAgrofundFee);
+      expect(result.targetAmount).toBe(expectedTargetAmount);
+      expect(result.guaranteeAmount).toBe(expectedGuaranteeAmount);
+      expect(result.status).toBe(ProjectStatus.DRAFT);
     });
 
-    it('harus menolak pembuatan proyek jika judul terlalu pendek', async () => {
-      await expect(service.create(userId, {
-        title: 'Pendek',
-        description: 'Ini adalah proyek yang sangat bagus sekali.',
-        targetAmount: 1000000,
-        imageUrl: '',
+    it('should throw error if UMKM already has an active project', async () => {
+      prisma.project.findFirst.mockResolvedValue({ id: 'proj-1', status: ProjectStatus.FUNDRAISING });
+
+      await expect(service.createDraft('user-1', {
+        title: 'Kebun',
+        description: 'Test',
+        koperasiId: 'kop-1',
+        basicProcurementCapital: 10000,
       })).rejects.toThrow(BadRequestException);
     });
+  });
 
-    it('harus menolak pembuatan proyek jika deskripsi terlalu pendek', async () => {
-      await expect(service.create(userId, {
-        title: 'Proyek Pertanian Kopi',
-        description: 'Pendek',
-        targetAmount: 1000000,
-        imageUrl: '',
-      })).rejects.toThrow(BadRequestException);
+  describe('requestAssessment', () => {
+    it('should transition to COOPERATIVE_ASSESSMENT', async () => {
+      const project = { id: 'proj-1', userId: 'user-1', status: ProjectStatus.DRAFT };
+      prisma.project.findUnique.mockResolvedValue(project);
+      prisma.project.update.mockResolvedValue({ ...project, status: ProjectStatus.COOPERATIVE_ASSESSMENT });
+
+      const result = await service.requestAssessment('proj-1', 'user-1');
+      expect(result.status).toBe(ProjectStatus.COOPERATIVE_ASSESSMENT);
     });
 
-    it('harus membuat proyek dan menghitung 15% mark-up dengan benar', async () => {
-      mockPrismaService.project.create.mockResolvedValueOnce({ id: 'proj-1' });
+    it('should throw ForbiddenException if user is not the owner', async () => {
+      const project = { id: 'proj-1', userId: 'user-1', status: ProjectStatus.DRAFT };
+      prisma.project.findUnique.mockResolvedValue(project);
 
-      // Target Rp 1.000.000 -> Mark-up Rp 150.000
-      await service.create(userId, {
-        title: 'Proyek Pertanian Kopi Arabika',
-        description: 'Ini adalah deskripsi yang cukup panjang lebih dari 30 karakter.',
-        targetAmount: 1000000,
-        imageUrl: 'http://image.jpg',
+      await expect(service.requestAssessment('proj-1', 'intruder')).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw BadRequestException if project is not in DRAFT or COOPERATIVE_ASSESSMENT status', async () => {
+      const project = { id: 'proj-1', userId: 'user-1', status: ProjectStatus.FUNDRAISING };
+      prisma.project.findUnique.mockResolvedValue(project);
+
+      await expect(service.requestAssessment('proj-1', 'user-1')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('assessProject (Koperasi)', () => {
+    it('should advance status to PUBLICATION_REVIEW if APPROVED', async () => {
+      const project = { id: 'proj-1', koperasiId: 'kop-1', status: ProjectStatus.COOPERATIVE_ASSESSMENT };
+      prisma.project.findUnique.mockResolvedValue(project);
+      prisma.assessment.create.mockResolvedValue({});
+      
+      await service.assessProject('proj-1', 'kop-1', { status: AssessmentStatus.APPROVED, notes: 'OK' });
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: 'proj-1' },
+        data: { status: ProjectStatus.PUBLICATION_REVIEW }
       });
+    });
 
-      expect(mockPrismaService.project.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            title: 'Proyek Pertanian Kopi Arabika',
-            targetAmount: 1000000n,
-            markupAmount: 150000n,
-            status: ProjectStatus.FUNDING,
-            userId,
-          }),
-        }),
-      );
+    it('should NOT advance status if NEEDS_CORRECTION', async () => {
+      const project = { id: 'proj-1', koperasiId: 'kop-1', status: ProjectStatus.COOPERATIVE_ASSESSMENT };
+      prisma.project.findUnique.mockResolvedValue(project);
+      prisma.assessment.create.mockResolvedValue({});
+      
+      await service.assessProject('proj-1', 'kop-1', { status: AssessmentStatus.NEEDS_CORRECTION, notes: 'Fix' });
+      expect(prisma.project.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException if wrong koperasi attempts to assess', async () => {
+      const project = { id: 'proj-1', koperasiId: 'kop-1', status: ProjectStatus.COOPERATIVE_ASSESSMENT };
+      prisma.project.findUnique.mockResolvedValue(project);
+      
+      await expect(service.assessProject('proj-1', 'kop-intruder', { status: AssessmentStatus.APPROVED })).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('reviewProject (AgroFund)', () => {
+    it('should throw BadRequestException if project is not in PUBLICATION_REVIEW', async () => {
+      const project = { id: 'proj-1', status: ProjectStatus.DRAFT };
+      prisma.project.findUnique.mockResolvedValue(project);
+      
+      await expect(service.reviewProject('proj-1', 'admin-1', { status: AssessmentStatus.APPROVED })).rejects.toThrow(BadRequestException);
     });
   });
 });

@@ -5,7 +5,7 @@ import { ProjectStatus, GuaranteeStatus } from '@prisma/client';
 
 @Injectable()
 export class FinanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async generateGuaranteePayment(projectId: string, userId: string) {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
@@ -18,8 +18,6 @@ export class FinanceService {
       throw new BadRequestException('Uang jaminan sudah disetorkan');
     }
 
-    // In a real application, we would call Xendit API to generate VA here.
-    // We will simulate it by returning a mock URL and reference ID.
     const mockReferenceId = `GUARANTEE_${projectId}_${Date.now()}`;
     const mockPaymentUrl = `https://mock-payment-gateway.com/pay/${mockReferenceId}`;
 
@@ -69,13 +67,10 @@ export class FinanceService {
     }
 
     if (dto.type === 'GUARANTEE') {
-      // dto.referenceId is like GUARANTEE_<projectId>_<timestamp> (or old dashed format)
-      // To support both (just in case), we can extract using Regex or split by '_' if it contains '_'
       let projectId = '';
       if (dto.referenceId.includes('_')) {
         projectId = dto.referenceId.split('_')[1];
       } else {
-        // Fallback for old format GUARANTEE-049ab16f-ac33-40e7-9624-0fdde01e5499-timestamp
         const parts = dto.referenceId.split('-');
         projectId = parts.slice(1, parts.length - 1).join('-');
       }
@@ -85,15 +80,14 @@ export class FinanceService {
       const project = await this.prisma.project.findUnique({ where: { id: projectId } });
       if (!project) throw new NotFoundException('Project tidak ditemukan');
 
-      // Update project guarantee status and create transaction
       await this.prisma.$transaction(async (tx) => {
         await tx.project.update({
           where: { id: projectId },
           data: {
             guaranteeStatus: GuaranteeStatus.HELD,
-            status: ProjectStatus.FUNDRAISING, // Auto-publish
+            status: ProjectStatus.FUNDRAISING,
             publishedAt: new Date(),
-            fundraisingDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // +60 days
+            fundraisingDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
           }
         });
 
@@ -109,10 +103,10 @@ export class FinanceService {
       });
 
       return { message: 'Guarantee Payment Processed' };
-    } 
+    }
     else if (dto.type === 'CONTRIBUTION') {
       const contributionId = dto.referenceId;
-      const contribution = await this.prisma.contribution.findUnique({ 
+      const contribution = await this.prisma.contribution.findUnique({
         where: { id: contributionId },
         include: { project: true }
       });
@@ -121,13 +115,11 @@ export class FinanceService {
       if (contribution.status === 'PAID') return { message: 'Already paid' };
 
       await this.prisma.$transaction(async (tx) => {
-        // Mark contribution as PAID
         await tx.contribution.update({
           where: { id: contributionId },
           data: { status: 'PAID' }
         });
 
-        // Record to FinancialTransaction (Ledger Entry)
         await tx.financialTransaction.create({
           data: {
             projectId: contribution.projectId,
@@ -142,7 +134,6 @@ export class FinanceService {
           }
         });
 
-        // Update Project Financial Ledger
         const ledger = await tx.projectFinancialLedger.findFirst({
           where: { projectId: contribution.projectId }
         });
@@ -161,7 +152,6 @@ export class FinanceService {
           });
         }
 
-        // Check if target is met
         const newLedger = await tx.projectFinancialLedger.findFirst({
           where: { projectId: contribution.projectId }
         });

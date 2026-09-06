@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CronController } from './cron.controller';
+import { CronService } from './cron.service';
 
 describe('CronController', () => {
   let controller: CronController;
@@ -7,6 +8,7 @@ describe('CronController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CronController],
+      providers: [{ provide: CronService, useValue: {} }],
     }).compile();
 
     controller = module.get<CronController>(CronController);
