@@ -5,14 +5,13 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required to send and receive cookies (JWT)
 });
 
+// Since backend uses HTTP-only cookies, we don't need to manually attach the Bearer token.
+// The browser will automatically include the 'Authentication' cookie in every request.
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('agrofund_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => Promise.reject(error)
