@@ -6,8 +6,9 @@ import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Textarea } from "../../components/ui/Textarea"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../components/ui/Card"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
+import { Modal } from "../../components/ui/Modal"
 import { Leaf, Truck, MapPin, ShieldCheck } from "lucide-react"
 
 export function NaturaTrackingPage() {
@@ -24,13 +25,18 @@ export function NaturaTrackingPage() {
   const [selectedContributionId, setSelectedContributionId] = useState<string | null>(null)
   const [claimNotes, setClaimNotes] = useState("")
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
+  const [addressText, setAddressText] = useState("")
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const updateAddressMutation = useMutation({
     mutationFn: ({ id, address }: { id: string; address: string }) =>
       api.post(`/contributions/${id}/natura-address`, { address }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pendana-contributions"] })
-      alert("Alamat pengiriman berhasil diperbarui.")
+      setIsAddressModalOpen(false)
+      setAddressText("")
+      setFeedback("Alamat pengiriman natura berhasil diperbarui.")
     },
   })
 
@@ -41,7 +47,7 @@ export function NaturaTrackingPage() {
       queryClient.invalidateQueries({ queryKey: ["pendana-contributions"] })
       setIsClaimModalOpen(false)
       setClaimNotes("")
-      alert("Laporan klaim natura Anda telah dikirim.")
+      setFeedback("Laporan klaim natura Anda telah dikirim dan sedang diverifikasi Koperasi.")
     },
   })
 
@@ -63,6 +69,12 @@ export function NaturaTrackingPage() {
           Lacak status pemenuhan kompensasi non-finansial berupa produk hasil pertanian dari proyek yang Anda danai.
         </p>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">
@@ -128,8 +140,8 @@ export function NaturaTrackingPage() {
                         size="sm"
                         className="w-fit"
                         onClick={() => {
-                          const newAddr = prompt("Masukkan alamat lengkap pengiriman natura:")
-                          if (newAddr) updateAddressMutation.mutate({ id: c.id, address: newAddr })
+                          setSelectedContributionId(c.id)
+                          setIsAddressModalOpen(true)
                         }}
                       >
                         Ubah Alamat Pengiriman
@@ -166,27 +178,65 @@ export function NaturaTrackingPage() {
         )}
       </div>
 
+      {/* Address Modal */}
+      {isAddressModalOpen && (
+        <Modal
+          isOpen={isAddressModalOpen}
+          onClose={() => {
+            setIsAddressModalOpen(false)
+            setAddressText("")
+          }}
+          title="Ubah Alamat Pengiriman Natura"
+          footer={
+            <div className="flex justify-end gap-3 w-full">
+              <Button
+                variant="tertiary"
+                onClick={() => {
+                  setIsAddressModalOpen(false)
+                  setAddressText("")
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!addressText.trim()}
+                onClick={() => {
+                  if (selectedContributionId && addressText.trim()) {
+                    updateAddressMutation.mutate({
+                      id: selectedContributionId,
+                      address: addressText.trim(),
+                    })
+                  }
+                }}
+                isLoading={updateAddressMutation.isPending}
+              >
+                Simpan Alamat
+              </Button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-3">
+            <Textarea
+              label="Alamat Lengkap Penerima"
+              placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan, Kota, Kode Pos..."
+              value={addressText}
+              onChange={(e) => setAddressText(e.target.value)}
+              rows={3}
+              required
+            />
+          </div>
+        </Modal>
+      )}
+
       {/* Claim Modal */}
       {isClaimModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <Card className="max-w-lg w-full">
-            <CardHeader>
-              <CardTitle>Ajukan Klaim Natura</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <Alert variant="warning">
-                Klaim natura diajukan jika paket belum tiba, kemasan rusak, atau produk tidak sesuai standar.
-              </Alert>
-              <Textarea
-                label="Jelaskan Kendala Pengiriman / Produk"
-                placeholder="Rincikan masalah yang dialami..."
-                value={claimNotes}
-                onChange={(e) => setClaimNotes(e.target.value)}
-                rows={4}
-                required
-              />
-            </CardContent>
-            <CardFooter className="flex justify-end gap-3">
+        <Modal
+          isOpen={isClaimModalOpen}
+          onClose={() => setIsClaimModalOpen(false)}
+          title="Ajukan Klaim Natura"
+          footer={
+            <div className="flex justify-end gap-3 w-full">
               <Button variant="tertiary" onClick={() => setIsClaimModalOpen(false)}>
                 Batal
               </Button>
@@ -202,9 +252,23 @@ export function NaturaTrackingPage() {
               >
                 Kirim Laporan Klaim
               </Button>
-            </CardFooter>
-          </Card>
-        </div>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <Alert variant="warning">
+              Klaim natura diajukan jika paket belum tiba, kemasan rusak, atau produk tidak sesuai standar mutu.
+            </Alert>
+            <Textarea
+              label="Jelaskan Kendala Pengiriman / Produk"
+              placeholder="Rincikan masalah yang dialami..."
+              value={claimNotes}
+              onChange={(e) => setClaimNotes(e.target.value)}
+              rows={4}
+              required
+            />
+          </div>
+        </Modal>
       )}
     </div>
   )

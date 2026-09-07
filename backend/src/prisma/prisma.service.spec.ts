@@ -17,7 +17,9 @@ describe('PrismaService', () => {
   });
 
   it('should call $connect on onModuleInit', async () => {
-    const connectSpy = jest.spyOn(service, '$connect').mockImplementation(async () => {});
+    const connectSpy = jest
+      .spyOn(service, '$connect')
+      .mockImplementation(async () => {});
     await service.onModuleInit();
     expect(connectSpy).toHaveBeenCalled();
   });

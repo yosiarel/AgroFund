@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { Project } from "../../types"
@@ -17,6 +18,8 @@ export function RecoveryRefundsPage() {
     queryFn: () => api.get("/admin/projects"),
   })
 
+  const [feedback, setFeedback] = useState<string | null>(null)
+
   const failedOrClosingProjects = projects?.filter(
     (p) => p.status === "GAGAL_DITUTUP" || p.status === "SUKSES_DITUTUP" || p.status === "NATURA_FULFILLMENT"
   )
@@ -26,7 +29,7 @@ export function RecoveryRefundsPage() {
       api.post(`/admin/projects/${projectId}/process-refund`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-recovery-projects"] })
-      alert("Proses kalkulasi dan pencairan pro-rata refund pendana berhasil dieksekusi.")
+      setFeedback("Proses kalkulasi dan pencairan pro-rata refund pendana berhasil dieksekusi.")
     },
   })
 
@@ -35,7 +38,7 @@ export function RecoveryRefundsPage() {
       api.post(`/admin/projects/${projectId}/release-guarantee`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-recovery-projects"] })
-      alert("Pengembalian Guarantee 100% ke rekening UMKM berhasil diproses.")
+      setFeedback("Pengembalian Guarantee 100% ke rekening UMKM berhasil diproses.")
     },
   })
 
@@ -57,6 +60,12 @@ export function RecoveryRefundsPage() {
           Kelola pencairan pengembalian Guarantee untuk proyek sukses, atau eksekusi Pro-rata Refund dari Recovery Pool untuk proyek yang dibatalkan/gagal.
         </p>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">

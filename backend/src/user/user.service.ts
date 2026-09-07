@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -36,7 +40,7 @@ export class UserService {
         phone: true,
         address: true,
         role: true,
-      }
+      },
     });
 
     return { message: 'Profil berhasil diperbarui', user };
@@ -46,7 +50,10 @@ export class UserService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Pengguna tidak ditemukan');
 
-    const isPasswordValid = await bcrypt.compare(dto.oldPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      dto.oldPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new BadRequestException('Password lama tidak sesuai');
     }
@@ -54,7 +61,7 @@ export class UserService {
     const hashedNewPassword = await bcrypt.hash(dto.newPassword, 10);
     await this.prisma.user.update({
       where: { id: userId },
-      data: { password: hashedNewPassword }
+      data: { password: hashedNewPassword },
     });
 
     return { message: 'Password berhasil diubah' };

@@ -22,7 +22,7 @@ export function ProcurementPage() {
 
   const { data: requests, isLoading: isRequestsLoading } = useQuery<ProcurementRequest[]>({
     queryKey: ["procurement-requests", projectId],
-    queryFn: () => api.get(`/projects/${projectId}/procurement-requests`),
+    queryFn: () => api.get(`/procurement/projects/${projectId}/requests`),
     enabled: !!projectId,
   })
 

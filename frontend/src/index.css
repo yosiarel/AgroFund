@@ -1,14 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import "tailwindcss";
 
 @theme {
   /* =====================================================
-   * FONT
+   * FONT — PLUS JAKARTA SANS (PROMPT 07)
    * ===================================================== */
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* =====================================================
    * BRAND COLORS — Primary (Doc 5, Sec 5.1)
+   * Forest Green: Trust, Growth, Agriculture
    * ===================================================== */
   --color-primary-700: #2F6B4F;
   --color-primary-600: #3F7D5F;
@@ -19,6 +20,7 @@
 
   /* =====================================================
    * BRAND COLORS — Accent (Doc 5, Sec 5.1)
+   * Golden Amber: Harvest, Sharia Value
    * ===================================================== */
   --color-accent-600: #C98A2E;
   --color-accent-500: #D9A441;
@@ -26,6 +28,7 @@
 
   /* =====================================================
    * NEUTRAL COLORS (Doc 5, Sec 6)
+   * High-contrast slate neutrals for financial clarity
    * ===================================================== */
   --color-neutral-950: #172026;
   --color-neutral-900: #1F2933;
@@ -37,7 +40,7 @@
   --color-neutral-300: #CBD2D9;
   --color-neutral-200: #D9E2EC;
   --color-neutral-100: #E4E7EB;
-  --color-neutral-50:  #F5F7FA;
+  --color-neutral-50:  #F8FAFC;
   --color-neutral-white: #FFFFFF;
 
   /* =====================================================
@@ -78,24 +81,27 @@
 
   /* =====================================================
    * TYPOGRAPHY SCALE (Doc 5, Sec 10)
+   * Plus Jakarta Sans Metrics
    * ===================================================== */
   --text-display-xl: 48px;
   --text-display-xl--line-height: 56px;
   --text-display-l: 40px;
   --text-display-l--line-height: 48px;
-  --text-h1: 32px;
-  --text-h1--line-height: 40px;
-  --text-h2: 28px;
-  --text-h2--line-height: 36px;
-  --text-h3: 24px;
-  --text-h3--line-height: 32px;
-  --text-h4: 20px;
-  --text-h4--line-height: 28px;
+  --text-h1: 30px;
+  --text-h1--line-height: 38px;
+  --text-h2: 24px;
+  --text-h2--line-height: 32px;
+  --text-h3: 20px;
+  --text-h3--line-height: 28px;
+  --text-h4: 18px;
+  --text-h4--line-height: 26px;
+  --text-h5: 16px;
+  --text-h5--line-height: 24px;
   --text-body-l: 18px;
   --text-body-l--line-height: 28px;
-  --text-body-m: 16px;
-  --text-body-m--line-height: 24px;
-  --text-body-s: 14px;
+  --text-body-m: 15px;
+  --text-body-m--line-height: 22px;
+  --text-body-s: 13.5px;
   --text-body-s--line-height: 20px;
   --text-label: 14px;
   --text-label--line-height: 20px;
@@ -146,11 +152,12 @@
 
   /* =====================================================
    * ELEVATION / SHADOW (Doc 5, Sec 16)
+   * Subtle, clean financial elevation
    * ===================================================== */
   --shadow-e0: none;
-  --shadow-e1: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
-  --shadow-e2: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
-  --shadow-e3: 0 10px 24px -4px rgb(0 0 0 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.06);
+  --shadow-e1: 0 1px 3px 0 rgb(15 23 42 / 0.05), 0 1px 2px -1px rgb(15 23 42 / 0.05);
+  --shadow-e2: 0 4px 6px -1px rgb(15 23 42 / 0.07), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+  --shadow-e3: 0 12px 28px -4px rgb(15 23 42 / 0.12), 0 4px 8px -2px rgb(15 23 42 / 0.06);
 
   /* =====================================================
    * LAYOUT (Doc 5, Sec 17)
@@ -174,10 +181,12 @@
     background-color: var(--color-neutral-50);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
   }
 
   body {
     margin: 0;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   /* Typography scale (Doc 5, Sec 10 & 11) */
@@ -185,6 +194,7 @@
     font-size: var(--text-h1);
     line-height: var(--text-h1--line-height);
     font-weight: 700;
+    letter-spacing: -0.025em;
     color: var(--color-neutral-950);
   }
 
@@ -192,6 +202,7 @@
     font-size: var(--text-h2);
     line-height: var(--text-h2--line-height);
     font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--color-neutral-900);
   }
 
@@ -199,12 +210,21 @@
     font-size: var(--text-h3);
     line-height: var(--text-h3--line-height);
     font-weight: 600;
+    letter-spacing: -0.015em;
     color: var(--color-neutral-900);
   }
 
   h4 {
     font-size: var(--text-h4);
     line-height: var(--text-h4--line-height);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-neutral-900);
+  }
+
+  h5 {
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
     font-weight: 600;
     color: var(--color-neutral-900);
   }
@@ -229,17 +249,24 @@
   }
 
   /* Typography utilities */
-  .text-display-xl { font-size: var(--text-display-xl); line-height: var(--text-display-xl--line-height); font-weight: 700; }
-  .text-display-l  { font-size: var(--text-display-l);  line-height: var(--text-display-l--line-height);  font-weight: 700; }
-  .text-h1         { font-size: var(--text-h1);  line-height: var(--text-h1--line-height);  font-weight: 700; }
-  .text-h2         { font-size: var(--text-h2);  line-height: var(--text-h2--line-height);  font-weight: 700; }
-  .text-h3         { font-size: var(--text-h3);  line-height: var(--text-h3--line-height);  font-weight: 600; }
-  .text-h4         { font-size: var(--text-h4);  line-height: var(--text-h4--line-height);  font-weight: 600; }
+  .text-display-xl { font-size: var(--text-display-xl); line-height: var(--text-display-xl--line-height); font-weight: 800; letter-spacing: -0.03em; }
+  .text-display-l  { font-size: var(--text-display-l);  line-height: var(--text-display-l--line-height);  font-weight: 700; letter-spacing: -0.025em; }
+  .text-h1         { font-size: var(--text-h1);  line-height: var(--text-h1--line-height);  font-weight: 700; letter-spacing: -0.025em; }
+  .text-h2         { font-size: var(--text-h2);  line-height: var(--text-h2--line-height);  font-weight: 700; letter-spacing: -0.02em; }
+  .text-h3         { font-size: var(--text-h3);  line-height: var(--text-h3--line-height);  font-weight: 600; letter-spacing: -0.015em; }
+  .text-h4         { font-size: var(--text-h4);  line-height: var(--text-h4--line-height);  font-weight: 600; letter-spacing: -0.01em; }
+  .text-h5         { font-size: var(--text-h5);  line-height: var(--text-h5--line-height);  font-weight: 600; }
   .text-body-l     { font-size: var(--text-body-l);  line-height: var(--text-body-l--line-height);  font-weight: 400; }
   .text-body-m     { font-size: var(--text-body-m);  line-height: var(--text-body-m--line-height);  font-weight: 400; }
   .text-body-s     { font-size: var(--text-body-s);  line-height: var(--text-body-s--line-height);  font-weight: 400; }
-  .text-label      { font-size: var(--text-label);   line-height: var(--text-label--line-height);   font-weight: 500; }
+  .text-label      { font-size: var(--text-label);   line-height: var(--text-label--line-height);   font-weight: 600; }
   .text-caption    { font-size: var(--text-caption); line-height: var(--text-caption--line-height); font-weight: 500; }
+
+  /* Financial numbers emphasis */
+  .text-financial {
+    font-feature-settings: "tnum" on, "lnum" on;
+    font-weight: 700;
+  }
 
   /* Container */
   .container-app {

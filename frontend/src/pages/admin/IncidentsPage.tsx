@@ -1,15 +1,20 @@
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { Incident } from "../../types"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
+import { Textarea } from "../../components/ui/Textarea"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
-import { CheckCircle, Snowflake, CheckCircle2 } from "lucide-react"
+import { CheckCircle, Snowflake, CheckCircle2, AlertTriangle, ShieldCheck, XCircle } from "lucide-react"
 
 export function IncidentsPage() {
   const queryClient = useQueryClient()
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null)
+  const [actionType, setActionType] = useState<"APPROVE_EXTENSION" | "REJECT_EXTENSION" | "FREEZE" | null>(null)
+  const [decisionNotes, setDecisionNotes] = useState("")
 
   const { data: incidents, isLoading } = useQuery<Incident[]>({
     queryKey: ["admin-incidents"],
@@ -21,6 +26,7 @@ export function IncidentsPage() {
       api.post(`/admin/incidents/${incidentId}/resolve`, { decision, approveExtension }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-incidents"] })
+      closeModal()
     },
   })
 
@@ -28,9 +34,35 @@ export function IncidentsPage() {
     mutationFn: (projectId: string) =>
       api.post(`/admin/projects/${projectId}/freeze-funds`),
     onSuccess: () => {
-      alert("Dana proyek berhasil dibekukan untuk investigasi.")
+      queryClient.invalidateQueries({ queryKey: ["admin-incidents"] })
+      closeModal()
     },
   })
+
+  const closeModal = () => {
+    setSelectedIncident(null)
+    setActionType(null)
+    setDecisionNotes("")
+  }
+
+  const handleConfirmAction = () => {
+    if (!selectedIncident || !actionType) return
+    if (actionType === "FREEZE") {
+      freezeMutation.mutate(selectedIncident.projectId)
+    } else if (actionType === "APPROVE_EXTENSION") {
+      resolveMutation.mutate({
+        incidentId: selectedIncident.id,
+        decision: decisionNotes.trim() || "Permohonan perpanjangan jadwal disetujui sesuai regulasi PB-115.",
+        approveExtension: true,
+      })
+    } else if (actionType === "REJECT_EXTENSION") {
+      resolveMutation.mutate({
+        incidentId: selectedIncident.id,
+        decision: decisionNotes.trim() || "Permohonan perpanjangan jadwal ditolak.",
+        approveExtension: false,
+      })
+    }
+  }
 
   if (isLoading) {
     return (
@@ -51,6 +83,15 @@ export function IncidentsPage() {
         </p>
       </div>
 
+      <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
+        <div className="flex gap-3">
+          <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
+          <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
+            <span className="font-[600]">Tata Kelola Risiko (PB-094 & PB-115):</span> Permohonan perpanjangan waktu proyek maksimal 1x 90 hari. Pembekuan dana proyek hanya dilakukan jika terdapat indikasi fraud atau keadaan kahar berat.
+          </div>
+        </div>
+      </Alert>
+
       <div className="flex flex-col gap-4">
         {(!incidents || incidents.length === 0) ? (
           <Card>
@@ -64,23 +105,24 @@ export function IncidentsPage() {
           </Card>
         ) : (
           incidents.map((inc) => (
-            <Card key={inc.id}>
-              <CardHeader className="pb-3">
+            <Card key={inc.id} className="border border-[var(--color-neutral-200)]">
+              <CardHeader className="pb-3 border-b border-[var(--color-neutral-100)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-[var(--text-h5)]">
+                    <CardTitle className="text-[var(--text-h5)] flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-[var(--color-warning-600)]" />
                       {inc.project?.title || `Proyek #${inc.projectId.slice(0, 8)}`}
                     </CardTitle>
                     <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
-                      Insiden #{inc.id.slice(0, 8)} • Dilaporkan: {new Date(inc.createdAt).toLocaleDateString("id-ID")}
+                      ID Insiden: {inc.id} • Dilaporkan: {new Date(inc.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
                   <Badge variant={inc.status === "RESOLVED" ? "success" : "error"}>
-                    {inc.status === "RESOLVED" ? "Selesai Ditangani" : "Memerlukan Penanganan"}
+                    {inc.status === "RESOLVED" ? "Selesai Ditangani" : "Memerlukan Penanganan Admin"}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4">
+              <CardContent className="flex flex-col gap-4 pt-4">
                 <div className="flex gap-2">
                   <Badge variant="default" className="text-[10px]">Kategori: {inc.category}</Badge>
                   <Badge variant={inc.severity === "HIGH" ? "error" : "warning"} className="text-[10px]">
@@ -88,7 +130,7 @@ export function IncidentsPage() {
                   </Badge>
                 </div>
 
-                <p className="text-[var(--text-body-m)] text-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] p-3 rounded-[var(--radius-s)]">
+                <p className="text-[var(--text-body-m)] text-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] p-3 rounded-[var(--radius-s)] border border-[var(--color-neutral-100)]">
                   {inc.description}
                 </p>
 
@@ -98,15 +140,20 @@ export function IncidentsPage() {
                   </Alert>
                 )}
 
+                {inc.decision && (
+                  <div className="p-3 bg-[var(--color-success-50)] rounded-[var(--radius-s)] border border-[var(--color-success-200)] text-[var(--text-body-s)] text-[var(--color-success-900)]">
+                    <span className="font-[600]">Keputusan Penanganan:</span> {inc.decision}
+                  </div>
+                )}
+
                 {inc.status !== "RESOLVED" && (
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[var(--color-neutral-200)]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[var(--color-neutral-100)]">
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => {
-                        if (confirm("Bekukan sisa dana proyek ini untuk investigasi mendalam?")) {
-                          freezeMutation.mutate(inc.projectId)
-                        }
+                        setSelectedIncident(inc)
+                        setActionType("FREEZE")
                       }}
                     >
                       <Snowflake className="w-4 h-4 mr-1.5" /> Bekukan Sisa Dana (Freeze)
@@ -117,18 +164,18 @@ export function IncidentsPage() {
                         variant="secondary"
                         size="sm"
                         onClick={() => {
-                          const dec = prompt("Catatan keputusan penolakan perpanjangan / rekomendasi:")
-                          if (dec) resolveMutation.mutate({ incidentId: inc.id, decision: dec, approveExtension: false })
+                          setSelectedIncident(inc)
+                          setActionType("REJECT_EXTENSION")
                         }}
                       >
-                        Tolak Perpanjangan
+                        <XCircle className="w-4 h-4 mr-1.5" /> Tolak Perpanjangan
                       </Button>
                       <Button
                         variant="primary"
                         size="sm"
                         onClick={() => {
-                          const dec = prompt("Catatan persetujuan perpanjangan jadwal:")
-                          if (dec) resolveMutation.mutate({ incidentId: inc.id, decision: dec, approveExtension: true })
+                          setSelectedIncident(inc)
+                          setActionType("APPROVE_EXTENSION")
                         }}
                       >
                         <CheckCircle2 className="w-4 h-4 mr-1.5" /> Setujui Perpanjangan Waktu
@@ -141,6 +188,62 @@ export function IncidentsPage() {
           ))
         )}
       </div>
+
+      {/* Structured Resolution Modal */}
+      {selectedIncident && actionType && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <Card className="max-w-lg w-full">
+            <CardHeader>
+              <CardTitle>
+                {actionType === "FREEZE" && "Konfirmasi Pembekuan Dana Proyek"}
+                {actionType === "APPROVE_EXTENSION" && "Persetujuan Perpanjangan Jadwal"}
+                {actionType === "REJECT_EXTENSION" && "Penolakan Perpanjangan Jadwal"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <p className="text-[var(--text-body-s)] text-[var(--color-neutral-700)]">
+                Proyek: <strong>{selectedIncident.project?.title || selectedIncident.projectId}</strong>
+              </p>
+
+              {actionType === "FREEZE" && (
+                <Alert variant="error">
+                  Tindakan ini akan mengunci sisa dana pada Escrow proyek agar tidak dapat ditarik untuk pengadaan selama investigasi insiden berlangsung.
+                </Alert>
+              )}
+
+              {actionType === "APPROVE_EXTENSION" && (
+                <Alert variant="info">
+                  Perpanjangan waktu sebesar <strong>{selectedIncident.requestedExtensionDays || 0} hari</strong> akan disetujui pada jadwal proyek.
+                </Alert>
+              )}
+
+              {actionType !== "FREEZE" && (
+                <Textarea
+                  label="Catatan Keputusan Admin"
+                  placeholder="Rincikan pertimbangan dan arahan tindak lanjut..."
+                  value={decisionNotes}
+                  onChange={(e) => setDecisionNotes(e.target.value)}
+                  rows={3}
+                  required
+                />
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-end gap-3">
+              <Button variant="tertiary" onClick={closeModal}>
+                Batal
+              </Button>
+              <Button
+                variant={actionType === "FREEZE" || actionType === "REJECT_EXTENSION" ? "destructive" : "primary"}
+                onClick={handleConfirmAction}
+                isLoading={resolveMutation.isPending || freezeMutation.isPending}
+              >
+                Konfirmasi Eksekusi
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
+

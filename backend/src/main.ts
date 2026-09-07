@@ -7,11 +7,12 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import cookieParser = require('cookie-parser');
 
+import { BigIntInterceptor } from './common/interceptors/bigint.interceptor';
+
 async function bootstrap() {
-  (BigInt.prototype as any).toJSON = function () {
-    return this.toString();
-  };
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.setGlobalPrefix('api/v1');
+  app.useGlobalInterceptors(new BigIntInterceptor());
   app.set('trust proxy', 1);
 
   const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')

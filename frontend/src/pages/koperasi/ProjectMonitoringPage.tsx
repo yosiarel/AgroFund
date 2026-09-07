@@ -91,11 +91,36 @@ export function ProjectMonitoringPage() {
                       {formatRupiah(proj.totalTarget)}
                     </p>
                   </div>
-                  <Link to={`/koperasi/assessment/${proj.id}`}>
-                    <Button variant="secondary" size="sm">
-                      Kelola Penilaian / Monitoring <ArrowRight className="w-4 h-4 ml-1.5" />
-                    </Button>
-                  </Link>
+                  <div className="flex gap-2">
+                    {proj.status === "COOPERATIVE_ASSESSMENT" && (
+                      <Link to={`/koperasi/assessment/${proj.id}`}>
+                        <Button variant="primary" size="sm">
+                          Penilaian Lapangan <ArrowRight className="w-4 h-4 ml-1.5" />
+                        </Button>
+                      </Link>
+                    )}
+                    {proj.status === "PROCUREMENT" && (
+                      <Link to="/koperasi/procurement">
+                        <Button variant="primary" size="sm">
+                          Validasi Pengadaan <ArrowRight className="w-4 h-4 ml-1.5" />
+                        </Button>
+                      </Link>
+                    )}
+                    {proj.status === "EXECUTION" && (
+                      <Link to="/koperasi/evidence">
+                        <Button variant="primary" size="sm">
+                          Tinjau Evidence <ArrowRight className="w-4 h-4 ml-1.5" />
+                        </Button>
+                      </Link>
+                    )}
+                    {proj.status !== "COOPERATIVE_ASSESSMENT" && proj.status !== "PROCUREMENT" && proj.status !== "EXECUTION" && (
+                      <Link to="/koperasi/projects">
+                        <Button variant="secondary" size="sm">
+                          Lihat Ringkasan <ArrowRight className="w-4 h-4 ml-1.5" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>

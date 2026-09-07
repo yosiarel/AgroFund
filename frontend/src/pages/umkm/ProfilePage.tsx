@@ -13,6 +13,7 @@ export function ProfilePage() {
   const [bankName, setBankName] = useState("Bank Rakyat Indonesia (BRI)")
   const [bankAccountNumber, setBankAccountNumber] = useState("1234-01-000123-53-1")
   const [accountHolderName, setAccountHolderName] = useState(user?.name || "")
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const updateBankMutation = useMutation({
     mutationFn: () =>
@@ -22,7 +23,7 @@ export function ProfilePage() {
         accountHolderName,
       }),
     onSuccess: () => {
-      alert("Rekening pengembalian jaminan berhasil diperbarui dan diverifikasi.")
+      setFeedback("Rekening pengembalian jaminan berhasil diperbarui dan diverifikasi.")
     },
   })
 
@@ -36,6 +37,12 @@ export function ProfilePage() {
           Kelola data profil UMKM dan rekening bank resmi untuk pengembalian Guarantee saat proyek sukses ditutup (PB-045).
         </p>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">

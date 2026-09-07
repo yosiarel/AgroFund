@@ -1,14 +1,21 @@
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { Dispute } from "../../types"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
+import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
+import { Textarea } from "../../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
+import { Modal } from "../../components/ui/Modal"
 import { CheckCircle } from "lucide-react"
 
 export function DisputesPage() {
   const queryClient = useQueryClient()
+  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null)
+  const [resolutionText, setResolutionText] = useState("")
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const { data: disputes, isLoading } = useQuery<Dispute[]>({
     queryKey: ["admin-disputes"],
@@ -20,7 +27,9 @@ export function DisputesPage() {
       api.post(`/admin/disputes/${disputeId}/resolve`, { resolutionNotes }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-disputes"] })
-      alert("Pengaduan berhasil diselesaikan dan status diperbarui.")
+      setSelectedDispute(null)
+      setResolutionText("")
+      setFeedback("Pengaduan berhasil diselesaikan dan status telah diperbarui.")
     },
   })
 
@@ -42,6 +51,12 @@ export function DisputesPage() {
           Penyelesaian keluhan pendana, masalah pemenuhan natura, dan audit ketidaksesuaian operasional.
         </p>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <div className="flex flex-col gap-4">
         {(!disputes || disputes.length === 0) ? (
@@ -86,10 +101,7 @@ export function DisputesPage() {
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={() => {
-                        const notes = prompt("Tuliskan solusi/tindakan penyelesaian sengketa:")
-                        if (notes) resolveMutation.mutate({ disputeId: d.id, resolutionNotes: notes })
-                      }}
+                      onClick={() => setSelectedDispute(d)}
                       disabled={resolveMutation.isPending}
                     >
                       Selesaikan Pengaduan
@@ -101,6 +113,61 @@ export function DisputesPage() {
           ))
         )}
       </div>
+
+      {/* Resolve Modal */}
+      {selectedDispute && (
+        <Modal
+          isOpen={!!selectedDispute}
+          onClose={() => {
+            setSelectedDispute(null)
+            setResolutionText("")
+          }}
+          title="Tindak Lanjut & Resolusi Sengketa"
+          footer={
+            <div className="flex justify-end gap-3 w-full">
+              <Button
+                variant="tertiary"
+                onClick={() => {
+                  setSelectedDispute(null)
+                  setResolutionText("")
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!resolutionText.trim()}
+                onClick={() =>
+                  resolveMutation.mutate({
+                    disputeId: selectedDispute.id,
+                    resolutionNotes: resolutionText.trim(),
+                  })
+                }
+                isLoading={resolveMutation.isPending}
+              >
+                Simpan Resolusi
+              </Button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-3">
+            <p className="text-[var(--text-body-m)] text-[var(--color-neutral-800)]">
+              Kategori: <strong>{selectedDispute.category}</strong>
+            </p>
+            <p className="text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
+              Deskripsi Pengaduan: {selectedDispute.description}
+            </p>
+            <Textarea
+              label="Catatan Solusi / Tindakan Penyelesaian"
+              placeholder="Rincikan mediasi atau kesepakatan kompensasi yang telah disepakati..."
+              value={resolutionText}
+              onChange={(e) => setResolutionText(e.target.value)}
+              rows={4}
+              required
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

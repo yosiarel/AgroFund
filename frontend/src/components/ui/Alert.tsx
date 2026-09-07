@@ -76,6 +76,7 @@ interface AlertProps {
   action?: React.ReactNode;
   dismissible?: boolean;
   onDismiss?: () => void;
+  onClose?: () => void;
   className?: string;
 }
 
@@ -84,12 +85,15 @@ export function Alert({
   title,
   children,
   action,
-  dismissible = false,
+  dismissible,
   onDismiss,
+  onClose,
   className,
 }: AlertProps) {
   const config = ALERT_CONFIG[variant]
   const { Icon } = config
+  const handleClose = onClose || onDismiss
+  const isDismissible = dismissible ?? !!handleClose
 
   return (
     <div
@@ -123,14 +127,14 @@ export function Alert({
       </div>
 
       {/* Dismiss — critical info must NOT only be in dismissable alert (Sec 55) */}
-      {dismissible && onDismiss && (
+      {isDismissible && handleClose && (
         <button
-          onClick={onDismiss}
+          onClick={handleClose}
           aria-label="Tutup notifikasi"
           className={cn(
             "flex-shrink-0 p-1 rounded hover:bg-black/10 transition-colors",
             config.textColor,
-            "min-w-[44px] min-h-[44px] flex items-center justify-center"
+            "min-w-[44px] min-h-[44px] flex items-center justify-center text-lg leading-none font-bold"
           )}
         >
           ×

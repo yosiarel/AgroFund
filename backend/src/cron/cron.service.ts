@@ -13,8 +13,8 @@ export class CronService {
     const whereClause: any = {
       status: ProjectStatus.FUNDRAISING,
       fundraisingDeadline: {
-        lt: checkDate
-      }
+        lt: checkDate,
+      },
     };
 
     if (dto.projectId) {
@@ -22,7 +22,7 @@ export class CronService {
     }
 
     const expiredProjects = await this.prisma.project.findMany({
-      where: whereClause
+      where: whereClause,
     });
 
     let updatedCount = 0;
@@ -35,7 +35,7 @@ export class CronService {
           data: {
             status: ProjectStatus.GAGAL_DITUTUP,
             failedReason: 'Target pendanaan tidak tercapai hingga batas waktu',
-          }
+          },
         });
 
         // In a real scenario, trigger refunds here for contributions and guarantee.

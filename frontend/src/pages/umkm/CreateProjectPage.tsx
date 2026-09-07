@@ -75,8 +75,9 @@ const STEPS = [
   "Review & Submit",
 ]
 
-function fetchKoperasiList(): Promise<Array<{ id: string; name: string }>> {
-  return api.get("/user/koperasi")
+async function fetchKoperasiList(): Promise<Array<{ id: string; name: string }>> {
+  const res: any = await api.get("/koperasi")
+  return res.data || res
 }
 
 export function CreateProjectPage() {

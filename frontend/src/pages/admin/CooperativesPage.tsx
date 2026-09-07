@@ -28,6 +28,8 @@ export function CooperativesPage() {
     adminPassword: "",
   })
 
+  const [feedback, setFeedback] = useState<string | null>(null)
+
   const provisionMutation = useMutation({
     mutationFn: () => api.post("/admin/cooperatives", formData),
     onSuccess: () => {
@@ -41,7 +43,7 @@ export function CooperativesPage() {
         adminUsername: "",
         adminPassword: "",
       })
-      alert("Akun Koperasi mitra berhasil dibuat dan diaktivasi.")
+      setFeedback("Akun Koperasi mitra berhasil dibuat dan diaktivasi.")
     },
   })
 
@@ -69,6 +71,12 @@ export function CooperativesPage() {
           <Plus className="w-4 h-4 mr-1.5" /> Daftarkan Koperasi Baru
         </Button>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">

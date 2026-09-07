@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, MinLength, IsEmail, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  IsEmail,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateKoperasiDto {

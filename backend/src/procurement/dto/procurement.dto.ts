@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsNumber, Min, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsArray,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -25,6 +33,20 @@ export class CreateProcurementDto {
   @ValidateNested({ each: true })
   @Type(() => ProcurementItemDto)
   items: ProcurementItemDto[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  supplierId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  nominatedSupplier?: any;
 }
 
 export class ApproveProcurementDto {

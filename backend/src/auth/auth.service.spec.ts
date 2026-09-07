@@ -47,16 +47,21 @@ describe('AuthService', () => {
 
   describe('register()', () => {
     it('harus menolak jika username sudah terdaftar', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValueOnce({ id: '1', username: 'testuser' });
-
-      await expect(service.register({
+      mockPrismaService.user.findUnique.mockResolvedValueOnce({
+        id: '1',
         username: 'testuser',
-        password: 'password',
-        name: 'Test',
-        role: Role.UMKM,
-        phone: '08111',
-        address: 'Test',
-      })).rejects.toThrow(BadRequestException);
+      });
+
+      await expect(
+        service.register({
+          username: 'testuser',
+          password: 'password',
+          name: 'Test',
+          role: Role.UMKM,
+          phone: '08111',
+          address: 'Test',
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('harus membuat user baru dan menghash password', async () => {
@@ -87,8 +92,9 @@ describe('AuthService', () => {
     it('harus menolak jika username tidak ditemukan', async () => {
       mockPrismaService.user.findUnique.mockResolvedValueOnce(null);
 
-      await expect(service.login({ username: 'test', password: 'pwd' }))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.login({ username: 'test', password: 'pwd' }),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('harus menolak jika password salah', async () => {
@@ -99,8 +105,9 @@ describe('AuthService', () => {
       });
       (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
 
-      await expect(service.login({ username: 'test', password: 'wrong-pwd' }))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.login({ username: 'test', password: 'wrong-pwd' }),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('harus mengembalikan JWT token jika login sukses', async () => {
@@ -113,10 +120,17 @@ describe('AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
       mockJwtService.sign.mockReturnValue('valid-jwt-token');
 
-      const result = await service.login({ username: 'test', password: 'correct-pwd' });
+      const result = await service.login({
+        username: 'test',
+        password: 'correct-pwd',
+      });
 
       expect(result).toEqual({ access_token: 'valid-jwt-token' });
-      expect(mockJwtService.sign).toHaveBeenCalledWith({ username: 'test', sub: '1', role: Role.UMKM });
+      expect(mockJwtService.sign).toHaveBeenCalledWith({
+        username: 'test',
+        sub: '1',
+        role: Role.UMKM,
+      });
     });
   });
 });

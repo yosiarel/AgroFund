@@ -4,7 +4,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateKoperasiDto } from './dto/create-koperasi.dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -16,24 +21,30 @@ export class AdminController {
   @Post('cooperatives')
   @Roles('AGROFUND')
   @ApiOperation({ summary: 'Mendaftarkan akun Koperasi baru oleh Admin' })
-  @ApiResponse({ status: 201, description: 'Berhasil mendaftarkan akun koperasi' })
+  @ApiResponse({
+    status: 201,
+    description: 'Berhasil mendaftarkan akun koperasi',
+  })
   async provisionCooperative(@Body() dto: CreateKoperasiDto) {
     const data = await this.adminService.provisionCooperative(dto);
     return {
       message: 'Berhasil membuat akun koperasi',
-      data
+      data,
     };
   }
 
   @Get('cooperatives')
   @Roles('AGROFUND')
   @ApiOperation({ summary: 'Melihat daftar seluruh Koperasi oleh Admin' })
-  @ApiResponse({ status: 200, description: 'Berhasil mengambil daftar koperasi' })
+  @ApiResponse({
+    status: 200,
+    description: 'Berhasil mengambil daftar koperasi',
+  })
   async getCooperatives() {
     const data = await this.adminService.getCooperatives();
     return {
       message: 'Berhasil mengambil daftar koperasi',
-      data
+      data,
     };
   }
 
@@ -45,7 +56,7 @@ export class AdminController {
     const data = await this.adminService.getAnalyticsSummary();
     return {
       message: 'Berhasil mengambil data analitik admin',
-      data
+      data,
     };
   }
 }

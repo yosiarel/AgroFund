@@ -31,7 +31,7 @@ export function CreateProcurementPage() {
 
   const { data: suppliers } = useQuery<SupplierRecord[]>({
     queryKey: ["suppliers"],
-    queryFn: () => api.get("/suppliers"),
+    queryFn: () => api.get("/procurement/suppliers"),
   })
 
   const [items, setItems] = useState<ItemInput[]>([
@@ -71,7 +71,7 @@ export function CreateProcurementPage() {
 
   const createMutation = useMutation({
     mutationFn: () =>
-      api.post(`/projects/${projectId}/procurement-requests`, {
+      api.post(`/procurement/projects/${projectId}/request`, {
         items,
         notes,
         supplierId: supplierType === "existing" ? selectedSupplierId : undefined,

@@ -77,6 +77,26 @@ export function AssignedProjectsPage() {
 
 function KoperasiProjectCard({ project }: { project: Project }) {
   const needsAssessment = project.status === "COOPERATIVE_ASSESSMENT"
+  const isProcurement = project.status === "PROCUREMENT"
+  const isExecution = project.status === "EXECUTION"
+
+  let ctaLink = `/koperasi/monitoring`
+  let ctaLabel = "Lihat Monitoring"
+  let ctaVariant: "primary" | "secondary" = "secondary"
+
+  if (needsAssessment) {
+    ctaLink = `/koperasi/assessment/${project.id}`
+    ctaLabel = "Mulai Penilaian (Assessment)"
+    ctaVariant = "primary"
+  } else if (isProcurement) {
+    ctaLink = `/koperasi/procurement`
+    ctaLabel = "Validasi Pengadaan (PO)"
+    ctaVariant = "primary"
+  } else if (isExecution) {
+    ctaLink = `/koperasi/evidence`
+    ctaLabel = "Tinjau Evidence & Milestone"
+    ctaVariant = "primary"
+  }
 
   return (
     <Card className={needsAssessment ? "border-[var(--color-primary-400)] shadow-[var(--shadow-e2)]" : ""}>
@@ -96,18 +116,12 @@ function KoperasiProjectCard({ project }: { project: Project }) {
           
           {/* Action CTA for Koperasi */}
           <div className="flex-shrink-0">
-            {needsAssessment ? (
-              <Link to={`/koperasi/assessment/${project.id}`}>
-                <Button variant="primary">
-                  <ClipboardCheck className="w-4 h-4 mr-2" />
-                  Mulai Penilaian (Assessment)
-                </Button>
-              </Link>
-            ) : (
-              <Link to={`/koperasi/projects/${project.id}`}>
-                <Button variant="secondary">Lihat Detail</Button>
-              </Link>
-            )}
+            <Link to={ctaLink}>
+              <Button variant={ctaVariant}>
+                {needsAssessment && <ClipboardCheck className="w-4 h-4 mr-2" />}
+                {ctaLabel}
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -115,6 +129,22 @@ function KoperasiProjectCard({ project }: { project: Project }) {
           <div className="bg-[var(--color-primary-50)] border border-[var(--color-primary-200)] p-3 rounded-[var(--radius-m)]">
             <p className="text-[var(--text-body-s)] text-[var(--color-primary-800)]">
               <span className="font-[600]">Tindakan Diperlukan:</span> Proyek ini menunggu Penilaian Lapangan (Assessment) dari Anda sebelum dapat ditinjau oleh AgroFund.
+            </p>
+          </div>
+        )}
+
+        {isProcurement && (
+          <div className="bg-[var(--color-neutral-50)] border border-[var(--color-neutral-200)] p-3 rounded-[var(--radius-m)]">
+            <p className="text-[var(--text-body-s)] text-[var(--color-neutral-700)]">
+              <span className="font-[600]">Tahap Pengadaan:</span> UMKM sedang mengajukan kebutuhan barang. Silakan tinjau supplier dan terbitkan PO.
+            </p>
+          </div>
+        )}
+
+        {isExecution && (
+          <div className="bg-[var(--color-neutral-50)] border border-[var(--color-neutral-200)] p-3 rounded-[var(--radius-m)]">
+            <p className="text-[var(--text-body-s)] text-[var(--color-neutral-700)]">
+              <span className="font-[600]">Tahap Pelaksanaan:</span> Pantau ketercapaian milestone fisik dan lakukan validasi terhadap laporan berkala UMKM.
             </p>
           </div>
         )}

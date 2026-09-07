@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -8,11 +16,14 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Mendaftarkan pengguna baru' })
-  @ApiResponse({ status: 201, description: 'Berhasil mendaftarkan pengguna baru' })
+  @ApiResponse({
+    status: 201,
+    description: 'Berhasil mendaftarkan pengguna baru',
+  })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -21,7 +32,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Masuk dan mengatur sesi' })
   @ApiResponse({ status: 200, description: 'Berhasil masuk' })
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { access_token } = await this.authService.login(dto);
     res.cookie('Authentication', access_token, {
       httpOnly: true,

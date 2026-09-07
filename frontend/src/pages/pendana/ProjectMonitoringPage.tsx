@@ -13,7 +13,7 @@ import { Activity, Eye, ShieldCheck, Clock } from "lucide-react"
 export function ProjectMonitoringPage() {
   const { data: contributions, isLoading } = useQuery<Contribution[]>({
     queryKey: ["pendana-contributions"],
-    queryFn: () => api.get("/contributions"),
+    queryFn: () => api.get("/finance/my-contributions"),
   })
 
   if (isLoading) {
@@ -114,7 +114,24 @@ export function ProjectMonitoringPage() {
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2 text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
                       <Clock className="w-4 h-4 text-[var(--color-primary-600)]" />
-                      <span>Fase saat ini: <strong className="text-[var(--color-neutral-900)]">{proj.status}</strong></span>
+                      <span>
+                        Tahap Saat Ini:{" "}
+                        <strong className="text-[var(--color-neutral-900)]">
+                          {proj.status === "PROCUREMENT"
+                            ? "Pengadaan Sarana Produksi (BPC)"
+                            : proj.status === "EXECUTION"
+                            ? "Pelaksanaan Lapangan & Monitoring"
+                            : proj.status === "NATURA_FULFILLMENT"
+                            ? "Penyaluran Paket Natura"
+                            : proj.status === "SUKSES_DITUTUP"
+                            ? "Proyek Sukses Diselesaikan"
+                            : proj.status === "FUNDRAISING"
+                            ? "Penggalangan Dana Aktif"
+                            : proj.status === "DANA_TERPENUHI"
+                            ? "Dana Terpenuhi — Persiapan Pengadaan"
+                            : proj.status}
+                        </strong>
+                      </span>
                     </div>
 
                     <Link to={`/pendana/discover/${proj.id}`}>

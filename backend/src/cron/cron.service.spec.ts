@@ -8,10 +8,7 @@ describe('CronService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CronService,
-        { provide: PrismaService, useValue: {} }
-      ],
+      providers: [CronService, { provide: PrismaService, useValue: {} }],
     }).compile();
 
     service = module.get<CronService>(CronService);

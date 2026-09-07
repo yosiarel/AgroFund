@@ -27,6 +27,7 @@ export function ComplaintsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [category, setCategory] = useState("Layanan / Pelaksanaan Proyek")
   const [description, setDescription] = useState("")
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const submitDisputeMutation = useMutation({
     mutationFn: () =>
@@ -39,7 +40,7 @@ export function ComplaintsPage() {
       queryClient.invalidateQueries({ queryKey: ["pendana-disputes"] })
       setIsModalOpen(false)
       setDescription("")
-      alert("Keluhan Anda berhasil dikirim ke Admin AgroFund.")
+      setFeedback("Keluhan Anda berhasil dikirim dan sedang ditindaklanjuti oleh Tim Kepatuhan AgroFund.")
     },
   })
 
@@ -67,6 +68,12 @@ export function ComplaintsPage() {
           <Plus className="w-4 h-4 mr-1.5" /> Buat Pengaduan Baru
         </Button>
       </div>
+
+      {feedback && (
+        <Alert variant="success" onClose={() => setFeedback(null)}>
+          {feedback}
+        </Alert>
+      )}
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">

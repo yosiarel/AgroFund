@@ -6,6 +6,6 @@ import { PrismaModule } from '../prisma/prisma.module';
 @Module({
   imports: [PrismaModule],
   controllers: [CronController],
-  providers: [CronService]
+  providers: [CronService],
 })
 export class CronModule {}

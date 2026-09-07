@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -10,11 +14,13 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto) {
     if (dto.role === 'KOPERASI' || dto.role === 'AGROFUND') {
-      throw new BadRequestException('Role ini tidak bisa didaftarkan secara publik');
+      throw new BadRequestException(
+        'Role ini tidak bisa didaftarkan secara publik',
+      );
     }
 
     const existingUser = await this.prisma.user.findUnique({
@@ -60,10 +66,13 @@ export class AuthService {
   }
 
   async seedAdmin() {
-    const admin = await this.prisma.user.findFirst({ where: { role: 'AGROFUND' } });
+    const admin = await this.prisma.user.findFirst({
+      where: { role: 'AGROFUND' },
+    });
     if (admin) return { message: 'Admin already exists' };
 
-    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@AkarMakmur2026!';
+    const defaultPassword =
+      process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@AkarMakmur2026!';
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
     const newAdmin = await this.prisma.user.create({
       data: {
@@ -71,8 +80,11 @@ export class AuthService {
         username: 'admin',
         password: hashedPassword,
         role: 'AGROFUND',
-      }
+      },
     });
-    return { message: 'Admin created successfully', username: newAdmin.username };
+    return {
+      message: 'Admin created successfully',
+      username: newAdmin.username,
+    };
   }
 }

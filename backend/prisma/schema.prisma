@@ -92,6 +92,9 @@ model Project {
 
   fundraisingDeadline DateTime?
   publishedAt         DateTime?
+  fundingCompletedAt  DateTime?
+  executionStartedAt  DateTime?
+  outputAvailableAt   DateTime?
   failedReason        String?
   imageUrl            String?
   createdAt           DateTime  @default(now())
@@ -171,6 +174,8 @@ model ProcurementRequest {
   project   Project  @relation(fields: [projectId], references: [id])
   status    String   @default("REQUESTED") // REQUESTED, APPROVED, REJECTED, PO_ISSUED
   notes     String?
+  supplierId String?
+  nominatedSupplier Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -219,6 +224,7 @@ model Evidence {
   referenceId   String
   purchaseOrder PurchaseOrder? @relation(fields: [referenceId], references: [id], map: "ev_po_fkey")
   fileUrl       String
+  publicId      String?
   description   String?
   type          String // RECEIPT, PHOTO, DOCUMENT
   status        String         @default("SUBMITTED")

@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContributeDto, WebhookDto } from './dto/finance.dto';
 import { ProjectStatus, GuaranteeStatus } from '@prisma/client';
@@ -18,11 +24,16 @@ export class FinanceService {
   }
 
   async generateGuaranteePayment(projectId: string, userId: string) {
-    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
-    if (project.userId !== userId) throw new ForbiddenException('Akses ditolak');
+    if (project.userId !== userId)
+      throw new ForbiddenException('Akses ditolak');
     if (project.status !== ProjectStatus.GUARANTEE_PLACEMENT) {
-      throw new BadRequestException('Project tidak berada pada tahap penempatan jaminan');
+      throw new BadRequestException(
+        'Project tidak berada pada tahap penempatan jaminan',
+      );
     }
     if (project.guaranteeStatus === GuaranteeStatus.HELD) {
       throw new BadRequestException('Uang jaminan sudah disetorkan');
@@ -32,15 +43,17 @@ export class FinanceService {
 
     // Create Real Xendit Invoice
     if (!this.xenditClient) {
-      throw new BadRequestException('Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)');
+      throw new BadRequestException(
+        'Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)',
+      );
     }
 
     const invoice = await this.xenditClient.Invoice.createInvoice({
       data: {
         externalId: externalId,
         amount: Number(project.guaranteeAmount),
-        description: `Pembayaran Jaminan Proyek: ${project.title}`
-      }
+        description: `Pembayaran Jaminan Proyek: ${project.title}`,
+      },
     });
 
     const paymentUrl = invoice.invoiceUrl;
@@ -54,10 +67,24 @@ export class FinanceService {
   }
 
   async contribute(projectId: string, userId: string, dto: ContributeDto) {
-    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
     if (project.status !== ProjectStatus.FUNDRAISING) {
       throw new BadRequestException('Project ini tidak sedang menggalang dana');
+    }
+
+    const ledger = await this.prisma.projectFinancialLedger.findFirst({
+      where: { projectId },
+    });
+    const currentRaised = ledger ? ledger.remainingBalance : BigInt(0);
+    const remainingTarget = project.targetAmount - currentRaised;
+
+    if (remainingTarget > BigInt(0) && BigInt(dto.amount) > remainingTarget) {
+      throw new BadRequestException(
+        `Jumlah kontribusi melebihi sisa target pendanaan (${remainingTarget.toString()})`,
+      );
     }
 
     const processingFee = 0;
@@ -72,22 +99,24 @@ export class FinanceService {
         totalPayment,
         naturaPackageId: dto.naturaPackageId,
         status: 'PENDING_PAYMENT',
-      }
+      },
     });
 
     const externalId = contribution.id;
 
     // Create Real Xendit Invoice
     if (!this.xenditClient) {
-      throw new BadRequestException('Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)');
+      throw new BadRequestException(
+        'Xendit Client belum dikonfigurasi (XENDIT_SECRET_KEY tidak ada)',
+      );
     }
 
     const invoice = await this.xenditClient.Invoice.createInvoice({
       data: {
         externalId: externalId,
         amount: Number(totalPayment),
-        description: `Investasi Proyek: ${project.title}`
-      }
+        description: `Investasi Proyek: ${project.title}`,
+      },
     });
 
     const paymentUrl = invoice.invoiceUrl;
@@ -120,10 +149,17 @@ export class FinanceService {
 
     if (externalId.startsWith('GUARANTEE_')) {
       const projectId = externalId.split('_')[1];
-      if (!projectId) return { success: true, message: 'Ignored (Invalid external_id for Guarantee)' };
+      if (!projectId)
+        return {
+          success: true,
+          message: 'Ignored (Invalid external_id for Guarantee)',
+        };
 
-      const project = await this.prisma.project.findUnique({ where: { id: projectId } });
-      if (!project) return { success: true, message: 'Ignored (Project tidak ditemukan)' };
+      const project = await this.prisma.project.findUnique({
+        where: { id: projectId },
+      });
+      if (!project)
+        return { success: true, message: 'Ignored (Project tidak ditemukan)' };
 
       // Update project guarantee status and create transaction
       await this.prisma.$transaction(async (tx) => {
@@ -133,8 +169,10 @@ export class FinanceService {
             guaranteeStatus: GuaranteeStatus.HELD,
             status: ProjectStatus.FUNDRAISING, // Auto-publish
             publishedAt: new Date(),
-            fundraisingDeadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // +60 days
-          }
+            fundraisingDeadline: new Date(
+              Date.now() + 60 * 24 * 60 * 60 * 1000,
+            ), // +60 days
+          },
         });
 
         await tx.guaranteeTransaction.create({
@@ -143,29 +181,32 @@ export class FinanceService {
             amount: project.guaranteeAmount,
             status: 'HELD',
             reason: 'Setoran Awal UMKM',
-            referenceId: externalId
-          }
+            referenceId: externalId,
+          },
         });
       });
 
       return { message: 'Guarantee Payment Processed' };
-    }
-    else {
+    } else {
       // Treat as Contribution UUID
       const contributionId = externalId;
       const contribution = await this.prisma.contribution.findUnique({
         where: { id: contributionId },
-        include: { project: true }
+        include: { project: true },
       });
 
-      if (!contribution) return { success: true, message: 'Ignored (Contribution tidak ditemukan)' };
+      if (!contribution)
+        return {
+          success: true,
+          message: 'Ignored (Contribution tidak ditemukan)',
+        };
       if (contribution.status === 'PAID') return { message: 'Already paid' };
 
       await this.prisma.$transaction(async (tx) => {
         // Mark contribution as PAID
         await tx.contribution.update({
           where: { id: contributionId },
-          data: { status: 'PAID' }
+          data: { status: 'PAID' },
         });
 
         // Record to FinancialTransaction (Ledger Entry)
@@ -179,43 +220,81 @@ export class FinanceService {
             destination: 'PROJECT_LEDGER',
             referenceType: 'CONTRIBUTION',
             referenceId: contribution.id,
-            status: 'SUCCESS'
-          }
+            status: 'SUCCESS',
+          },
         });
 
         // Update Project Financial Ledger
-        let ledger = await tx.projectFinancialLedger.findFirst({
-          where: { projectId: contribution.projectId }
+        const ledger = await tx.projectFinancialLedger.findFirst({
+          where: { projectId: contribution.projectId },
         });
 
         if (ledger) {
           await tx.projectFinancialLedger.update({
             where: { id: ledger.id },
-            data: { remainingBalance: { increment: contribution.amount } }
+            data: { remainingBalance: { increment: contribution.amount } },
           });
         } else {
           await tx.projectFinancialLedger.create({
             data: {
               projectId: contribution.projectId,
-              remainingBalance: contribution.amount
-            }
+              remainingBalance: contribution.amount,
+            },
           });
         }
 
         // Check if target is met
         const newLedger = await tx.projectFinancialLedger.findFirst({
-          where: { projectId: contribution.projectId }
+          where: { projectId: contribution.projectId },
         });
 
-        if (newLedger && newLedger.remainingBalance >= contribution.project.targetAmount) {
+        if (
+          newLedger &&
+          newLedger.remainingBalance >= contribution.project.targetAmount
+        ) {
           await tx.project.update({
             where: { id: contribution.projectId },
-            data: { status: ProjectStatus.DANA_TERPENUHI }
+            data: {
+              status: ProjectStatus.DANA_TERPENUHI,
+              fundingCompletedAt:
+                contribution.project.fundingCompletedAt || new Date(),
+            },
           });
         }
       });
 
       return { message: 'Contribution Payment Processed' };
     }
+  }
+
+  async getMyContributions(userId: string) {
+    return this.prisma.contribution.findMany({
+      where: { investorId: userId },
+      include: {
+        project: true,
+        naturaPackage: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getContributionById(userId: string, contributionId: string) {
+    const contribution = await this.prisma.contribution.findUnique({
+      where: { id: contributionId },
+      include: {
+        project: true,
+        naturaPackage: true,
+      },
+    });
+
+    if (!contribution) {
+      throw new NotFoundException('Kontribusi tidak ditemukan');
+    }
+
+    if (contribution.investorId !== userId) {
+      throw new ForbiddenException('Akses ditolak');
+    }
+
+    return contribution;
   }
 }

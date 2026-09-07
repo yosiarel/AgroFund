@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProjectStatus, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -33,7 +37,7 @@ export class AdminService {
         name: true,
         role: true,
         createdAt: true,
-      }
+      },
     });
 
     return koperasi;
@@ -51,7 +55,7 @@ export class AdminService {
         address: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -73,10 +77,23 @@ export class AdminService {
         this.prisma.user.count({ where: { role: Role.PENDANA } }),
         this.prisma.user.count({ where: { role: Role.KOPERASI } }),
         this.prisma.project.count({
-          where: { status: { in: [ProjectStatus.FUNDRAISING, ProjectStatus.DANA_TERPENUHI, ProjectStatus.PROCUREMENT, ProjectStatus.EXECUTION] } },
+          where: {
+            status: {
+              in: [
+                ProjectStatus.FUNDRAISING,
+                ProjectStatus.DANA_TERPENUHI,
+                ProjectStatus.PROCUREMENT,
+                ProjectStatus.EXECUTION,
+              ],
+            },
+          },
         }),
-        this.prisma.project.count({ where: { status: ProjectStatus.SUKSES_DITUTUP } }),
-        this.prisma.project.count({ where: { status: ProjectStatus.GAGAL_DITUTUP } }),
+        this.prisma.project.count({
+          where: { status: ProjectStatus.SUKSES_DITUTUP },
+        }),
+        this.prisma.project.count({
+          where: { status: ProjectStatus.GAGAL_DITUTUP },
+        }),
         this.prisma.contribution.aggregate({
           _sum: { amount: true },
           where: { status: 'PAID' },
@@ -110,7 +127,9 @@ export class AdminService {
         recentProjects,
       };
     } catch (error) {
-      throw new InternalServerErrorException('Gagal mengambil data analitik admin');
+      throw new InternalServerErrorException(
+        'Gagal mengambil data analitik admin',
+      );
     }
   }
 }

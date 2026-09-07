@@ -233,10 +233,46 @@ function getNextAction(project: Project) {
     case "DANA_TERPENUHI":
       return {
         title: "Dana Telah Terpenuhi",
-        description: "Selamat! Dana telah terkumpul. Buat permintaan pengadaan barang untuk memulai eksekusi proyek.",
+        description: "Selamat! Dana telah terkumpul penuh. Buat pengajuan daftar pengadaan barang untuk diverifikasi Koperasi pendamping.",
         ctaLabel: "Buat Pengadaan",
         href: `/umkm/projects/${project.id}/procurement/create`,
         primary: true,
+        icon: <CheckCircle2 className="w-6 h-6 text-[var(--color-success-600)]" />
+      }
+    case "PROCUREMENT":
+      return {
+        title: "Pengadaan Barang Sedang Berjalan",
+        description: "Koperasi sedang memproses Purchase Order dan pembayaran ke Supplier. Pantau status pengadaan dan konfirmasi penerimaan barang.",
+        ctaLabel: "Kelola Pengadaan",
+        href: `/umkm/projects/${project.id}/procurement`,
+        primary: true,
+        icon: <Clock className="w-6 h-6 text-[var(--color-primary-600)]" />
+      }
+    case "EXECUTION":
+      return {
+        title: "Tahap Eksekusi & Pelaksanaan",
+        description: "Proyek aktif berjalan di lapangan. Laporkan progres milestone dan unggah bukti faktual sesuai jadwal berkala.",
+        ctaLabel: "Lapor Kemajuan Lapangan",
+        href: `/umkm/projects/${project.id}/execution`,
+        primary: true,
+        icon: <CheckCircle2 className="w-6 h-6 text-[var(--color-primary-600)]" />
+      }
+    case "NATURA_FULFILLMENT":
+      return {
+        title: "Penyaluran Natura & Laporan Akhir",
+        description: "Hasil panen/output proyek tersedia. Lakukan penyaluran paket natura kepada Pendana dan kirimkan laporan akhir.",
+        ctaLabel: "Kelola Penyaluran Natura",
+        href: `/umkm/projects/${project.id}/execution`,
+        primary: true,
+        icon: <CheckCircle2 className="w-6 h-6 text-[var(--color-success-600)]" />
+      }
+    case "SUKSES_DITUTUP":
+      return {
+        title: "Proyek Selesai & Sukses Ditutup",
+        description: "Seluruh tahapan pengadaan, eksekusi lapangan, dan penyaluran natura telah selesai dan terverifikasi secara penuh.",
+        ctaLabel: "Lihat Ringkasan",
+        href: `/umkm/projects/${project.id}/execution`,
+        primary: false,
         icon: <CheckCircle2 className="w-6 h-6 text-[var(--color-success-600)]" />
       }
     default:

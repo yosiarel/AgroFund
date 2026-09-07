@@ -24,7 +24,7 @@ export function GuaranteePaymentPage() {
   })
 
   const payMutation = useMutation({
-    mutationFn: () => api.post(`/projects/${projectId}/guarantee/pay`),
+    mutationFn: () => api.post(`/finance/projects/${projectId}/guarantee/pay`),
     onSuccess: () => {
       navigate(`/umkm/projects/${projectId}`)
     }

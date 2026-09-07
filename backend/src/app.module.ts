@@ -13,6 +13,7 @@ import { AdminModule } from './admin/admin.module';
 import { FinanceModule } from './finance/finance.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CronModule } from './cron/cron.module';
+import { EvidenceModule } from './evidence/evidence.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CronModule } from './cron/cron.module';
     FinanceModule,
     ProcurementModule,
     CronModule,
+    EvidenceModule,
   ],
   controllers: [AppController],
   providers: [
@@ -42,4 +44,4 @@ import { CronModule } from './cron/cron.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsEnum, MinLength, IsOptional, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  MinLength,
+  IsOptional,
+  IsIn,
+} from 'class-validator';
 import { Role } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -16,7 +23,9 @@ export class RegisterDto {
 
   @ApiProperty({ enum: ['PENDANA', 'UMKM'] })
   @IsEnum(Role, { message: 'Role tidak valid' })
-  @IsIn(['PENDANA', 'UMKM'], { message: 'Pendaftaran publik hanya bisa sebagai PENDANA atau UMKM' })
+  @IsIn(['PENDANA', 'UMKM'], {
+    message: 'Pendaftaran publik hanya bisa sebagai PENDANA atau UMKM',
+  })
   role: Role;
 
   @ApiProperty()

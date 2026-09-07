@@ -11,7 +11,7 @@ import { formatRupiah } from "../../components/business/FinancialSummary"
 import { ArrowLeft, Receipt, ExternalLink, Leaf, AlertCircle } from "lucide-react"
 
 function fetchContribution(id: string): Promise<Contribution> {
-  return api.get(`/contributions/${id}`)
+  return api.get(`/finance/contributions/${id}`)
 }
 
 export function ContributionDetailPage() {

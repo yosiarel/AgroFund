@@ -1,25 +1,30 @@
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { ProcurementRequest } from "../../types"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
+import { Textarea } from "../../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
+import { Modal } from "../../components/ui/Modal"
 import { formatRupiah } from "../../components/business/FinancialSummary"
 import { ShoppingBag, CheckCircle, XCircle, FileText, ShieldCheck } from "lucide-react"
 
 export function ProcurementValidationPage() {
   const queryClient = useQueryClient()
+  const [rejectRequest, setRejectRequest] = useState<{ id: string; projectTitle: string } | null>(null)
+  const [rejectReason, setRejectReason] = useState("")
 
   const { data: requests, isLoading } = useQuery<ProcurementRequest[]>({
     queryKey: ["koperasi-procurements"],
-    queryFn: () => api.get("/koperasi/procurements"),
+    queryFn: () => api.get("/procurement/requests"),
   })
 
   const approveMutation = useMutation({
     mutationFn: (requestId: string) =>
-      api.post(`/koperasi/procurements/${requestId}/approve`),
+      api.post(`/procurement/requests/${requestId}/approve`, { status: 'APPROVED' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["koperasi-procurements"] })
     },
@@ -27,15 +32,17 @@ export function ProcurementValidationPage() {
 
   const rejectMutation = useMutation({
     mutationFn: ({ requestId, reason }: { requestId: string; reason: string }) =>
-      api.post(`/koperasi/procurements/${requestId}/reject`, { reason }),
+      api.post(`/procurement/requests/${requestId}/approve`, { status: 'REJECTED', notes: reason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["koperasi-procurements"] })
+      setRejectRequest(null)
+      setRejectReason("")
     },
   })
 
   const issuePoMutation = useMutation({
     mutationFn: (requestId: string) =>
-      api.post(`/koperasi/procurements/${requestId}/issue-po`),
+      api.post(`/procurement/requests/${requestId}/issue-po`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["koperasi-procurements"] })
     },
@@ -173,12 +180,14 @@ export function ProcurementValidationPage() {
                           variant="destructive"
                           size="sm"
                           onClick={() => {
-                            const reason = prompt("Masukkan alasan penolakan:")
-                            if (reason) rejectMutation.mutate({ requestId: req.id, reason })
+                            setRejectRequest({
+                              id: req.id,
+                              projectTitle: req.project?.title || `Proyek #${req.projectId.slice(0, 8)}`,
+                            })
                           }}
                           disabled={rejectMutation.isPending}
                         >
-                          <XCircle className="w-4 h-4 mr-1" /> Tolak
+                          <XCircle className="w-4 h-4 mr-1" /> Tolak Pengajuan
                         </Button>
                         <Button
                           variant="secondary"
@@ -208,6 +217,58 @@ export function ProcurementValidationPage() {
           })
         )}
       </div>
+
+      {/* Reject Modal */}
+      {rejectRequest && (
+        <Modal
+          isOpen={!!rejectRequest}
+          onClose={() => {
+            setRejectRequest(null)
+            setRejectReason("")
+          }}
+          title="Penolakan Pengajuan Pengadaan"
+          footer={
+            <div className="flex justify-end gap-3 w-full">
+              <Button
+                variant="tertiary"
+                onClick={() => {
+                  setRejectRequest(null)
+                  setRejectReason("")
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={!rejectReason.trim()}
+                onClick={() =>
+                  rejectMutation.mutate({
+                    requestId: rejectRequest.id,
+                    reason: rejectReason.trim(),
+                  })
+                }
+                isLoading={rejectMutation.isPending}
+              >
+                Konfirmasi Penolakan
+              </Button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-3">
+            <p className="text-[var(--text-body-m)] text-[var(--color-neutral-800)]">
+              Proyek: <strong>{rejectRequest.projectTitle}</strong>
+            </p>
+            <Textarea
+              label="Alasan Penolakan Pengadaan"
+              placeholder="Jelaskan alasan harga tidak wajar atau dokumen supplier yang tidak sesuai..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={3}
+              required
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
