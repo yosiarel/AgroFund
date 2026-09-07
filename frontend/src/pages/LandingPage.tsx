@@ -90,7 +90,7 @@ export const LandingPage: React.FC = () => {
                 initial="hidden"
                 animate="visible"
                 variants={fadeInUp}
-                className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+                className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto"
               >
                 <NavLink
                   to="/login"
