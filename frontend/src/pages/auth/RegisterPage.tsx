@@ -4,18 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { Button } from '../../components/ui/Button';
-import { Alert } from '../../components/ui/Alert';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nama minimal 2 karakter'),
   username: z.string().min(3, 'Username minimal 3 karakter'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
   role: z.enum(['PENDANA', 'UMKM']),
-  phone: z.string().optional(),
-  address: z.string().optional(),
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -42,8 +36,6 @@ export const RegisterPage: React.FC = () => {
         username: data.username,
         password: data.password,
         role: data.role,
-        ...(data.phone?.trim() ? { phone: data.phone.trim() } : {}),
-        ...(data.address?.trim() ? { address: data.address.trim() } : {}),
       };
       await registerUser(payload);
       setSuccessMsg("Pendaftaran berhasil! Mengalihkan ke dasbor...");
@@ -62,97 +54,81 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md bg-white p-8 rounded-[var(--radius-l)] shadow-[var(--shadow-e1)] border border-[var(--color-neutral-200)] my-8 animate-in fade-in duration-500">
+    <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 my-8">
       <div className="mb-8 text-center">
-        <h1 className="text-[var(--text-h3)] font-bold text-[var(--color-neutral-900)] tracking-tight">
-          Buat Akun
-        </h1>
-        <p className="text-[var(--text-body-s)] text-[var(--color-neutral-600)] mt-2">
-          Bergabung dengan ekosistem AgroFund untuk mewujudkan ketahanan pangan.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Buat Akun</h2>
+        <p className="text-gray-500 mt-2 text-sm">Bergabung dengan ekosistem AgroFund untuk mewujudkan ketahanan pangan.</p>
       </div>
 
       <div className="w-full">
         {errors.root && (
-          <Alert variant="error" className="mb-6">
+          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">
             {errors.root.message}
-          </Alert>
+          </div>
         )}
-
+        
         {successMsg && (
-          <Alert variant="success" className="mb-6">
+          <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl text-sm border border-green-100">
             {successMsg}
-          </Alert>
+          </div>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input
-            label="Nama Lengkap"
-            required
-            placeholder="Masukkan nama lengkap"
-            error={errors.name?.message}
-            {...register('name')}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+            <input
+              {...register('name')}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+              placeholder="Masukkan nama lengkap"
+            />
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+          </div>
 
-          <Input
-            label="Username"
-            required
-            placeholder="Pilih username"
-            error={errors.username?.message}
-            {...register('username')}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input
+              {...register('username')}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+              placeholder="Pilih username"
+            />
+            {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>}
+          </div>
 
-          <Input
-            label="Password"
-            type="password"
-            required
-            placeholder="Minimal 6 karakter"
-            error={errors.password?.message}
-            {...register('password')}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              {...register('password')}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+              placeholder="Minimal 6 karakter"
+            />
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+          </div>
 
-          <Select
-            label="Daftar Sebagai"
-            required
-            options={[
-              { label: 'Investor (Pendana)', value: 'PENDANA' },
-              { label: 'Pelaku Tani / Pekebun (UMKM)', value: 'UMKM' },
-            ]}
-            error={errors.role?.message}
-            {...register('role')}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Daftar Sebagai</label>
+            <select
+              {...register('role')}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all bg-white"
+            >
+              <option value="PENDANA">Investor (Pendana)</option>
+              <option value="UMKM">Pelaku Tani / Pekebun (UMKM)</option>
+            </select>
+            {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>}
+          </div>
 
-          <Input
-            label="Nomor Telepon"
-            placeholder="Contoh: 08123456789"
-            error={errors.phone?.message}
-            {...register('phone')}
-          />
-
-          <Input
-            label="Alamat"
-            placeholder="Contoh: Jl. Pertanian No. 10"
-            error={errors.address?.message}
-            {...register('address')}
-          />
-
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            size="lg"
-            className="w-full mt-4"
-            isLoading={isRegistering}
+            disabled={isRegistering}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-4"
           >
-            Daftar Sekarang
-          </Button>
+            {isRegistering ? 'Memproses...' : 'Daftar Sekarang'}
+          </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-[var(--color-neutral-200)] flex items-center justify-center gap-2 text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
-          <span>Sudah punya akun?</span>
-          <NavLink
-            to="/login"
-            className="text-[var(--color-primary-600)] font-[600] hover:text-[var(--color-primary-700)] transition-colors"
-          >
+        <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-center gap-2 text-sm text-gray-600">
+          Sudah punya akun?
+          <NavLink to="/login" className="text-green-600 font-semibold hover:text-green-700 transition-colors">
             Masuk di sini
           </NavLink>
         </div>
