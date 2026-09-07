@@ -27,6 +27,14 @@ export interface NaturaPackage {
   amount: number
 }
 
+export interface ProcurementNeed {
+  id: string
+  item: string
+  quantity: string
+  unit: string
+  estimatedPrice: string
+}
+
 export interface Project {
   id: string
   title: string
@@ -44,6 +52,7 @@ export interface Project {
   koperasi?: { id: string; name: string; username: string }
   koperasiId?: string
   naturaPackages?: NaturaPackage[]
+  procurementNeeds?: ProcurementNeed[]
 }
 
 export interface Contribution {

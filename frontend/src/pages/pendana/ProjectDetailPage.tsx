@@ -130,6 +130,38 @@ export function ProjectDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Procurement Needs — Doc 4 Sec 26 */}
+          {project.procurementNeeds && project.procurementNeeds.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Kebutuhan Pengadaan</CardTitle></CardHeader>
+              <CardContent className="flex flex-col gap-3">
+                <Alert variant="info">
+                  Dana akan dialokasikan untuk kebutuhan pengadaan berikut.
+                </Alert>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--color-neutral-200)]">
+                        <th className="py-2 px-1 text-[var(--text-caption)] font-[600] text-[var(--color-neutral-600)]">Item</th>
+                        <th className="py-2 px-1 text-[var(--text-caption)] font-[600] text-[var(--color-neutral-600)] text-right">Jumlah</th>
+                        <th className="py-2 px-1 text-[var(--text-caption)] font-[600] text-[var(--color-neutral-600)] text-right">Estimasi Harga</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {project.procurementNeeds.map((need, idx) => (
+                        <tr key={need.id || idx} className="border-b border-[var(--color-neutral-100)] last:border-0">
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] font-[500]">{need.item}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-700)] text-right whitespace-nowrap">{need.quantity} {need.unit}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] text-right whitespace-nowrap">{formatRupiah(Number(need.estimatedPrice))}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Natura Packages — Doc 4 Sec 26 (if any) */}
           {project.naturaPackages && project.naturaPackages.length > 0 && (
             <Card>
