@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext"
 import { cn } from "../../lib/utils"
 import { LogOut, Menu, X, User as UserIcon, ChevronRight } from "lucide-react"
 import { Button } from "../ui/Button"
+import logoAgroFund from "../../assets/logo-agrofund.jpeg"
 
 export interface SidebarItem {
   title: string
@@ -43,9 +44,11 @@ export function DashboardLayout({ children, sidebarItems, title }: DashboardLayo
       {/* Mobile Navbar */}
       <div className="md:hidden flex items-center justify-between bg-white border-b border-[var(--color-neutral-200)] px-4 py-3 sticky top-0 z-30">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[var(--color-primary-600)] rounded-[var(--radius-s)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">AF</span>
-          </div>
+          <img
+            src={logoAgroFund}
+            alt="AgroFund Logo"
+            className="h-8 w-auto object-contain rounded-[var(--radius-s)]"
+          />
           <span className="font-[600] text-[var(--color-neutral-900)] truncate max-w-[120px]">
             {title}
           </span>
@@ -74,9 +77,11 @@ export function DashboardLayout({ children, sidebarItems, title }: DashboardLayo
         )}
       >
         <div className="p-4 border-b border-[var(--color-neutral-200)] hidden md:flex items-center gap-2">
-          <div className="w-8 h-8 bg-[var(--color-primary-600)] rounded-[var(--radius-s)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">AF</span>
-          </div>
+          <img
+            src={logoAgroFund}
+            alt="AgroFund Logo"
+            className="h-8 w-auto object-contain rounded-[var(--radius-s)]"
+          />
           <span className="font-[600] text-[var(--text-h5)] text-[var(--color-neutral-900)]">
             {title}
           </span>

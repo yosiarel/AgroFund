@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import logoAgroFund from '../../assets/logo-agrofund.jpeg';
 
 export const AuthLayout: React.FC = () => {
   const { user } = useAuth();
@@ -23,9 +24,11 @@ export const AuthLayout: React.FC = () => {
       <div className="w-full lg:w-1/2 flex flex-col relative min-h-screen">
         <div className="absolute top-0 left-0 w-full p-6 sm:p-10 flex justify-between items-center z-10">
           <NavLink to="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center shadow-sm">
-               <span className="text-white font-bold text-sm">AF</span>
-            </div>
+            <img
+              src={logoAgroFund}
+              alt="AgroFund Logo"
+              className="h-8 w-auto object-contain rounded-lg"
+            />
             <span className="text-xl font-bold text-green-700 tracking-tight">AgroFund</span>
           </NavLink>
         </div>

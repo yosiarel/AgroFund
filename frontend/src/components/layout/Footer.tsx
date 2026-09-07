@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import logoAgroFund from '../../assets/logo-agrofund.jpeg';
 
 export const Footer: React.FC = () => {
   return (
@@ -10,9 +11,11 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[var(--color-primary-600)] rounded-[var(--radius-m)] flex items-center justify-center shadow-[var(--shadow-e1)]">
-                 <span className="text-white font-bold text-sm">AF</span>
-              </div>
+              <img
+                src={logoAgroFund}
+                alt="AgroFund Logo"
+                className="h-8 w-auto object-contain rounded-[var(--radius-m)]"
+              />
               <span className="text-xl font-bold text-[var(--color-primary-700)] tracking-tight">AgroFund</span>
             </div>
             <p className="text-[var(--color-neutral-500)] text-[var(--text-body-s)] leading-relaxed mb-6">
