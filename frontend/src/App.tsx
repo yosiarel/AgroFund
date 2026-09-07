@@ -18,6 +18,7 @@ import { ContributionDetailPage } from './pages/pendana/ContributionDetailPage';
 import { ProjectMonitoringPage as PendanaProjectMonitoringPage } from './pages/pendana/ProjectMonitoringPage';
 import { NaturaTrackingPage } from './pages/pendana/NaturaTrackingPage';
 import { ComplaintsPage } from './pages/pendana/ComplaintsPage';
+import { PendanaDashboardOverviewPage } from './pages/pendana/PendanaDashboardOverviewPage';
 
 // UMKM Pages
 import { MyProjectsPage } from './pages/umkm/MyProjectsPage';
@@ -95,7 +96,7 @@ const router = createBrowserRouter([
           {
             element: <PendanaDashboard />,
             children: [
-              { index: true, element: <Navigate to="/pendana/discover" replace /> },
+              { index: true, element: <PendanaDashboardOverviewPage /> },
               { path: 'discover', element: <DiscoverProjectsPage /> },
               { path: 'discover/:projectId', element: <ProjectDetailPage /> },
               { path: 'contributions', element: <MyContributionsPage /> },

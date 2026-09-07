@@ -8,8 +8,9 @@ import { Outlet } from "react-router-dom"
  */
 export function PendanaDashboard() {
   const navItems: NavItem[] = [
-    { title: "Discover Projects", href: "/pendana/discover" },
-    { title: "My Contributions", href: "/pendana/contributions" },
+    { title: "Dasbor", href: "/pendana", end: true },
+    { title: "Etalase Proyek", href: "/pendana/discover" },
+    { title: "Portofolio Saya", href: "/pendana/contributions" },
   ]
 
   const profileItems: NavItem[] = [
