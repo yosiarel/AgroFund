@@ -47,6 +47,8 @@ import { RecoveryRefundsPage } from './pages/admin/RecoveryRefundsPage';
 import { DisputesPage } from './pages/admin/DisputesPage';
 import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
+import { LandingPage } from './pages/LandingPage';
+
 const RootLayout = () => {
   return (
     <ColdStartProvider>
@@ -57,67 +59,15 @@ const RootLayout = () => {
   );
 };
 
-const HomeOrRedirect = () => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-neutral-50)]">
-        <LoadingSpinner size="lg" label="Memuat..." />
-      </div>
-    );
-  }
-  if (user) {
-    switch (user.role) {
-      case "PENDANA": return <Navigate to="/pendana/discover" replace />;
-      case "UMKM": return <Navigate to="/umkm/projects" replace />;
-      case "KOPERASI": return <Navigate to="/koperasi/projects" replace />;
-      case "AGROFUND": return <Navigate to="/admin/projects" replace />;
-      default: return <Navigate to="/login" replace />;
-    }
-  }
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-neutral-50)] p-4 text-center">
-      <div className="w-16 h-16 bg-[var(--color-primary-600)] rounded-[var(--radius-l)] flex items-center justify-center mx-auto mb-6 shadow-[var(--shadow-e1)]">
-        <span className="text-white font-bold text-2xl">AF</span>
-      </div>
-      <h1 className="text-[var(--text-h2)] leading-[var(--text-h2--line-height)] font-[700] text-[var(--color-neutral-900)] mb-3">
-        AgroFund
-      </h1>
-      <p className="text-[var(--text-body-l)] text-[var(--color-neutral-600)] mb-8 max-w-md mx-auto">
-        Platform Peer-to-Peer Lending Syariah Agrikultur.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs mx-auto">
-        <NavLink
-          to="/login"
-          className="w-full text-center px-4 py-2.5 bg-[var(--color-primary-600)] text-white font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] shadow-[var(--shadow-e1)] transition-colors"
-        >
-          Masuk
-        </NavLink>
-        <NavLink
-          to="/register"
-          className="w-full text-center px-4 py-2.5 bg-white text-[var(--color-primary-700)] border border-[var(--color-primary-200)] font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-50)] transition-colors"
-        >
-          Daftar Baru
-        </NavLink>
-      </div>
-    </div>
-  );
-};
-
 const UnauthorizedPage = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-neutral-50)] p-4 text-center">
-    <h1 className="text-[var(--text-h2)] font-bold text-[var(--color-error-600)] mb-2">
-      Akses Ditolak
-    </h1>
-    <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)] mb-6">
+  <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
+    <h1 className="text-3xl font-bold text-red-600 mb-2">Akses Ditolak</h1>
+    <p className="text-gray-600 mb-6">
       Anda tidak memiliki izin untuk mengakses halaman ini.
     </p>
-    <NavLink
-      to="/"
-      className="px-5 py-2.5 bg-[var(--color-primary-600)] text-white font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] shadow-[var(--shadow-e1)] transition-colors"
-    >
+    <a href="/" className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
       Kembali ke Beranda
-    </NavLink>
+    </a>
   </div>
 );
 
@@ -125,7 +75,7 @@ const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: '/', element: <HomeOrRedirect /> },
+      { path: '/', element: <LandingPage /> },
       { path: '/unauthorized', element: <UnauthorizedPage /> },
       {
         element: <AuthLayout />,
