@@ -1,11 +1,10 @@
-import { createBrowserRouter, RouterProvider, Outlet, Navigate, NavLink } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { ColdStartProvider } from './components/ColdStartProvider';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
-import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { PendanaDashboard } from './pages/pendana/PendanaDashboard';
 import { UmkmDashboard } from './pages/umkm/UmkmDashboard';
 import { KoperasiDashboard } from './pages/koperasi/KoperasiDashboard';

@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { Leaf, Users, ShieldCheck, ArrowRight, Sprout, Store, TrendingUp, CheckCircle2, Star } from 'lucide-react';
 import CountUp from '../components/ui/CountUp';
 import SpotlightCard from '../components/ui/SpotlightCard';
+import { Footer } from '../components/layout/Footer';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -166,7 +167,7 @@ export const LandingPage: React.FC = () => {
             <div className="flex items-center justify-center gap-2 mb-3 text-[var(--color-primary-400)] bg-white/10 w-16 h-16 rounded-full mx-auto">
               <Users className="w-8 h-8 text-white" />
             </div>
-            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center">
+            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center text-white">
               3 Aktor Utama
             </h4>
             <p className="font-[500] text-[var(--color-primary-400)]">Petani, Investor & Koperasi Tani</p>
@@ -178,10 +179,10 @@ export const LandingPage: React.FC = () => {
             <div className="flex items-center justify-center gap-2 mb-3 text-[var(--color-primary-400)] bg-white/10 w-16 h-16 rounded-full mx-auto">
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
-            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center gap-2">
-              <CountUp from={0} to={15} duration={2} />%
+            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center gap-2 text-white">
+              <CountUp from={0} to={5} duration={2} />%
             </h4>
-            <p className="font-[500] text-[var(--color-primary-400)]">Jaminan Insentif Panen</p>
+            <p className="font-[500] text-[var(--color-primary-400)]">Jaminan Komitmen UMKM</p>
           </motion.div>
 
           <div className="hidden md:block w-px h-16 bg-white/20 relative z-10"></div>
@@ -190,7 +191,7 @@ export const LandingPage: React.FC = () => {
             <div className="flex items-center justify-center gap-2 mb-3 text-[var(--color-primary-400)] bg-white/10 w-16 h-16 rounded-full mx-auto">
               <Leaf className="w-8 h-8 text-white" />
             </div>
-            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center">
+            <h4 className="text-4xl font-bold mb-2 flex justify-center items-center text-white">
               <CountUp from={0} to={100} duration={2.5} />%
             </h4>
             <p className="font-[500] text-[var(--color-primary-400)]">Transparan & Terlacak</p>
@@ -310,6 +311,8 @@ export const LandingPage: React.FC = () => {
           </motion.div>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 };
