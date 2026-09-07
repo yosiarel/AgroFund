@@ -47,6 +47,7 @@ import { DisputesPage } from './pages/admin/DisputesPage';
 import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
 import { LandingPage } from './pages/LandingPage';
+import { FAQ } from './pages/FAQ';
 
 const RootLayout = () => {
   return (
@@ -75,6 +76,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/', element: <LandingPage /> },
+      { path: '/faq', element: <FAQ /> },
       { path: '/unauthorized', element: <UnauthorizedPage /> },
       {
         element: <AuthLayout />,
