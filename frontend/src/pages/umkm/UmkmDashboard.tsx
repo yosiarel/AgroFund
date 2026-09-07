@@ -1,6 +1,6 @@
 import { TopBarLayout } from "../../components/layout/TopBarLayout"
 import type { NavItem } from "../../components/layout/TopBarLayout"
-import { UserCog } from "lucide-react"
+import { UserCog, HelpCircle } from "lucide-react"
 import { Outlet } from "react-router-dom"
 
 /**
@@ -8,11 +8,14 @@ import { Outlet } from "react-router-dom"
  */
 export function UmkmDashboard() {
   const navItems: NavItem[] = [
-    { title: "My Projects", href: "/umkm/projects" },
+    { title: "Dasbor", href: "/umkm", end: true },
+    { title: "Etalase", href: "/umkm/discover" },
+    { title: "Proyek Saya", href: "/umkm/projects" },
   ]
 
   const profileItems: NavItem[] = [
-    { title: "Profil Saya", href: "/umkm/profile", icon: <UserCog className="w-4 h-4" /> },
+    { title: "Profil & Rekening", href: "/umkm/profile", icon: <UserCog className="w-4 h-4" /> },
+    { title: "Bantuan", href: "/umkm/complaints", icon: <HelpCircle className="w-4 h-4" /> },
   ]
 
   return (

@@ -11,6 +11,7 @@ export interface NavItem {
   title: string;
   href: string;
   icon?: React.ReactNode;
+  end?: boolean;
 }
 
 interface TopBarLayoutProps {
@@ -90,6 +91,7 @@ export const TopBarLayout: React.FC<TopBarLayoutProps> = ({ navItems, profileIte
                   <NavLink
                     key={item.title}
                     to={item.href}
+                    end={item.end}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={({ isActive }) =>
                       `px-4 py-3 text-base font-[600] rounded-[var(--radius-m)] transition-colors ${isActive && item.href !== '/'
@@ -126,7 +128,7 @@ export const TopBarLayout: React.FC<TopBarLayoutProps> = ({ navItems, profileIte
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
-                <NavLink to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+                <NavLink to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
                   <img
                     src={logoAgroFund}
                     alt="AgroFund Logo"
@@ -141,6 +143,7 @@ export const TopBarLayout: React.FC<TopBarLayoutProps> = ({ navItems, profileIte
                   <NavLink
                     key={item.title}
                     to={item.href}
+                    end={item.end}
                     className={({ isActive }) =>
                       `inline-flex items-center px-1 border-b-2 text-[var(--text-label)] font-[600] transition-colors ${isActive
                         ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
@@ -208,6 +211,7 @@ export const TopBarLayout: React.FC<TopBarLayoutProps> = ({ navItems, profileIte
                   <NavLink
                     key={item.title}
                     to={item.href}
+                    end={item.end}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={({ isActive }) =>
                       `block pl-4 pr-4 py-3 border-l-4 text-base font-[600] ${isActive

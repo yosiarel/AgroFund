@@ -94,6 +94,17 @@ export class ProjectService {
     });
   }
 
+  async getMyProjects(userId: string) {
+    return this.prisma.project.findMany({
+      where: { userId },
+      include: {
+        user: { select: { name: true } },
+        koperasi: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async getProjectById(id: string) {
     const project = await this.prisma.project.findUnique({
       where: { id },

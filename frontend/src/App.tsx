@@ -28,6 +28,7 @@ import { ProcurementPage } from './pages/umkm/ProcurementPage';
 import { CreateProcurementPage } from './pages/umkm/CreateProcurementPage';
 import { ProjectExecutionPage } from './pages/umkm/ProjectExecutionPage';
 import { ProfilePage } from './pages/umkm/ProfilePage';
+import { UmkmDashboardOverviewPage } from './pages/umkm/UmkmDashboardOverviewPage';
 
 // Koperasi Pages
 import { AssignedProjectsPage } from './pages/koperasi/AssignedProjectsPage';
@@ -115,7 +116,9 @@ const router = createBrowserRouter([
           {
             element: <UmkmDashboard />,
             children: [
-              { index: true, element: <Navigate to="/umkm/projects" replace /> },
+              { index: true, element: <UmkmDashboardOverviewPage /> },
+              { path: 'discover', element: <DiscoverProjectsPage /> },
+              { path: 'discover/:projectId', element: <ProjectDetailPage /> },
               { path: 'projects', element: <MyProjectsPage /> },
               { path: 'projects/create', element: <CreateProjectPage /> },
               { path: 'projects/:projectId', element: <UmkmProjectDetailPage /> },
@@ -124,6 +127,7 @@ const router = createBrowserRouter([
               { path: 'projects/:projectId/procurement/create', element: <CreateProcurementPage /> },
               { path: 'projects/:projectId/execution', element: <ProjectExecutionPage /> },
               { path: 'profile', element: <ProfilePage /> },
+              { path: 'complaints', element: <ComplaintsPage /> },
             ]
           }
         ]

@@ -52,6 +52,16 @@ export class ProjectController {
     return this.projectService.getProjects(status);
   }
 
+  @Get('my')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('UMKM')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Melihat daftar proyek milik UMKM' })
+  @ApiResponse({ status: 200, description: 'Berhasil mengambil daftar proyek' })
+  getMyProjects(@Request() req: any) {
+    return this.projectService.getMyProjects(req.user.userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Melihat detail proyek' })
   @ApiResponse({ status: 200, description: 'Berhasil mengambil detail proyek' })
