@@ -6,7 +6,7 @@ import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../components/ui/Card"
-import { ShieldCheck, Landmark, CheckCircle2 } from "lucide-react"
+import { Landmark, CheckCircle2 } from "lucide-react"
 
 export function ProfilePage() {
   const { user } = useAuth()
@@ -46,9 +46,8 @@ export function ProfilePage() {
 
       <Alert variant="info" className="bg-[var(--color-primary-50)] border-[var(--color-primary-200)]">
         <div className="flex gap-3">
-          <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Integritas Pengembalian Jaminan (Doc 4 Sec 20 & PB-045):</span> Jaminan (Guarantee 5%) yang Anda setorkan di awal akan dikembalikan 100% secara otomatis ke rekening bank terdaftar ini saat proyek selesai dan dinyatakan Sukses Ditutup.
+            Jaminan (Guarantee 5%) yang Anda setorkan di awal akan dikembalikan 100% secara otomatis ke rekening bank terdaftar ini saat proyek selesai dan dinyatakan Sukses Ditutup.
           </div>
         </div>
       </Alert>

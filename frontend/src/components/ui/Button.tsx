@@ -23,13 +23,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading, children, ...props }, ref) => {
     const variants = {
       primary:
-        "bg-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-700)] active:bg-[var(--color-primary-700)] border border-transparent shadow-[var(--shadow-e1)]",
+        "bg-[var(--color-primary-600)] !text-[#FFFFFF] hover:bg-[var(--color-primary-700)] active:bg-[var(--color-primary-700)] border border-transparent shadow-[var(--shadow-e1)]",
       secondary:
         "bg-[var(--color-primary-100)] text-[var(--color-primary-700)] hover:bg-[var(--color-primary-100)] hover:brightness-95 border border-transparent",
       tertiary:
         "bg-transparent text-[var(--color-neutral-700)] hover:bg-[var(--color-neutral-100)] hover:text-[var(--color-neutral-900)] border border-transparent",
       destructive:
-        "bg-[var(--color-error-500)] text-white hover:bg-[var(--color-error-700)] border border-transparent shadow-[var(--shadow-e1)]",
+        "bg-[var(--color-error-500)] !text-[#FFFFFF] hover:bg-[var(--color-error-700)] border border-transparent shadow-[var(--shadow-e1)]",
     }
 
     const sizes = {

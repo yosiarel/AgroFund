@@ -18,6 +18,7 @@ import { ContributionDetailPage } from './pages/pendana/ContributionDetailPage';
 import { ProjectMonitoringPage as PendanaProjectMonitoringPage } from './pages/pendana/ProjectMonitoringPage';
 import { NaturaTrackingPage } from './pages/pendana/NaturaTrackingPage';
 import { ComplaintsPage } from './pages/pendana/ComplaintsPage';
+import { PendanaDashboardOverviewPage } from './pages/pendana/PendanaDashboardOverviewPage';
 
 // UMKM Pages
 import { MyProjectsPage } from './pages/umkm/MyProjectsPage';
@@ -28,6 +29,7 @@ import { ProcurementPage } from './pages/umkm/ProcurementPage';
 import { CreateProcurementPage } from './pages/umkm/CreateProcurementPage';
 import { ProjectExecutionPage } from './pages/umkm/ProjectExecutionPage';
 import { ProfilePage } from './pages/umkm/ProfilePage';
+import { UmkmDashboardOverviewPage } from './pages/umkm/UmkmDashboardOverviewPage';
 
 // Koperasi Pages
 import { AssignedProjectsPage } from './pages/koperasi/AssignedProjectsPage';
@@ -47,6 +49,7 @@ import { DisputesPage } from './pages/admin/DisputesPage';
 import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
 import { LandingPage } from './pages/LandingPage';
+import { FAQ } from './pages/FAQ';
 
 const RootLayout = () => {
   return (
@@ -75,6 +78,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/', element: <LandingPage /> },
+      { path: '/faq', element: <FAQ /> },
       { path: '/unauthorized', element: <UnauthorizedPage /> },
       {
         element: <AuthLayout />,
@@ -92,7 +96,7 @@ const router = createBrowserRouter([
           {
             element: <PendanaDashboard />,
             children: [
-              { index: true, element: <Navigate to="/pendana/discover" replace /> },
+              { index: true, element: <PendanaDashboardOverviewPage /> },
               { path: 'discover', element: <DiscoverProjectsPage /> },
               { path: 'discover/:projectId', element: <ProjectDetailPage /> },
               { path: 'contributions', element: <MyContributionsPage /> },
@@ -113,7 +117,9 @@ const router = createBrowserRouter([
           {
             element: <UmkmDashboard />,
             children: [
-              { index: true, element: <Navigate to="/umkm/projects" replace /> },
+              { index: true, element: <UmkmDashboardOverviewPage /> },
+              { path: 'discover', element: <DiscoverProjectsPage /> },
+              { path: 'discover/:projectId', element: <ProjectDetailPage /> },
               { path: 'projects', element: <MyProjectsPage /> },
               { path: 'projects/create', element: <CreateProjectPage /> },
               { path: 'projects/:projectId', element: <UmkmProjectDetailPage /> },
@@ -122,6 +128,7 @@ const router = createBrowserRouter([
               { path: 'projects/:projectId/procurement/create', element: <CreateProcurementPage /> },
               { path: 'projects/:projectId/execution', element: <ProjectExecutionPage /> },
               { path: 'profile', element: <ProfilePage /> },
+              { path: 'complaints', element: <ComplaintsPage /> },
             ]
           }
         ]

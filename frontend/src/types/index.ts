@@ -47,7 +47,8 @@ export interface Project {
   totalTarget: number
   fundedAmount: number
   guaranteeAmount: number
-  deadline: string
+  deadline?: string
+  fundraisingDeadline?: string
   createdAt: string
   user: { id: string; name: string; username: string }
   koperasi?: { id: string; name: string; username: string }

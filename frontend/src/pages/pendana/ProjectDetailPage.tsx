@@ -63,7 +63,7 @@ export function ProjectDetailPage() {
 
   const percentage = Math.round((project.fundedAmount / project.totalTarget) * 100)
   const isFullyFunded = percentage >= 100
-  const isExpired = new Date() > new Date(project.deadline)
+  const isExpired = new Date() > new Date(project.fundraisingDeadline || "")
 
   // CTA eligibility (Doc 4, Sec 27)
   const canContribute =
@@ -206,7 +206,7 @@ export function ProjectDetailPage() {
               <FundingProgressBar
                 fundedAmount={project.fundedAmount}
                 targetAmount={project.totalTarget}
-                deadline={project.deadline}
+                deadline={project.fundraisingDeadline || ""}
                 showRemainingLabel
               />
 
@@ -241,9 +241,9 @@ export function ProjectDetailPage() {
               <div className="flex items-center gap-2 text-[var(--text-caption)] text-[var(--color-neutral-500)]">
                 <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>
-                  Batas pendanaan: {new Date(project.deadline).toLocaleDateString("id-ID", {
+                  Batas pendanaan: {project.fundraisingDeadline ? new Date(project.fundraisingDeadline).toLocaleDateString("id-ID", {
                     day: "numeric", month: "long", year: "numeric"
-                  })}
+                  }) : "-"}
                 </span>
               </div>
             </CardContent>

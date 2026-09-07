@@ -15,12 +15,12 @@ import { Outlet } from "react-router-dom"
  */
 export function KoperasiDashboard() {
   const sidebarItems: SidebarItem[] = [
-    { title: "Assigned Projects", href: "/koperasi/projects", icon: <Briefcase className="w-5 h-5" /> },
-    { title: "Assessment", href: "/koperasi/projects", icon: <ClipboardCheck className="w-5 h-5" /> },
-    { title: "Procurement", href: "/koperasi/procurement", icon: <PackageSearch className="w-5 h-5" /> },
-    { title: "Evidence", href: "/koperasi/evidence", icon: <FileCheck className="w-5 h-5" /> },
-    { title: "Monitoring", href: "/koperasi/monitoring", icon: <Activity className="w-5 h-5" /> },
-    { title: "Incident / Cases", href: "/koperasi/incidents", icon: <AlertOctagon className="w-5 h-5" /> },
+    { title: "Proyek Ditugaskan", href: "/koperasi/projects", icon: <Briefcase className="w-5 h-5" /> },
+    { title: "Penilaian Kelayakan", href: "/koperasi/projects", icon: <ClipboardCheck className="w-5 h-5" /> },
+    { title: "Pengadaan Barang", href: "/koperasi/procurement", icon: <PackageSearch className="w-5 h-5" /> },
+    { title: "Validasi Bukti", href: "/koperasi/evidence", icon: <FileCheck className="w-5 h-5" /> },
+    { title: "Pemantauan Proyek", href: "/koperasi/monitoring", icon: <Activity className="w-5 h-5" /> },
+    { title: "Insiden & Kasus", href: "/koperasi/incidents", icon: <AlertOctagon className="w-5 h-5" /> },
   ]
 
   return (
