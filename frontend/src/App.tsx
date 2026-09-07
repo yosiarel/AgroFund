@@ -9,19 +9,42 @@ import { PendanaDashboard } from './pages/pendana/PendanaDashboard';
 import { UmkmDashboard } from './pages/umkm/UmkmDashboard';
 import { KoperasiDashboard } from './pages/koperasi/KoperasiDashboard';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+
 // Pendana Pages
 import { DiscoverProjectsPage } from './pages/pendana/DiscoverProjectsPage';
 import { ProjectDetailPage } from './pages/pendana/ProjectDetailPage';
 import { MyContributionsPage } from './pages/pendana/MyContributionsPage';
+import { ContributionDetailPage } from './pages/pendana/ContributionDetailPage';
+import { ProjectMonitoringPage as PendanaProjectMonitoringPage } from './pages/pendana/ProjectMonitoringPage';
+import { NaturaTrackingPage } from './pages/pendana/NaturaTrackingPage';
+import { ComplaintsPage } from './pages/pendana/ComplaintsPage';
+
 // UMKM Pages
 import { MyProjectsPage } from './pages/umkm/MyProjectsPage';
 import { CreateProjectPage } from './pages/umkm/CreateProjectPage';
+import { ProjectDetailPage as UmkmProjectDetailPage } from './pages/umkm/ProjectDetailPage';
+import { GuaranteePaymentPage } from './pages/umkm/GuaranteePaymentPage';
+import { ProcurementPage } from './pages/umkm/ProcurementPage';
+import { CreateProcurementPage } from './pages/umkm/CreateProcurementPage';
+import { ProjectExecutionPage } from './pages/umkm/ProjectExecutionPage';
+import { ProfilePage } from './pages/umkm/ProfilePage';
+
 // Koperasi Pages
 import { AssignedProjectsPage } from './pages/koperasi/AssignedProjectsPage';
 import { AssessmentPage } from './pages/koperasi/AssessmentPage';
+import { ProcurementValidationPage } from './pages/koperasi/ProcurementValidationPage';
+import { EvidenceReviewPage } from './pages/koperasi/EvidenceReviewPage';
+import { ProjectMonitoringPage as KoperasiProjectMonitoringPage } from './pages/koperasi/ProjectMonitoringPage';
+import { IncidentReportingPage } from './pages/koperasi/IncidentReportingPage';
+
 // Admin Pages
 import { AdminProjectsPage } from './pages/admin/AdminProjectsPage';
 import { PublicationReviewPage } from './pages/admin/PublicationReviewPage';
+import { CooperativesPage } from './pages/admin/CooperativesPage';
+import { IncidentsPage } from './pages/admin/IncidentsPage';
+import { RecoveryRefundsPage } from './pages/admin/RecoveryRefundsPage';
+import { DisputesPage } from './pages/admin/DisputesPage';
+import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
 const RootLayout = () => {
   return (
@@ -86,13 +109,6 @@ const UnauthorizedPage = () => (
   </div>
 );
 
-const Placeholder = ({ title }: { title: string }) => (
-  <div className="flex flex-col gap-2">
-    <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-neutral-900)]">{title}</h1>
-    <p className="text-[var(--text-body-m)] text-[var(--color-neutral-500)]">Halaman ini sedang dalam pengembangan.</p>
-  </div>
-);
-
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -114,9 +130,10 @@ const router = createBrowserRouter([
               { path: 'discover', element: <DiscoverProjectsPage /> },
               { path: 'discover/:projectId', element: <ProjectDetailPage /> },
               { path: 'contributions', element: <MyContributionsPage /> },
-              { path: 'monitoring', element: <Placeholder title="Project Monitoring" /> },
-              { path: 'natura', element: <Placeholder title="Natura" /> },
-              { path: 'complaints', element: <Placeholder title="Complaints / Cases" /> },
+              { path: 'contributions/:contributionId', element: <ContributionDetailPage /> },
+              { path: 'monitoring', element: <PendanaProjectMonitoringPage /> },
+              { path: 'natura', element: <NaturaTrackingPage /> },
+              { path: 'complaints', element: <ComplaintsPage /> },
             ]
           }
         ]
@@ -133,12 +150,12 @@ const router = createBrowserRouter([
               { index: true, element: <Navigate to="/umkm/projects" replace /> },
               { path: 'projects', element: <MyProjectsPage /> },
               { path: 'projects/create', element: <CreateProjectPage /> },
-              { path: 'projects/:projectId', element: <Placeholder title="Detail Proyek UMKM" /> },
-              { path: 'projects/:projectId/guarantee', element: <Placeholder title="Pembayaran Guarantee" /> },
-              { path: 'projects/:projectId/procurement', element: <Placeholder title="Pengadaan Proyek" /> },
-              { path: 'projects/:projectId/procurement/create', element: <Placeholder title="Buat Procurement Request" /> },
-              { path: 'projects/:projectId/execution', element: <Placeholder title="Eksekusi Proyek" /> },
-              { path: 'profile', element: <Placeholder title="Profile / Payment Information" /> },
+              { path: 'projects/:projectId', element: <UmkmProjectDetailPage /> },
+              { path: 'projects/:projectId/guarantee', element: <GuaranteePaymentPage /> },
+              { path: 'projects/:projectId/procurement', element: <ProcurementPage /> },
+              { path: 'projects/:projectId/procurement/create', element: <CreateProcurementPage /> },
+              { path: 'projects/:projectId/execution', element: <ProjectExecutionPage /> },
+              { path: 'profile', element: <ProfilePage /> },
             ]
           }
         ]
@@ -155,11 +172,10 @@ const router = createBrowserRouter([
               { index: true, element: <Navigate to="/koperasi/projects" replace /> },
               { path: 'projects', element: <AssignedProjectsPage /> },
               { path: 'assessment/:projectId', element: <AssessmentPage /> },
-              { path: 'projects/:projectId', element: <Placeholder title="Detail Proyek Koperasi" /> },
-              { path: 'procurement', element: <Placeholder title="Procurement Validation" /> },
-              { path: 'evidence', element: <Placeholder title="Evidence" /> },
-              { path: 'monitoring', element: <Placeholder title="Monitoring" /> },
-              { path: 'incidents', element: <Placeholder title="Incident / Cases" /> },
+              { path: 'procurement', element: <ProcurementValidationPage /> },
+              { path: 'evidence', element: <EvidenceReviewPage /> },
+              { path: 'monitoring', element: <KoperasiProjectMonitoringPage /> },
+              { path: 'incidents', element: <IncidentReportingPage /> },
             ]
           }
         ]
@@ -176,13 +192,12 @@ const router = createBrowserRouter([
               { index: true, element: <Navigate to="/admin/projects" replace /> },
               { path: 'projects', element: <AdminProjectsPage /> },
               { path: 'projects/:projectId/review', element: <PublicationReviewPage /> },
-              { path: 'projects/:projectId', element: <Placeholder title="Detail Proyek Admin" /> },
-              { path: 'cooperatives', element: <Placeholder title="Cooperatives" /> },
-              { path: 'incidents', element: <Placeholder title="Incidents" /> },
-              { path: 'recovery', element: <Placeholder title="Recovery" /> },
-              { path: 'refunds', element: <Placeholder title="Refunds" /> },
-              { path: 'disputes', element: <Placeholder title="Disputes" /> },
-              { path: 'audit', element: <Placeholder title="Audit / Activity" /> },
+              { path: 'cooperatives', element: <CooperativesPage /> },
+              { path: 'incidents', element: <IncidentsPage /> },
+              { path: 'recovery', element: <RecoveryRefundsPage /> },
+              { path: 'refunds', element: <RecoveryRefundsPage /> },
+              { path: 'disputes', element: <DisputesPage /> },
+              { path: 'audit', element: <AuditTrailPage /> },
             ]
           }
         ]

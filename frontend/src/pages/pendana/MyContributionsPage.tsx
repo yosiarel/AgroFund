@@ -9,6 +9,7 @@ import { EmptyState } from "../../components/ui/EmptyState"
 import { Alert } from "../../components/ui/Alert"
 import { Badge } from "../../components/ui/Badge"
 import { Card } from "../../components/ui/Card"
+import { Button } from "../../components/ui/Button"
 import { Wallet, AlertCircle, CheckCircle, Clock, XCircle, HelpCircle } from "lucide-react"
 
 /**
@@ -181,18 +182,25 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
           </div>
         )}
 
-        {/* Pay/Retry CTA for pending */}
-        {(contribution.status === "PENDING" || contribution.status === "FAILED") && contribution.invoiceUrl && (
-          <a
-            href={contribution.invoiceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] text-[var(--text-body-s)] font-[500] hover:bg-[var(--color-primary-700)] transition-colors w-fit"
-          >
-            <AlertCircle className="w-4 h-4" />
-            {contribution.status === "FAILED" ? "Coba Bayar Lagi" : "Lanjutkan Pembayaran"}
-          </a>
-        )}
+        {/* Pay/Retry CTA for pending and View Detail */}
+        <div className="flex flex-wrap items-center gap-3">
+          {(contribution.status === "PENDING" || contribution.status === "FAILED") && contribution.invoiceUrl && (
+            <a
+              href={contribution.invoiceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] text-[var(--text-body-s)] font-[500] hover:bg-[var(--color-primary-700)] transition-colors w-fit"
+            >
+              <AlertCircle className="w-4 h-4" />
+              {contribution.status === "FAILED" ? "Coba Bayar Lagi" : "Lanjutkan Pembayaran"}
+            </a>
+          )}
+          <Link to={`/pendana/contributions/${contribution.id}`}>
+            <Button variant="secondary" size="sm">
+              Lihat Detail Pendanaan
+            </Button>
+          </Link>
+        </div>
       </div>
     </Card>
   )

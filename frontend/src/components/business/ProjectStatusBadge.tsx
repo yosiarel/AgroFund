@@ -119,6 +119,9 @@ const STATUS_CONFIG: Record<
 
 export interface ProjectStatusBadgeProps {
   status: ProjectStatus;
+  deadline?: string;
+  fundedAmount?: number;
+  totalTarget?: number;
   /**
    * authority — shows who performed this action (Doc 5, Sec 54)
    * "Performed by Koperasi" / "Performed by AgroFund"
@@ -130,11 +133,28 @@ export interface ProjectStatusBadgeProps {
 
 export function ProjectStatusBadge({
   status,
+  deadline,
+  fundedAmount,
+  totalTarget,
   showAuthority = false,
   className,
   size = "md",
 }: ProjectStatusBadgeProps) {
-  const config = STATUS_CONFIG[status]
+  let label = STATUS_CONFIG[status].label
+  let variant = STATUS_CONFIG[status].variant
+
+  // Expiration check (Doc 4 Sec 33)
+  if (
+    status === "FUNDRAISING" &&
+    deadline &&
+    fundedAmount !== undefined &&
+    totalTarget !== undefined
+  ) {
+    if (new Date(deadline) < new Date() && fundedAmount < totalTarget) {
+      label = "Funding Deadline Reached"
+      variant = "risk"
+    }
+  }
 
   // Authority context per Doc 5 Sec 54
   const authorityLabel =
@@ -147,10 +167,10 @@ export function ProjectStatusBadge({
   return (
     <div className={cn("inline-flex flex-col gap-1", className)}>
       <Badge
-        variant={config.variant}
+        variant={variant}
         className={size === "sm" ? "text-[10px]" : ""}
       >
-        {config.label}
+        {label}
       </Badge>
       {showAuthority && authorityLabel && (
         <span className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
