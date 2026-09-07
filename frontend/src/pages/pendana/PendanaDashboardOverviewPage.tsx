@@ -38,7 +38,7 @@ export function PendanaDashboardOverviewPage() {
 
   // Calculate statistics from SUCCESS contributions
   const paidContributions = contributions?.filter(c => c.status === "SUCCESS") || []
-  const totalInvested = paidContributions.reduce((sum, c) => sum + (c.amount || 0), 0)
+  const totalInvested = paidContributions.reduce((sum, c) => sum + Number(c.amount || 0), 0)
 
   // Unique active projects being funded
   const uniqueProjects = new Set(paidContributions.map(c => c.project?.id).filter(Boolean))

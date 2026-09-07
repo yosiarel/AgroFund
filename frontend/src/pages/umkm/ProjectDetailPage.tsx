@@ -144,7 +144,7 @@ export function ProjectDetailPage() {
                 <FundingProgressBar 
                   fundedAmount={project.fundedAmount}
                   targetAmount={project.totalTarget}
-                  deadline={project.deadline}
+                  deadline={project.fundraisingDeadline || ""}
                   showRemainingLabel
                 />
               )}

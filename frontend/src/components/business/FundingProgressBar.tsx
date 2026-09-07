@@ -36,17 +36,22 @@ function formatRupiah(amount: number): string {
   }).format(amount)
 }
 
-function formatDeadline(dateStr: string): string {
+function formatDeadline(dateStr?: string): string {
+  if (!dateStr) return "-";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(dateStr))
+  }).format(date)
 }
 
-function getDaysRemaining(deadline: string): number {
+function getDaysRemaining(deadline?: string): number {
+  if (!deadline) return 0;
+  const end = new Date(deadline);
+  if (isNaN(end.getTime())) return 0;
   const today = new Date()
-  const end = new Date(deadline)
   return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 

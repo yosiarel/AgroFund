@@ -130,7 +130,7 @@ function UmkmProjectCard({ project }: { project: Project }) {
           <FundingProgressBar
             fundedAmount={project.fundedAmount}
             targetAmount={project.totalTarget}
-            deadline={project.deadline}
+            deadline={project.fundraisingDeadline || ""}
             showRemainingLabel
           />
         )}
