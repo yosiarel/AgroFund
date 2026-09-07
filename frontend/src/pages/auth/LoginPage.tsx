@@ -1,92 +1,102 @@
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
-import { Input } from "../../components/ui/Input"
-import { Button } from "../../components/ui/Button"
-import { Alert } from "../../components/ui/Alert"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
+import { Alert } from '../../components/ui/Alert';
 
-export function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [error, setError] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(false)
+const loginSchema = z.object({
+  username: z.string().min(3, 'Username minimal 3 karakter'),
+  password: z.string().min(6, 'Password minimal 6 karakter'),
+});
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+type LoginForm = z.infer<typeof loginSchema>;
 
-    const formData = new FormData(e.currentTarget)
-    const username = formData.get("username") as string
-    const password = formData.get("password") as string
+export const LoginPage: React.FC = () => {
+  const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    if (!username || !password) {
-      setError("Username dan password harus diisi.")
-      setIsLoading(false)
-      return
-    }
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
 
+  const onSubmit = async (data: LoginForm) => {
+    setIsLoggingIn(true);
     try {
-      await login({ username, password })
-      navigate("/") // Redirect to home/dashboard (will be routed by ProtectedRoute later)
+      await login(data);
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.message || "Gagal masuk. Periksa kembali username dan password Anda.")
+      setError('root', {
+        message: err?.message || err?.response?.data?.message || 'Username atau password salah',
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoggingIn(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-neutral-50)] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center pb-2">
-          {/* Logo Placeholder */}
-          <div className="w-12 h-12 bg-[var(--color-primary-600)] rounded-[var(--radius-m)] flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-xl">AF</span>
-          </div>
-          <CardTitle className="text-[var(--text-h3)]">Masuk ke AgroFund</CardTitle>
-          <p className="text-[var(--text-body-m)] text-[var(--color-neutral-500)] mt-1">
-            Selamat datang kembali.
-          </p>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="error" className="mb-6">
-              {error}
-            </Alert>
-          )}
-          
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <Input
-              label="Username"
-              name="username"
-              placeholder="Masukkan username Anda"
-              required
-              autoComplete="username"
-            />
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Masukkan password Anda"
-              required
-              autoComplete="current-password"
-            />
-            
-            <Button type="submit" variant="primary" className="w-full mt-2" isLoading={isLoading}>
-              Masuk
-            </Button>
-          </form>
+    <div className="w-full max-w-md bg-white p-8 rounded-[var(--radius-l)] shadow-[var(--shadow-e1)] border border-[var(--color-neutral-200)] animate-in fade-in duration-500">
+      <div className="mb-8 text-center">
+        <h1 className="text-[var(--text-h3)] font-bold text-[var(--color-neutral-900)] tracking-tight">
+          Masuk ke AgroFund
+        </h1>
+        <p className="text-[var(--text-body-s)] text-[var(--color-neutral-600)] mt-2">
+          Selamat datang kembali di ekosistem P2P Lending Syariah Agrikultur.
+        </p>
+      </div>
 
-          <div className="mt-6 text-center text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
-            Belum punya akun?{" "}
-            <Link to="/register" className="font-[600] text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] transition-colors">
-              Daftar sekarang
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full">
+        {errors.root && (
+          <Alert variant="error" className="mb-6">
+            {errors.root.message}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Input
+            label="Username"
+            required
+            placeholder="Masukkan username"
+            error={errors.username?.message}
+            {...register('username')}
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            required
+            placeholder="Masukkan password"
+            error={errors.password?.message}
+            {...register('password')}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full mt-2"
+            isLoading={isLoggingIn || isLoading}
+          >
+            Masuk
+          </Button>
+        </form>
+
+        <div className="mt-8 pt-6 border-t border-[var(--color-neutral-200)] flex items-center justify-center gap-2 text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
+          <span>Belum punya akun?</span>
+          <NavLink
+            to="/register"
+            className="text-[var(--color-primary-600)] font-[600] hover:text-[var(--color-primary-700)] transition-colors"
+          >
+            Daftar sekarang
+          </NavLink>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};

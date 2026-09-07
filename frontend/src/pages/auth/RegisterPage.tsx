@@ -1,146 +1,162 @@
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
-import type { Role } from "../../contexts/AuthContext"
-import { Input } from "../../components/ui/Input"
-import { Select } from "../../components/ui/Select"
-import { Button } from "../../components/ui/Button"
-import { Alert } from "../../components/ui/Alert"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate, NavLink } from 'react-router-dom';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
+import { Alert } from '../../components/ui/Alert';
 
-export function RegisterPage() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
-  const [error, setError] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(false)
+const registerSchema = z.object({
+  name: z.string().min(2, 'Nama minimal 2 karakter'),
+  username: z.string().min(3, 'Username minimal 3 karakter'),
+  password: z.string().min(6, 'Password minimal 6 karakter'),
+  role: z.enum(['PENDANA', 'UMKM']),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+});
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+type RegisterForm = z.infer<typeof registerSchema>;
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      name: formData.get("name") as string,
-      username: formData.get("username") as string,
-      password: formData.get("password") as string,
-      role: formData.get("role") as Role,
-      phone: formData.get("phone") as string,
-      address: formData.get("address") as string,
-    }
+export const RegisterPage: React.FC = () => {
+  const { register: registerUser } = useAuth();
+  const navigate = useNavigate();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
-    if (!data.name || !data.username || !data.password || !data.role) {
-      setError("Mohon lengkapi semua field yang wajib diisi.")
-      setIsLoading(false)
-      return
-    }
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: 'PENDANA',
+    },
+  });
 
-    if (data.password.length < 6) {
-      setError("Password harus minimal 6 karakter.")
-      setIsLoading(false)
-      return
-    }
-
+  const onSubmit = async (data: RegisterForm) => {
+    setIsRegistering(true);
+    setSuccessMsg("");
     try {
-      await register(data)
-      navigate("/") // Redirect to home/dashboard
+      const payload = {
+        name: data.name,
+        username: data.username,
+        password: data.password,
+        role: data.role,
+        ...(data.phone?.trim() ? { phone: data.phone.trim() } : {}),
+        ...(data.address?.trim() ? { address: data.address.trim() } : {}),
+      };
+      await registerUser(payload);
+      setSuccessMsg("Pendaftaran berhasil! Mengalihkan ke dasbor...");
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1500);
     } catch (err: any) {
-      // Backend ValidationPipe returns array of messages if class-validator fails
-      const errMsg = Array.isArray(err.response?.data?.message)
-        ? err.response.data.message[0]
-        : err.response?.data?.message || "Gagal mendaftar. Silakan coba lagi."
-      setError(errMsg)
+      const errorMsg =
+        err?.message ||
+        err?.response?.data?.message ||
+        'Gagal mendaftar. Username mungkin sudah digunakan.';
+      setError('root', { message: errorMsg });
     } finally {
-      setIsLoading(false)
+      setIsRegistering(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-neutral-50)] p-4 py-12">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="text-center pb-2">
-          <div className="w-12 h-12 bg-[var(--color-primary-600)] rounded-[var(--radius-m)] flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-xl">AF</span>
-          </div>
-          <CardTitle className="text-[var(--text-h3)]">Daftar Akun Baru</CardTitle>
-          <p className="text-[var(--text-body-m)] text-[var(--color-neutral-500)] mt-1">
-            Bergabunglah dengan ekosistem AgroFund.
-          </p>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="error" className="mb-6">
-              {error}
-            </Alert>
-          )}
-          
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* 
-              Doc 4 Sec 9.1: Public Registration only for Pendana and UMKM.
-              Koperasi and Supplier not available in public registration.
-            */}
-            <Select
-              label="Tipe Akun"
-              name="role"
-              required
-              options={[
-                { label: "Pendana (Mendanai proyek agrikultur)", value: "PENDANA" },
-                { label: "UMKM / Petani (Mengajukan pendanaan)", value: "UMKM" },
-              ]}
-              helperText="Pilih sesuai tujuan utama Anda bergabung."
-            />
+    <div className="w-full max-w-md bg-white p-8 rounded-[var(--radius-l)] shadow-[var(--shadow-e1)] border border-[var(--color-neutral-200)] my-8 animate-in fade-in duration-500">
+      <div className="mb-8 text-center">
+        <h1 className="text-[var(--text-h3)] font-bold text-[var(--color-neutral-900)] tracking-tight">
+          Buat Akun
+        </h1>
+        <p className="text-[var(--text-body-s)] text-[var(--color-neutral-600)] mt-2">
+          Bergabung dengan ekosistem AgroFund untuk mewujudkan ketahanan pangan.
+        </p>
+      </div>
 
-            <div className="border-t border-[var(--color-neutral-100)] my-1" />
+      <div className="w-full">
+        {errors.root && (
+          <Alert variant="error" className="mb-6">
+            {errors.root.message}
+          </Alert>
+        )}
 
-            <Input
-              label="Nama Lengkap"
-              name="name"
-              placeholder="Sesuai kartu identitas"
-              required
-            />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Username"
-                name="username"
-                placeholder="Untuk keperluan login"
-                required
-              />
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="Minimal 6 karakter"
-                required
-              />
-            </div>
+        {successMsg && (
+          <Alert variant="success" className="mb-6">
+            {successMsg}
+          </Alert>
+        )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Nomor Telepon"
-                name="phone"
-                placeholder="Contoh: 08123456789"
-              />
-              <Input
-                label="Alamat Lengkap"
-                name="address"
-                placeholder="Alamat domisili / usaha"
-              />
-            </div>
-            
-            <Button type="submit" variant="primary" className="w-full mt-4" isLoading={isLoading}>
-              Daftar Sekarang
-            </Button>
-          </form>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Input
+            label="Nama Lengkap"
+            required
+            placeholder="Masukkan nama lengkap"
+            error={errors.name?.message}
+            {...register('name')}
+          />
 
-          <div className="mt-6 text-center text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
-            Sudah punya akun?{" "}
-            <Link to="/login" className="font-[600] text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] transition-colors">
-              Masuk di sini
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+          <Input
+            label="Username"
+            required
+            placeholder="Pilih username"
+            error={errors.username?.message}
+            {...register('username')}
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            required
+            placeholder="Minimal 6 karakter"
+            error={errors.password?.message}
+            {...register('password')}
+          />
+
+          <Select
+            label="Daftar Sebagai"
+            required
+            options={[
+              { label: 'Investor (Pendana)', value: 'PENDANA' },
+              { label: 'Pelaku Tani / Pekebun (UMKM)', value: 'UMKM' },
+            ]}
+            error={errors.role?.message}
+            {...register('role')}
+          />
+
+          <Input
+            label="Nomor Telepon"
+            placeholder="Contoh: 08123456789"
+            error={errors.phone?.message}
+            {...register('phone')}
+          />
+
+          <Input
+            label="Alamat"
+            placeholder="Contoh: Jl. Pertanian No. 10"
+            error={errors.address?.message}
+            {...register('address')}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full mt-4"
+            isLoading={isRegistering}
+          >
+            Daftar Sekarang
+          </Button>
+        </form>
+
+        <div className="mt-8 pt-6 border-t border-[var(--color-neutral-200)] flex items-center justify-center gap-2 text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
+          <span>Sudah punya akun?</span>
+          <NavLink
+            to="/login"
+            className="text-[var(--color-primary-600)] font-[600] hover:text-[var(--color-primary-700)] transition-colors"
+          >
+            Masuk di sini
+          </NavLink>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};

@@ -35,9 +35,11 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix('api/v1');
+
   // Setup Swagger
   const config = new DocumentBuilder()
-    .setTitle('AkarMakmur API')
+    .setTitle('AgroFund API')
     .setDescription('Micro-Capital Crowdfunding & Digital Cooperative API')
     .setVersion('1.0')
     .addBearerAuth()

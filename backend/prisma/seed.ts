@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Menjalankan proses seeding data...');
-  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@AkarMakmur2026!';
+  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@AgroFund';
   const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
   // 1. Seed Admin (AgroFund)

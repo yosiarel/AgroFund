@@ -30,8 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      const { data } = await api.get("/user/profile")
-      setUser(data) // Will be null if not logged in
+      const res: any = await api.get("/user/profile")
+      const profile = res?.data !== undefined ? res.data : (res || null)
+      setUser(profile) // Will be null if not logged in
     } catch (error) {
       setUser(null)
     } finally {

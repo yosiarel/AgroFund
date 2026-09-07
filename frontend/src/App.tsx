@@ -1,4 +1,5 @@
-import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate, NavLink } from 'react-router-dom';
+import { AuthLayout } from './components/layout/AuthLayout';
 import { ColdStartProvider } from './components/ColdStartProvider';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -76,7 +77,7 @@ const HomeOrRedirect = () => {
   }
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-neutral-50)] p-4 text-center">
-      <div className="w-16 h-16 bg-[var(--color-primary-600)] rounded-[var(--radius-m)] flex items-center justify-center mb-6">
+      <div className="w-16 h-16 bg-[var(--color-primary-600)] rounded-[var(--radius-l)] flex items-center justify-center mx-auto mb-6 shadow-[var(--shadow-e1)]">
         <span className="text-white font-bold text-2xl">AF</span>
       </div>
       <h1 className="text-[var(--text-h2)] leading-[var(--text-h2--line-height)] font-[700] text-[var(--color-neutral-900)] mb-3">
@@ -86,12 +87,18 @@ const HomeOrRedirect = () => {
         Platform Peer-to-Peer Lending Syariah Agrikultur.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs mx-auto">
-        <a href="/login" className="w-full text-center px-4 py-2.5 bg-[var(--color-primary-600)] text-white font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] transition-colors">
+        <NavLink
+          to="/login"
+          className="w-full text-center px-4 py-2.5 bg-[var(--color-primary-600)] text-white font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] shadow-[var(--shadow-e1)] transition-colors"
+        >
           Masuk
-        </a>
-        <a href="/register" className="w-full text-center px-4 py-2.5 bg-white text-[var(--color-primary-600)] border border-[var(--color-primary-200)] font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-50)] transition-colors">
+        </NavLink>
+        <NavLink
+          to="/register"
+          className="w-full text-center px-4 py-2.5 bg-white text-[var(--color-primary-700)] border border-[var(--color-primary-200)] font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-50)] transition-colors"
+        >
           Daftar Baru
-        </a>
+        </NavLink>
       </div>
     </div>
   );
@@ -99,13 +106,18 @@ const HomeOrRedirect = () => {
 
 const UnauthorizedPage = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-neutral-50)] p-4 text-center">
-    <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-error-600)] mb-2">Akses Ditolak</h1>
+    <h1 className="text-[var(--text-h2)] font-bold text-[var(--color-error-600)] mb-2">
+      Akses Ditolak
+    </h1>
     <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)] mb-6">
       Anda tidak memiliki izin untuk mengakses halaman ini.
     </p>
-    <a href="/" className="px-4 py-2 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] transition-colors">
+    <NavLink
+      to="/"
+      className="px-5 py-2.5 bg-[var(--color-primary-600)] text-white font-[500] rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] shadow-[var(--shadow-e1)] transition-colors"
+    >
       Kembali ke Beranda
-    </a>
+    </NavLink>
   </div>
 );
 
@@ -114,9 +126,14 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/', element: <HomeOrRedirect /> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
       { path: '/unauthorized', element: <UnauthorizedPage /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: '/login', element: <LoginPage /> },
+          { path: '/register', element: <RegisterPage /> },
+        ]
+      },
 
       // ── Pendana Routes ──────────────────────────────────────────────
       {
