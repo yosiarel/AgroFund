@@ -4,6 +4,17 @@ AgroFund adalah platform inovatif yang menghubungkan UMKM sektor agrikultur (pet
 
 ---
 
+## 🌟 Fitur Utama
+
+- **Pendanaan Berbasis Proyek**: Memodali UMKM agrikultur secara patungan (*crowdfunding*).
+- **Pengawasan Koperasi**: Setiap proyek yang diajukan UMKM wajib diverifikasi kelayakannya oleh Koperasi setempat.
+- **Transparansi Alur Dana**: Dana investasi dialokasikan langsung untuk Pengadaan Barang (Purchase Order/PO) ke Pemasok (Supplier), bukan tunai mentah.
+- **Dashboard Multi-Peran**: Antarmuka terpisah khusus untuk 4 peran: UMKM, Pendana, Koperasi, dan Super Admin.
+- **Opsi Return Natura**: Pendana dapat memilih kompensasi menarik berupa produk hasil panen (Natura).
+- **Sistem Perlindungan Dana**: Pengamanan investasi melalui Jaminan (Guarantee 5%) dan skema restrukturisasi jika terjadi musibah/gagal panen.
+
+---
+
 ## 🛠️ Tech Stack (Teknologi Utama)
 
 Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang cepat, aman, dan mudah dikembangkan:
@@ -161,7 +172,7 @@ Aplikasi _frontend_ akan berjalan. Buka _browser_ Anda dan akses tautan `http://
 
 ## 🔑 Akun Demo (Uji Coba)
 
-Untuk memudahkan proses pengujian (_testing_), proses _seeding_ database sebelumnya secara otomatis telah membuat 11 proyek uji coba (mewakili seluruh tahapan alur hidup proyek dari _Draft_ hingga _Sukses_) beserta 7 buah akun yang memiliki peran berbeda-beda.
+Untuk memudahkan proses pengujian (_testing_), proses _seeding_ database sebelumnya secara otomatis telah membuat 18 proyek uji coba (mewakili seluruh tahapan alur hidup proyek dari _Draft_ hingga _Sukses_ beserta berbagai skenario kompleks / *edge-cases*) beserta 7 buah akun yang memiliki peran berbeda-beda.
 
 Gunakan kredensial (nama pengguna dan kata sandi) di bawah ini untuk mengakses aplikasi:
 
@@ -172,8 +183,8 @@ Memiliki akses ke Dasbor Admin untuk menyetujui, menerbitkan (*publish*) proyek,
 
 ### UMKM (Petani / Nelayan)
 Memiliki kemampuan untuk membuat draf proyek, mengirim laporan perkembangan (*progress*), dan melaporkan insiden.
-- **Username:** `budi` (Memiliki 5 proyek dengan status beragam)
-- **Username:** `santo` (Memiliki 6 proyek dengan status beragam)
+- **Username:** `budi` (Memiliki 9 proyek dengan status pengujian beragam)
+- **Username:** `santo` (Memiliki 9 proyek dengan status pengujian beragam)
 - **Password:** `user123`
 
 ### Koperasi (Asesor & Pengawas)

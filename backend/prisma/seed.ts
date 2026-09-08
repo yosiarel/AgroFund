@@ -177,6 +177,97 @@ async function main() {
   await prisma.contribution.create({ data: { projectId: projGagal.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
   await prisma.incident.create({ data: { projectId: projGagal.id, category: 'FORCE_MAJEURE', severity: 'HIGH', description: 'Hancur karena badai', status: 'RESOLVED', decision: 'Gagal Total' } });
 
+  // ==========================================
+  // 3. SEED EXTRA TEST CASES (Requested by User)
+  // ==========================================
+  
+  // Extra Draft
+  await prisma.project.create({
+    data: {
+      userId: umkmBudi.id, koperasiId: koperasi.id,
+      title: 'Perkebunan Kopi Arabika', description: 'Draft kebun kopi di dataran tinggi.',
+      ...baseFinance, basicProcurementCapital: 200000000n, targetAmount: 240000000n, status: ProjectStatus.DRAFT
+    }
+  });
+
+  // Extra Pub Review (Needs Correction)
+  const projPubRev2 = await prisma.project.create({
+    data: {
+      userId: umkmSanto.id, koperasiId: koperasi2.id,
+      title: 'Pembuatan Kapal Ikan Tradisional', description: 'Butuh koreksi rincian dana.',
+      ...baseFinance, status: ProjectStatus.PUBLICATION_REVIEW
+    }
+  });
+  await prisma.assessment.create({
+    data: { projectId: projPubRev2.id, type: 'COOPERATIVE', assessorId: koperasi2.id, status: AssessmentStatus.APPROVED }
+  });
+  await prisma.assessment.create({
+    data: { projectId: projPubRev2.id, type: 'AGROFUND', assessorId: admin.id, status: AssessmentStatus.NEEDS_CORRECTION, notes: 'Mohon perbaiki rincian BPC' }
+  });
+
+  // Extra Fundraising (10% Funded)
+  const projFund10 = await prisma.project.create({
+    data: {
+      userId: umkmBudi.id, koperasiId: koperasi.id,
+      title: 'Budidaya Jahe Merah', description: 'Baru mendapat sedikit pendanaan',
+      ...baseFinance, targetAmount: 100000000n, status: ProjectStatus.FUNDRAISING, guaranteeStatus: GuaranteeStatus.HELD,
+      fundedAmount: 10000000n, publishedAt: new Date(), fundraisingDeadline: new Date(Date.now() + 5 * 86400000)
+    }
+  });
+  await prisma.contribution.create({ data: { projectId: projFund10.id, investorId: pendanaDermawan.id, amount: 10000000n, processingFee: 2000n, totalPayment: 10002000n, status: 'PAID' } });
+
+  // Extra Fundraising (90% Funded - Hampir Penuh)
+  const projFund90 = await prisma.project.create({
+    data: {
+      userId: umkmSanto.id, koperasiId: koperasi2.id,
+      title: 'Modernisasi Tambak Bandeng', description: 'Hampir memenuhi target!',
+      ...baseFinance, targetAmount: 50000000n, status: ProjectStatus.FUNDRAISING, guaranteeStatus: GuaranteeStatus.HELD,
+      fundedAmount: 45000000n, publishedAt: new Date(), fundraisingDeadline: new Date(Date.now() + 2 * 86400000)
+    }
+  });
+  await prisma.contribution.create({ data: { projectId: projFund90.id, investorId: pendanaSultan.id, amount: 20000000n, processingFee: 4000n, totalPayment: 20004000n, status: 'PAID' } });
+  await prisma.contribution.create({ data: { projectId: projFund90.id, investorId: pendanaDermawan.id, amount: 25000000n, processingFee: 4000n, totalPayment: 25004000n, status: 'PAID' } });
+
+  // Extra Execution (Banyak Milestone)
+  const projExecComplex = await prisma.project.create({
+    data: {
+      userId: umkmBudi.id, koperasiId: koperasi.id,
+      title: 'Pembangunan Greenhouse Tomat', description: 'Proyek panjang dengan banyak milestone',
+      ...baseFinance, status: ProjectStatus.EXECUTION, guaranteeStatus: GuaranteeStatus.HELD,
+      fundedAmount: 60000000n, executionStartedAt: new Date(Date.now() - 40 * 86400000)
+    }
+  });
+  await prisma.contribution.create({ data: { projectId: projExecComplex.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
+  
+  const ms1 = await prisma.milestone.create({ data: { projectId: projExecComplex.id, name: 'Pondasi', status: 'COMPLETED' } });
+  await prisma.progressReport.create({ data: { milestoneId: ms1.id, progressPercentage: 100, description: 'Pondasi selesai 100%', status: 'VALIDATED' } });
+  
+  const ms2 = await prisma.milestone.create({ data: { projectId: projExecComplex.id, name: 'Kerangka Atap', status: 'IN_PROGRESS' } });
+  await prisma.progressReport.create({ data: { milestoneId: ms2.id, progressPercentage: 50, description: 'Besi kurang', status: 'REJECTED' } });
+
+  // Extra Gagal (Gagal saat fundraising karena waktu habis)
+  const projGagalTime = await prisma.project.create({
+    data: {
+      userId: umkmSanto.id, koperasiId: koperasi2.id,
+      title: 'Budi Daya Kepiting', description: 'Gagal karena sepi peminat', failedReason: 'Dana tidak terkumpul hingga tenggat waktu',
+      ...baseFinance, targetAmount: 80000000n, status: ProjectStatus.GAGAL_DITUTUP, guaranteeStatus: GuaranteeStatus.RETURNED,
+      fundedAmount: 1000000n, publishedAt: new Date(Date.now() - 60 * 86400000), fundraisingDeadline: new Date(Date.now() - 1 * 86400000)
+    }
+  });
+  await prisma.contribution.create({ data: { projectId: projGagalTime.id, investorId: pendanaDermawan.id, amount: 1000000n, processingFee: 2000n, totalPayment: 1002000n, status: 'REFUNDED' } });
+
+  // Extra Gagal (Fraud saat eksekusi)
+  const projFraud = await prisma.project.create({
+    data: {
+      userId: umkmBudi.id, koperasiId: koperasi.id,
+      title: 'Ternak Sapi Perah', description: 'Proyek fiktif / penyelewengan dana', failedReason: 'Fraud oleh UMKM',
+      ...baseFinance, status: ProjectStatus.GAGAL_DITUTUP, guaranteeStatus: GuaranteeStatus.USED,
+      fundedAmount: 60000000n, executionStartedAt: new Date(Date.now() - 10 * 86400000)
+    }
+  });
+  await prisma.contribution.create({ data: { projectId: projFraud.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
+  await prisma.incident.create({ data: { projectId: projFraud.id, category: 'FRAUD', severity: 'HIGH', description: 'Dana dibawa kabur', status: 'RESOLVED', decision: 'Lapor Polisi & Sita Jaminan' } });
+
   console.log('✅ 11 Proyek berhasil dibuat mencakup SELURUH 11 STATUS SIKLUS PROYEK (Dari Draft hingga Sukses/Gagal)');
   console.log('✅ Kontribusi, Milestone, Incident, Assessment, PO sudah disisipkan sebagai contoh');
   console.log('🎉 Seeding SUPER komprehensif selesai! Data siap uji coba UI sepenuhnya!');
