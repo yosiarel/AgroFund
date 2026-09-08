@@ -1,5 +1,6 @@
+import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { Project } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
@@ -17,11 +18,30 @@ function fetchProject(id: string): Promise<Project> {
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>()
+  const queryClient = useQueryClient()
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const { data: project, isLoading, error } = useQuery<Project>({
     queryKey: ["project", projectId],
     queryFn: () => fetchProject(projectId!),
     enabled: !!projectId,
+  })
+
+  const requestAssessmentMutation = useMutation({
+    mutationFn: () => api.post(`/projects/${projectId}/request-assessment`),
+    onSuccess: () => {
+      setActionError(null)
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] })
+      queryClient.invalidateQueries({ queryKey: ["my-projects"] })
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.message ||
+        (typeof err === "string"
+          ? err
+          : "Gagal mengajukan penilaian koperasi. Silakan coba lagi.")
+      setActionError(msg)
+    },
   })
 
   if (isLoading) {
@@ -79,15 +99,30 @@ export function ProjectDetailPage() {
                     </p>
                   </div>
                 </div>
-                {action.href && (
+                {action.actionType === "REQUEST_ASSESSMENT" ? (
+                  <Button
+                    variant={action.primary ? "primary" : "secondary"}
+                    className="w-full sm:w-auto"
+                    isLoading={requestAssessmentMutation.isPending}
+                    onClick={() => requestAssessmentMutation.mutate()}
+                  >
+                    {action.ctaLabel}
+                  </Button>
+                ) : action.href ? (
                   <Link to={action.href} className="w-full sm:w-auto">
                     <Button variant={action.primary ? "primary" : "secondary"} className="w-full sm:w-auto">
                       {action.ctaLabel}
                     </Button>
                   </Link>
-                )}
+                ) : null}
               </CardContent>
             </Card>
+          )}
+
+          {actionError && (
+            <Alert variant="error">
+              {actionError}
+            </Alert>
           )}
 
           <Card>
@@ -192,14 +227,24 @@ export function ProjectDetailPage() {
   )
 }
 
-function getNextAction(project: Project) {
+export interface ProjectAction {
+  title: string
+  description: string
+  ctaLabel?: string
+  href?: string
+  actionType?: "REQUEST_ASSESSMENT"
+  primary?: boolean
+  icon: React.ReactNode
+}
+
+export function getNextAction(project: Project): ProjectAction | null {
   switch (project.status) {
     case "DRAFT":
       return {
         title: "Draf Proyek Siap",
         description: "Proyek Anda masih berupa draf. Ajukan ke Koperasi untuk dilakukan penilaian lapangan.",
         ctaLabel: "Ajukan Penilaian",
-        href: `/umkm/projects/${project.id}#submit`,
+        actionType: "REQUEST_ASSESSMENT",
         primary: true,
         icon: <Clock className="w-6 h-6 text-[var(--color-primary-600)]" />
       }

@@ -167,7 +167,7 @@ function getNextAction(project: Project): {
       return {
         label: "Draf proyek siap. Ajukan untuk penilaian Koperasi.",
         ctaLabel: "Ajukan Assessment",
-        href: `/umkm/projects/${project.id}#submit`,
+        href: `/umkm/projects/${project.id}`,
       }
     case "COOPERATIVE_ASSESSMENT":
       return {
