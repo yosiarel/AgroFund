@@ -60,6 +60,11 @@ export class CreateDraftDto {
   @Min(0)
   naturaCost?: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
   @ApiProperty({ type: [CreateNaturaDto], required: false })
   @IsOptional()
   @IsArray()

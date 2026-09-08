@@ -67,6 +67,7 @@ export class ProjectService {
         targetAmount: targetAmount,
         guaranteeAmount: guaranteeAmount,
         status: ProjectStatus.DRAFT,
+        imageUrl: dto.imageUrl,
         naturaPackages: dto.naturaPackages
           ? {
             create: dto.naturaPackages.map((pkg) => ({
