@@ -1,56 +1,59 @@
 import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { ColdStartProvider } from './components/ColdStartProvider';
 import { AuthProvider } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { LoginPage } from './pages/auth/LoginPage';
-import { RegisterPage } from './pages/auth/RegisterPage';
-import { PendanaDashboard } from './pages/pendana/PendanaDashboard';
-import { UmkmDashboard } from './pages/umkm/UmkmDashboard';
-import { KoperasiDashboard } from './pages/koperasi/KoperasiDashboard';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { ProtectedRoute, DashboardSkeleton } from './components/ProtectedRoute';
+
+const LoginPage = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
+
+// Dashboards
+const PendanaDashboard = lazy(() => import('./pages/pendana/PendanaDashboard').then(m => ({ default: m.PendanaDashboard })));
+const UmkmDashboard = lazy(() => import('./pages/umkm/UmkmDashboard').then(m => ({ default: m.UmkmDashboard })));
+const KoperasiDashboard = lazy(() => import('./pages/koperasi/KoperasiDashboard').then(m => ({ default: m.KoperasiDashboard })));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 
 // Pendana Pages
-import { DiscoverProjectsPage } from './pages/pendana/DiscoverProjectsPage';
-import { ProjectDetailPage } from './pages/pendana/ProjectDetailPage';
-import { MyContributionsPage } from './pages/pendana/MyContributionsPage';
-import { ContributionDetailPage } from './pages/pendana/ContributionDetailPage';
-import { ProjectMonitoringPage as PendanaProjectMonitoringPage } from './pages/pendana/ProjectMonitoringPage';
-import { NaturaTrackingPage } from './pages/pendana/NaturaTrackingPage';
-import { ComplaintsPage } from './pages/pendana/ComplaintsPage';
-import { PendanaDashboardOverviewPage } from './pages/pendana/PendanaDashboardOverviewPage';
+const DiscoverProjectsPage = lazy(() => import('./pages/pendana/DiscoverProjectsPage').then(m => ({ default: m.DiscoverProjectsPage })));
+const ProjectDetailPage = lazy(() => import('./pages/pendana/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
+const MyContributionsPage = lazy(() => import('./pages/pendana/MyContributionsPage').then(m => ({ default: m.MyContributionsPage })));
+const ContributionDetailPage = lazy(() => import('./pages/pendana/ContributionDetailPage').then(m => ({ default: m.ContributionDetailPage })));
+const PendanaProjectMonitoringPage = lazy(() => import('./pages/pendana/ProjectMonitoringPage').then(m => ({ default: m.ProjectMonitoringPage })));
+const NaturaTrackingPage = lazy(() => import('./pages/pendana/NaturaTrackingPage').then(m => ({ default: m.NaturaTrackingPage })));
+const ComplaintsPage = lazy(() => import('./pages/pendana/ComplaintsPage').then(m => ({ default: m.ComplaintsPage })));
+const PendanaDashboardOverviewPage = lazy(() => import('./pages/pendana/PendanaDashboardOverviewPage').then(m => ({ default: m.PendanaDashboardOverviewPage })));
 
 // UMKM Pages
-import { MyProjectsPage } from './pages/umkm/MyProjectsPage';
-import { CreateProjectPage } from './pages/umkm/CreateProjectPage';
-import { ProjectDetailPage as UmkmProjectDetailPage } from './pages/umkm/ProjectDetailPage';
-import { GuaranteePaymentPage } from './pages/umkm/GuaranteePaymentPage';
-import { ProcurementPage } from './pages/umkm/ProcurementPage';
-import { CreateProcurementPage } from './pages/umkm/CreateProcurementPage';
-import { ProjectExecutionPage } from './pages/umkm/ProjectExecutionPage';
-import { ProfilePage } from './pages/umkm/ProfilePage';
-import { UmkmDashboardOverviewPage } from './pages/umkm/UmkmDashboardOverviewPage';
+const MyProjectsPage = lazy(() => import('./pages/umkm/MyProjectsPage').then(m => ({ default: m.MyProjectsPage })));
+const CreateProjectPage = lazy(() => import('./pages/umkm/CreateProjectPage').then(m => ({ default: m.CreateProjectPage })));
+const UmkmProjectDetailPage = lazy(() => import('./pages/umkm/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
+const GuaranteePaymentPage = lazy(() => import('./pages/umkm/GuaranteePaymentPage').then(m => ({ default: m.GuaranteePaymentPage })));
+const ProcurementPage = lazy(() => import('./pages/umkm/ProcurementPage').then(m => ({ default: m.ProcurementPage })));
+const CreateProcurementPage = lazy(() => import('./pages/umkm/CreateProcurementPage').then(m => ({ default: m.CreateProcurementPage })));
+const ProjectExecutionPage = lazy(() => import('./pages/umkm/ProjectExecutionPage').then(m => ({ default: m.ProjectExecutionPage })));
+const ProfilePage = lazy(() => import('./pages/umkm/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const UmkmDashboardOverviewPage = lazy(() => import('./pages/umkm/UmkmDashboardOverviewPage').then(m => ({ default: m.UmkmDashboardOverviewPage })));
 
-// Koperasi Pages
-import { AssignedProjectsPage } from './pages/koperasi/AssignedProjectsPage';
-import { AssessmentPage } from './pages/koperasi/AssessmentPage';
-import { ProcurementValidationPage } from './pages/koperasi/ProcurementValidationPage';
-import { EvidenceReviewPage } from './pages/koperasi/EvidenceReviewPage';
-import { ProjectMonitoringPage as KoperasiProjectMonitoringPage } from './pages/koperasi/ProjectMonitoringPage';
-import { IncidentReportingPage } from './pages/koperasi/IncidentReportingPage';
+const AssignedProjectsPage = lazy(() => import('./pages/koperasi/AssignedProjectsPage').then(m => ({ default: m.AssignedProjectsPage })));
+const AssessmentPage = lazy(() => import('./pages/koperasi/AssessmentPage').then(m => ({ default: m.AssessmentPage })));
+const ProcurementValidationPage = lazy(() => import('./pages/koperasi/ProcurementValidationPage').then(m => ({ default: m.ProcurementValidationPage })));
+const EvidenceReviewPage = lazy(() => import('./pages/koperasi/EvidenceReviewPage').then(m => ({ default: m.EvidenceReviewPage })));
+const KoperasiProjectMonitoringPage = lazy(() => import('./pages/koperasi/ProjectMonitoringPage').then(m => ({ default: m.ProjectMonitoringPage })));
+const IncidentReportingPage = lazy(() => import('./pages/koperasi/IncidentReportingPage').then(m => ({ default: m.IncidentReportingPage })));
 
-// Admin Pages
-import { AdminProjectsPage } from './pages/admin/AdminProjectsPage';
-import { PublicationReviewPage } from './pages/admin/PublicationReviewPage';
-import { CooperativesPage } from './pages/admin/CooperativesPage';
-import { IncidentsPage } from './pages/admin/IncidentsPage';
-import { RecoveryRefundsPage } from './pages/admin/RecoveryRefundsPage';
-import { DisputesPage } from './pages/admin/DisputesPage';
-import { AuditTrailPage } from './pages/admin/AuditTrailPage';
+const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage').then(m => ({ default: m.AdminProjectsPage })));
+const PublicationReviewPage = lazy(() => import('./pages/admin/PublicationReviewPage').then(m => ({ default: m.PublicationReviewPage })));
+const CooperativesPage = lazy(() => import('./pages/admin/CooperativesPage').then(m => ({ default: m.CooperativesPage })));
+const IncidentsPage = lazy(() => import('./pages/admin/IncidentsPage').then(m => ({ default: m.IncidentsPage })));
+const RecoveryRefundsPage = lazy(() => import('./pages/admin/RecoveryRefundsPage').then(m => ({ default: m.RecoveryRefundsPage })));
+const DisputesPage = lazy(() => import('./pages/admin/DisputesPage').then(m => ({ default: m.DisputesPage })));
+const AuditTrailPage = lazy(() => import('./pages/admin/AuditTrailPage').then(m => ({ default: m.AuditTrailPage })));
 
-import { LandingPage } from './pages/LandingPage';
-import { FAQ } from './pages/FAQ';
-import { NotFoundPage } from './pages/NotFoundPage';
+// Public Pages
+const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
+const FAQ = lazy(() => import('./pages/FAQ').then(m => ({ default: m.FAQ })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 import { TopBarLayout } from './components/layout/TopBarLayout';
 import type { NavItem } from './components/layout/TopBarLayout';
 
@@ -72,7 +75,9 @@ const RootLayout = () => {
   return (
     <ColdStartProvider>
       <AuthProvider>
-        <Outlet />
+        <Suspense fallback={<DashboardSkeleton />}>
+          <Outlet />
+        </Suspense>
       </AuthProvider>
     </ColdStartProvider>
   );
