@@ -85,9 +85,9 @@ export function ProjectDetailPage() {
           {/* Action Panel (Dynamic based on status) */}
           {action && (
             <Card className="border-[var(--color-primary-200)] bg-[var(--color-primary-50)] shadow-none">
-              <CardContent className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <CardContent className="p-6 flex flex-col gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-1">
+                  <div className="mt-1 flex-shrink-0">
                     {action.icon}
                   </div>
                   <div>
@@ -99,31 +99,33 @@ export function ProjectDetailPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                  {action.secondaryAction && (
-                    <Link to={action.secondaryAction.href} className="w-full sm:w-auto">
-                      <Button variant="secondary" className="w-full sm:w-auto">
-                        {action.secondaryAction.ctaLabel}
-                      </Button>
-                    </Link>
-                  )}
-                  {action.actionType === "REQUEST_ASSESSMENT" ? (
-                    <Button
-                      variant={action.primary ? "primary" : "secondary"}
-                      className="w-full sm:w-auto"
-                      isLoading={requestAssessmentMutation.isPending}
-                      onClick={() => requestAssessmentMutation.mutate()}
-                    >
-                      {action.ctaLabel}
-                    </Button>
-                  ) : action.href ? (
-                    <Link to={action.href} className="w-full sm:w-auto">
-                      <Button variant={action.primary ? "primary" : "secondary"} className="w-full sm:w-auto">
+                {(action.ctaLabel || action.secondaryAction) && (
+                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
+                    {action.secondaryAction && (
+                      <Link to={action.secondaryAction.href} className="w-full sm:flex-1">
+                        <Button variant="secondary" className="w-full">
+                          {action.secondaryAction.ctaLabel}
+                        </Button>
+                      </Link>
+                    )}
+                    {action.actionType === "REQUEST_ASSESSMENT" ? (
+                      <Button
+                        variant={action.primary ? "primary" : "secondary"}
+                        className="w-full sm:flex-1"
+                        isLoading={requestAssessmentMutation.isPending}
+                        onClick={() => requestAssessmentMutation.mutate()}
+                      >
                         {action.ctaLabel}
                       </Button>
-                    </Link>
-                  ) : null}
-                </div>
+                    ) : action.href ? (
+                      <Link to={action.href} className="w-full sm:flex-1">
+                        <Button variant={action.primary ? "primary" : "secondary"} className="w-full">
+                          {action.ctaLabel}
+                        </Button>
+                      </Link>
+                    ) : null}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
