@@ -52,7 +52,7 @@ export function IncidentsPage() {
     } else if (actionType === "APPROVE_EXTENSION") {
       resolveMutation.mutate({
         incidentId: selectedIncident.id,
-        decision: decisionNotes.trim() || "Permohonan perpanjangan jadwal disetujui sesuai regulasi PB-115.",
+        decision: decisionNotes.trim() || "Permohonan perpanjangan jadwal disetujui sesuai ketentuan.",
         approveExtension: true,
       })
     } else if (actionType === "REJECT_EXTENSION") {
@@ -87,7 +87,7 @@ export function IncidentsPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Tata Kelola Risiko (PB-094 & PB-115):</span> Permohonan perpanjangan waktu proyek maksimal 1x 90 hari. Pembekuan dana proyek hanya dilakukan jika terdapat indikasi fraud atau keadaan kahar berat.
+            <span className="font-[600]">Tata Kelola Risiko:</span> Permohonan perpanjangan waktu proyek maksimal 1x 90 hari. Pembekuan dana proyek hanya dilakukan jika terdapat indikasi fraud atau keadaan kahar berat.
           </div>
         </div>
       </Alert>

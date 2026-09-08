@@ -629,7 +629,7 @@ export function ProjectExecutionPage() {
             <CardContent className="flex flex-col gap-4">
               <Alert variant="warning" className="bg-[var(--color-warning-50)] border-[var(--color-warning-300)] py-2">
                 <span className="text-[var(--text-caption)] font-[600] text-[var(--color-warning-900)]">
-                  Ketentuan SLA (PB-094): UMKM wajib melaporkan kendala material maksimal 3 × 24 jam setelah diketahui.
+                  Ketentuan Batas Waktu (SLA): UMKM wajib melaporkan kendala material maksimal 3 × 24 jam setelah diketahui.
                 </span>
               </Alert>
 

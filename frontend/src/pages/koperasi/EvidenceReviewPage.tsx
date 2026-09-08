@@ -66,7 +66,7 @@ export function EvidenceReviewPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Prinsip Verifikasi Faktual (BL-006 & PB-148):</span> Unggah bukti (Upload Evidence) tidak otomatis berarti tervalidasi. Koperasi wajib melakukan pengecekan faktual kondisi fisik sebelum menandai laporan sebagai tervalidasi.
+            <span className="font-[600]">Prinsip Verifikasi Faktual:</span> Unggah bukti (Upload Evidence) tidak otomatis berarti tervalidasi. Koperasi wajib melakukan pengecekan faktual kondisi fisik sebelum menandai laporan sebagai tervalidasi.
           </div>
         </div>
       </Alert>

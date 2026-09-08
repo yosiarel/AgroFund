@@ -77,7 +77,7 @@ export function IncidentReportingPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Ketentuan Perpanjangan (PB-115):</span> Permohonan perpanjangan waktu proyek (Extension) hanya diperbolehkan maksimal 1 kali dengan durasi maksimal 90 hari kalender, serta memerlukan persetujuan Koperasi dan Admin AgroFund.
+            <span className="font-[600]">Ketentuan Perpanjangan:</span> Permohonan perpanjangan waktu proyek (Extension) hanya diperbolehkan maksimal 1 kali dengan durasi maksimal 90 hari kalender, serta memerlukan persetujuan Koperasi dan Admin AgroFund.
           </div>
         </div>
       </Alert>

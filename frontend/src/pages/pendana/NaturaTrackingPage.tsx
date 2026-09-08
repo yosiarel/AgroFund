@@ -80,7 +80,7 @@ export function NaturaTrackingPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Ketentuan Natura (Doc 4 Sec 26 & PB-102):</span> Natura adalah kompensasi barang hasil pertanian (bukan dividen/bunga). Anda memiliki masa klaim (Claim Window) 30 hari kalender sejak tanggal panen jika terjadi kendala pengiriman atau kerusakan.
+            <span className="font-[600]">Ketentuan Natura:</span> Natura adalah kompensasi barang hasil pertanian (bukan dividen/bunga). Anda memiliki masa klaim (Claim Window) 30 hari kalender sejak tanggal panen jika terjadi kendala pengiriman atau kerusakan.
           </div>
         </div>
       </Alert>

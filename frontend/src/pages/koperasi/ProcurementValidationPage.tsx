@@ -71,7 +71,7 @@ export function ProcurementValidationPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Integritas Finansial (Doc 4 Sec 39):</span> Koperasi memvalidasi kewajaran harga dan rekening Supplier. Sistem AgroFund akan mengeksekusi pembayaran langsung ke rekening Supplier tanpa melewati kas Koperasi atau UMKM.
+            <span className="font-[600]">Integritas Finansial:</span> Koperasi memvalidasi kewajaran harga dan rekening Supplier. Sistem AgroFund akan mengeksekusi pembayaran langsung ke rekening Supplier tanpa melewati kas Koperasi atau UMKM.
           </div>
         </div>
       </Alert>

@@ -76,7 +76,7 @@ export function RecoveryRefundsPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Integritas Pro-Rata (EP-11):</span>
+            <span className="font-[600]">Integritas Pro-Rata:</span>
             <ul className="list-disc pl-5 mt-1 space-y-1">
               <li><strong>Proyek Sukses Ditutup:</strong> Guarantee 5% BPC dikembalikan utuh ke rekening UMKM yang terverifikasi.</li>
               <li><strong>Proyek Dibatalkan / Gagal:</strong> Sisa dana pengadaan yang belum terpakai + likuidasi Guarantee digabungkan ke Recovery Pool dan dibagikan secara adil (pro-rata) kepada seluruh Pendana.</li>

@@ -68,7 +68,7 @@ export function CooperativesPage() {
             Manajemen Koperasi Mitra
           </h1>
           <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)]">
-            Pendaftaran, penugasan wilayah, dan aktivasi akun Koperasi terverifikasi (PB-013).
+            Pendaftaran, penugasan wilayah, dan aktivasi akun Koperasi terverifikasi.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export function CooperativesPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Integritas Akun Koperasi (Doc 4 Sec 6 & PB-007):</span> Pendaftaran publik tidak dibuka untuk entitas Koperasi. Seluruh akun resmi Koperasi wajib dibuat dan diverifikasi langsung oleh Admin AgroFund.
+            <span className="font-[600]">Integritas Akun Koperasi:</span> Pendaftaran publik tidak dibuka untuk entitas Koperasi. Seluruh akun resmi Koperasi wajib dibuat dan diverifikasi langsung oleh Admin AgroFund.
           </div>
         </div>
       </Alert>

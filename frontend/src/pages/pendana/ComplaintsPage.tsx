@@ -79,7 +79,7 @@ export function ComplaintsPage() {
         <div className="flex gap-3">
           <ShieldCheck className="w-5 h-5 text-[var(--color-primary-600)] flex-shrink-0" />
           <div className="text-[var(--text-body-m)] text-[var(--color-primary-900)]">
-            <span className="font-[600]">Perlindungan Pendana (EP-12):</span> Setiap pengaduan akan langsung ditangani oleh Tim Kepatuhan AgroFund dengan berkoordinasi bersama Koperasi pendamping proyek.
+            <span className="font-[600]">Perlindungan Pendana:</span> Setiap pengaduan akan langsung ditangani oleh Tim Kepatuhan AgroFund dengan berkoordinasi bersama Koperasi pendamping proyek.
           </div>
         </div>
       </Alert>

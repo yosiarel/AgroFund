@@ -27,7 +27,7 @@ export function AuditTrailPage() {
           Jejak Audit & Log Transparansi (Audit Trail)
         </h1>
         <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)]">
-          Catatan tidak dapat diubah (immutable log) seluruh transaksi keuangan, perubahan status proyek, dan verifikasi lapangan (EP-14).
+          Catatan tidak dapat diubah (immutable log) seluruh transaksi keuangan, perubahan status proyek, dan verifikasi lapangan.
         </p>
       </div>
 

@@ -34,7 +34,7 @@ export function ProfilePage() {
           Profil & Rekening Pengembalian Jaminan
         </h1>
         <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)]">
-          Kelola data profil UMKM dan rekening bank resmi untuk pengembalian Guarantee saat proyek sukses ditutup (PB-045).
+          Kelola data profil UMKM dan rekening bank resmi untuk pengembalian Guarantee saat proyek sukses ditutup.
         </p>
       </div>
 
