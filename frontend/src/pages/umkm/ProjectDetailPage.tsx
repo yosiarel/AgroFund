@@ -99,22 +99,31 @@ export function ProjectDetailPage() {
                     </p>
                   </div>
                 </div>
-                {action.actionType === "REQUEST_ASSESSMENT" ? (
-                  <Button
-                    variant={action.primary ? "primary" : "secondary"}
-                    className="w-full sm:w-auto"
-                    isLoading={requestAssessmentMutation.isPending}
-                    onClick={() => requestAssessmentMutation.mutate()}
-                  >
-                    {action.ctaLabel}
-                  </Button>
-                ) : action.href ? (
-                  <Link to={action.href} className="w-full sm:w-auto">
-                    <Button variant={action.primary ? "primary" : "secondary"} className="w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                  {action.secondaryAction && (
+                    <Link to={action.secondaryAction.href} className="w-full sm:w-auto">
+                      <Button variant="secondary" className="w-full sm:w-auto">
+                        {action.secondaryAction.ctaLabel}
+                      </Button>
+                    </Link>
+                  )}
+                  {action.actionType === "REQUEST_ASSESSMENT" ? (
+                    <Button
+                      variant={action.primary ? "primary" : "secondary"}
+                      className="w-full sm:w-auto"
+                      isLoading={requestAssessmentMutation.isPending}
+                      onClick={() => requestAssessmentMutation.mutate()}
+                    >
                       {action.ctaLabel}
                     </Button>
-                  </Link>
-                ) : null}
+                  ) : action.href ? (
+                    <Link to={action.href} className="w-full sm:w-auto">
+                      <Button variant={action.primary ? "primary" : "secondary"} className="w-full sm:w-auto">
+                        {action.ctaLabel}
+                      </Button>
+                    </Link>
+                  ) : null}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -235,6 +244,10 @@ export interface ProjectAction {
   actionType?: "REQUEST_ASSESSMENT"
   primary?: boolean
   icon: React.ReactNode
+  secondaryAction?: {
+    ctaLabel: string
+    href: string
+  }
 }
 
 export function getNextAction(project: Project): ProjectAction | null {
@@ -287,10 +300,14 @@ export function getNextAction(project: Project): ProjectAction | null {
     case "PROCUREMENT":
       return {
         title: "Pengadaan Barang Sedang Berjalan",
-        description: "Koperasi sedang memproses Purchase Order dan pembayaran ke Supplier. Pantau status pengadaan dan konfirmasi penerimaan barang.",
+        description: "Koperasi sedang memproses Purchase Order dan pembayaran ke Supplier. Pantau status pengadaan atau buka Ruang Eksekusi untuk merencanakan milestone.",
         ctaLabel: "Kelola Pengadaan",
         href: `/umkm/projects/${project.id}/procurement`,
         primary: true,
+        secondaryAction: {
+          ctaLabel: "Buka Eksekusi",
+          href: `/umkm/projects/${project.id}/execution`,
+        },
         icon: <Clock className="w-6 h-6 text-[var(--color-primary-600)]" />
       }
     case "EXECUTION":

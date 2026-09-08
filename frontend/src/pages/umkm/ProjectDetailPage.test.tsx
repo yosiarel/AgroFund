@@ -60,4 +60,19 @@ describe("ProjectDetailPage - BUG-UMKM-002 Regression Tests", () => {
     expect(action?.ctaLabel).toBe("Buat Pengadaan")
     expect(action?.href).toBe("/umkm/projects/proj-test-123/procurement/create")
   })
+
+  it("should return BOTH 'Kelola Pengadaan' and secondary action 'Buka Eksekusi' for PROCUREMENT", () => {
+    const project = mockProject("PROCUREMENT")
+    const action = getNextAction(project)
+
+    expect(action).not.toBeNull()
+    expect(action?.title).toBe("Pengadaan Barang Sedang Berjalan")
+    expect(action?.ctaLabel).toBe("Kelola Pengadaan")
+    expect(action?.href).toBe("/umkm/projects/proj-test-123/procurement")
+    expect(action?.primary).toBe(true)
+
+    expect(action?.secondaryAction).toBeDefined()
+    expect(action?.secondaryAction?.ctaLabel).toBe("Buka Eksekusi")
+    expect(action?.secondaryAction?.href).toBe("/umkm/projects/proj-test-123/execution")
+  })
 })

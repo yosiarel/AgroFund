@@ -60,14 +60,21 @@ export function ProcurementPage() {
           </div>
         </div>
 
-        {canCreateProcurement && (
-          <Link to={`/umkm/projects/${projectId}/procurement/create`} className="w-full lg:w-auto">
-            <Button variant="primary" className="w-full lg:w-auto">
-              <Plus className="w-4 h-4 mr-1.5" />
-              Buat Pengajuan Pengadaan
+        <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap">
+          <Link to={`/umkm/projects/${projectId}/execution`} className="w-full sm:w-auto">
+            <Button variant="secondary" className="w-full sm:w-auto">
+              Buka Eksekusi
             </Button>
           </Link>
-        )}
+          {canCreateProcurement && (
+            <Link to={`/umkm/projects/${projectId}/procurement/create`} className="w-full sm:w-auto">
+              <Button variant="primary" className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-1.5" />
+                Buat Pengajuan Pengadaan
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Financial Protection Notice (Doc 4 Sec 36) */}
@@ -79,6 +86,27 @@ export function ProcurementPage() {
           </div>
         </div>
       </Alert>
+
+      {/* PO Issued Execution Readiness Callout */}
+      {requests?.some((r) => r.status === "PO_ISSUED") && (
+        <Card className="border-[var(--color-primary-200)] bg-[var(--color-primary-50)] shadow-none">
+          <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-[var(--text-h5)] font-[600] text-[var(--color-neutral-900)]">
+                Purchase Order Telah Diterbitkan & Dibayar
+              </p>
+              <p className="text-[var(--text-body-s)] text-[var(--color-neutral-700)] mt-1">
+                Barang pengadaan telah diproses dan siap digunakan. Lanjutkan ke Ruang Eksekusi untuk menambahkan milestone dan melaporkan progres pengerjaan di lapangan.
+              </p>
+            </div>
+            <Link to={`/umkm/projects/${projectId}/execution`} className="flex-shrink-0 w-full sm:w-auto">
+              <Button variant="primary" className="w-full sm:w-auto">
+                Mulai Eksekusi & Lapor Progres
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Procurement Request List */}
       <div className="flex flex-col gap-4">
