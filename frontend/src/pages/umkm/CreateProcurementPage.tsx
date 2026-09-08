@@ -12,11 +12,43 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../comp
 import { formatRupiah } from "../../components/business/FinancialSummary"
 import { ArrowLeft, Plus, Trash2, ShieldAlert } from "lucide-react"
 
-interface ItemInput {
+export interface ItemInput {
   name: string
   quantity: number
   unit: string
   estimatedUnitPrice: number
+}
+
+export function parseCurrencyInput(value: string): number {
+  const rawDigits = value.replace(/\D/g, "")
+  return rawDigits ? parseInt(rawDigits, 10) : 0
+}
+
+export function formatCurrencyDisplay(value: number): string {
+  return value ? value.toLocaleString("id-ID") : ""
+}
+
+export function calculateItemSubtotal(quantity: number, unitPrice: number): number {
+  return (Number(quantity) || 0) * (Number(unitPrice) || 0)
+}
+
+export function buildProcurementPayload(
+  items: ItemInput[],
+  notes?: string,
+  supplierType: "existing" | "nominate" = "existing",
+  selectedSupplierId?: string,
+  nominatedSupplier?: any
+) {
+  return {
+    items: items.map((item) => ({
+      name: item.name.trim(),
+      quantity: Number(item.quantity) || 1,
+      estimatedUnitPrice: Number(item.estimatedUnitPrice) || 0,
+    })),
+    notes: notes ? notes.trim() : undefined,
+    supplierId: supplierType === "existing" ? selectedSupplierId || undefined : undefined,
+    nominatedSupplier: supplierType === "nominate" ? nominatedSupplier : undefined,
+  }
 }
 
 export function CreateProcurementPage() {
@@ -65,22 +97,16 @@ export function CreateProcurementPage() {
   }
 
   const totalEstimated = items.reduce(
-    (sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.estimatedUnitPrice) || 0),
+    (sum, item) => sum + calculateItemSubtotal(item.quantity, item.estimatedUnitPrice),
     0
   )
 
   const createMutation = useMutation({
     mutationFn: () =>
-      api.post(`/procurement/projects/${projectId}/request`, {
-        items: items.map((item) => ({
-          name: item.name.trim(),
-          quantity: Number(item.quantity) || 1,
-          estimatedUnitPrice: Number(item.estimatedUnitPrice) || 0,
-        })),
-        notes: notes ? notes.trim() : undefined,
-        supplierId: supplierType === "existing" ? selectedSupplierId || undefined : undefined,
-        nominatedSupplier: supplierType === "nominate" ? nominatedSupplier : undefined,
-      }),
+      api.post(
+        `/procurement/projects/${projectId}/request`,
+        buildProcurementPayload(items, notes, supplierType, selectedSupplierId, nominatedSupplier)
+      ),
     onSuccess: () => {
       navigate(`/umkm/projects/${projectId}/procurement`)
     },
@@ -186,10 +212,14 @@ export function CreateProcurementPage() {
               <div>
                 <Input
                   label="Estimasi Harga Satuan (Rp)"
-                  type="number"
-                  min="0"
-                  value={item.estimatedUnitPrice || ""}
-                  onChange={(e) => updateItem(idx, "estimatedUnitPrice", parseInt(e.target.value) || 0)}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={item.estimatedUnitPrice ? item.estimatedUnitPrice.toLocaleString("id-ID") : ""}
+                  onChange={(e) => {
+                    const rawDigits = e.target.value.replace(/\D/g, "")
+                    updateItem(idx, "estimatedUnitPrice", rawDigits ? parseInt(rawDigits, 10) : 0)
+                  }}
                   helperText={`Subtotal: ${formatRupiah((item.quantity || 0) * (item.estimatedUnitPrice || 0))}`}
                   required
                 />
