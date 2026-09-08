@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../lib/axios"
 import type { Project } from "../../types"
@@ -10,7 +10,7 @@ import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
-import { Building2, CheckCircle2, Clock, ShieldAlert } from "lucide-react"
+import { Building2, CheckCircle2, Clock, ShieldAlert, ArrowLeft } from "lucide-react"
 
 function fetchProject(id: string): Promise<Project> {
   return api.get(`/projects/${id}`)
@@ -18,6 +18,7 @@ function fetchProject(id: string): Promise<Project> {
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -66,15 +67,26 @@ export function ProjectDetailPage() {
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-neutral-900)] leading-tight">
-            {project.title}
-          </h1>
-          <div className="flex items-center gap-3 mt-3">
-            <ProjectStatusBadge status={project.status} />
-            <span className="text-[var(--text-body-s)] text-[var(--color-neutral-500)]">
-              Dibuat pada {new Date(project.createdAt).toLocaleDateString("id-ID")}
-            </span>
+        <div className="flex items-start gap-3">
+          <Button
+            variant="tertiary"
+            className="px-2 mt-0.5"
+            onClick={() => navigate("/umkm/projects")}
+            aria-label="Kembali ke Daftar Proyek"
+            title="Kembali ke Daftar Proyek"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-neutral-900)] leading-tight">
+              {project.title}
+            </h1>
+            <div className="flex items-center gap-3 mt-3">
+              <ProjectStatusBadge status={project.status} />
+              <span className="text-[var(--text-body-s)] text-[var(--color-neutral-500)]">
+                Dibuat pada {new Date(project.createdAt).toLocaleDateString("id-ID")}
+              </span>
+            </div>
           </div>
         </div>
       </div>

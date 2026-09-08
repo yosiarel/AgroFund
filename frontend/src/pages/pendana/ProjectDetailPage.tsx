@@ -81,8 +81,12 @@ export function ProjectDetailPage() {
     }
   }
 
+  const navState = location.state as { from?: string; label?: string } | null
+
   const handleBackNavigation = () => {
-    if (location.pathname.startsWith("/projects")) {
+    if (navState?.from) {
+      navigate(navState.from)
+    } else if (location.pathname.startsWith("/projects")) {
       navigate("/projects")
     } else if (location.pathname.startsWith("/umkm")) {
       navigate("/umkm/discover")
@@ -91,6 +95,8 @@ export function ProjectDetailPage() {
     }
   }
 
+  const backLabel = navState?.label || "Discover Projects"
+
   const allProcurementItems = (project.procurementRequests || project.procurements)?.flatMap(p => p.items || []) || []
 
   return (
@@ -98,7 +104,7 @@ export function ProjectDetailPage() {
       {/* Breadcrumb */}
       <nav className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
         <button onClick={handleBackNavigation} className="hover:text-[var(--color-primary-600)] transition-colors">
-          Discover Projects
+          {backLabel}
         </button>
         <span className="mx-2">›</span>
         <span className="text-[var(--color-neutral-900)]">{project.title}</span>
