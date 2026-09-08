@@ -120,7 +120,7 @@ function UmkmProjectCard({ project }: { project: Project }) {
           <div className="text-right flex-shrink-0">
             <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Total Target</p>
             <p className="text-[var(--text-h4)] font-[700] text-[var(--color-primary-700)]">
-              {formatRupiah(project.totalTarget)}
+              {formatRupiah(project.targetAmount)}
             </p>
           </div>
         </div>
@@ -129,8 +129,8 @@ function UmkmProjectCard({ project }: { project: Project }) {
         {(project.status === "FUNDRAISING" || project.status === "DANA_TERPENUHI") && (
           <FundingProgressBar
             fundedAmount={project.fundedAmount}
-            targetAmount={project.totalTarget}
-            deadline={project.fundraisingDeadline || ""}
+            targetAmount={project.targetAmount}
+            deadline={project.fundraisingDeadline}
             showRemainingLabel
           />
         )}

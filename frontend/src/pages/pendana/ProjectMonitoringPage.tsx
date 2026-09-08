@@ -107,7 +107,7 @@ export function ProjectMonitoringPage() {
                     </div>
                     <div>
                       <p className="text-[var(--color-neutral-500)]">Total Target Proyek</p>
-                      <p className="font-[600] text-[var(--color-neutral-900)]">{formatRupiah(proj.totalTarget)}</p>
+                      <p className="font-[600] text-[var(--color-neutral-900)]">{formatRupiah(proj.targetAmount)}</p>
                     </div>
                   </div>
 

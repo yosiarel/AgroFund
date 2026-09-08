@@ -72,9 +72,13 @@ export function CreateProcurementPage() {
   const createMutation = useMutation({
     mutationFn: () =>
       api.post(`/procurement/projects/${projectId}/request`, {
-        items,
-        notes,
-        supplierId: supplierType === "existing" ? selectedSupplierId : undefined,
+        items: items.map((item) => ({
+          name: item.name.trim(),
+          quantity: Number(item.quantity) || 1,
+          estimatedUnitPrice: Number(item.estimatedUnitPrice) || 0,
+        })),
+        notes: notes ? notes.trim() : undefined,
+        supplierId: supplierType === "existing" ? selectedSupplierId || undefined : undefined,
         nominatedSupplier: supplierType === "nominate" ? nominatedSupplier : undefined,
       }),
     onSuccess: () => {

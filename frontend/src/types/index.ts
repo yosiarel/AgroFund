@@ -5,7 +5,7 @@
 
 export type Role = "PENDANA" | "UMKM" | "KOPERASI" | "AGROFUND"
 
-export type AssessmentStatus = "APPROVED" | "REJECTED" | "NEEDS_CORRECTION"
+export type AssessmentStatus = "PENDING" | "APPROVED" | "REJECTED" | "NEEDS_CORRECTION"
 
 export type ProjectStatus =
   | "DRAFT"
@@ -24,16 +24,8 @@ export interface NaturaPackage {
   id: string
   name: string
   description: string
-  amount: number
+  amount: number | string
   expectedDeliveryDate?: string
-}
-
-export interface ProcurementNeed {
-  id: string
-  item: string
-  quantity: string
-  unit: string
-  estimatedPrice: string
 }
 
 export interface Project {
@@ -41,25 +33,25 @@ export interface Project {
   title: string
   description: string
   status: ProjectStatus
-  basicProcurementCapital: number
-  priceReserve: number
-  naturaCost: number
-  totalTarget: number
-  fundedAmount: number
-  guaranteeAmount: number
-  deadline?: string
-  fundraisingDeadline?: string
+  basicProcurementCapital: number | string
+  priceReserve: number | string
+  naturaCost: number | string
+  targetAmount: number | string
+  fundedAmount: number | string
+  guaranteeAmount: number | string
+  fundraisingDeadline?: string | null
   createdAt: string
   user: { id: string; name: string; username: string }
   koperasi?: { id: string; name: string; username: string }
   koperasiId?: string
   naturaPackages?: NaturaPackage[]
-  procurementNeeds?: ProcurementNeed[]
+  procurements?: ProcurementRequest[]
+  procurementRequests?: ProcurementRequest[]
 }
 
 export interface Contribution {
   id: string
-  amount: number
+  amount: number | string
   status: "PENDING_PAYMENT" | "PAID" | "CANCELLED" | "REFUNDED"
   invoiceUrl?: string
   naturaPackageId?: string
@@ -82,9 +74,9 @@ export interface ProcurementItem {
   id: string
   name: string
   quantity: number
-  unit: string
-  estimatedUnitPrice: number
-  actualUnitPrice?: number
+  unit?: string
+  estimatedUnitPrice: number | string
+  actualUnitPrice?: number | string
 }
 
 export interface PurchaseOrder {
@@ -92,8 +84,8 @@ export interface PurchaseOrder {
   procurementRequestId: string
   supplierId: string
   supplier: SupplierRecord
-  quotedTotal: number
-  status: "DRAFT" | "READY" | "COMMITTED" | "PAID"
+  quotedTotal: number | string
+  status: "DRAFT" | "VALID" | "PROCUREMENT_COMMITTED" | "PAID"
   createdAt: string
   invoiceUrl?: string
   receiptUrl?: string

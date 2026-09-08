@@ -6,7 +6,7 @@ import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../components/ui/Card"
-import { formatRupiah } from "../../components/business/FinancialSummary"
+import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { ShieldCheck, Receipt, AlertTriangle } from "lucide-react"
 
 function fetchProject(id: string): Promise<Project> {
@@ -25,8 +25,12 @@ export function GuaranteePaymentPage() {
 
   const payMutation = useMutation({
     mutationFn: () => api.post(`/finance/projects/${projectId}/guarantee/pay`),
-    onSuccess: () => {
-      navigate(`/umkm/projects/${projectId}`)
+    onSuccess: (data: any) => {
+      if (data?.invoiceUrl) {
+        window.location.href = data.invoiceUrl
+      } else {
+        navigate(`/umkm/projects/${projectId}`)
+      }
     }
   })
 
@@ -47,7 +51,7 @@ export function GuaranteePaymentPage() {
   }
 
   // Calculate Guarantee (5% of Basic Procurement Capital)
-  const bpc = project.basicProcurementCapital
+  const bpc = toFiniteNumber(project.basicProcurementCapital)
   const guaranteeAmount = Math.round(bpc * 0.05)
   const processingFee = 4000 // Mock admin fee
   const totalPayment = guaranteeAmount + processingFee

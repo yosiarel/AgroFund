@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import api from "../../lib/axios"
 import type { Project } from "../../types"
-import { formatRupiah } from "../../components/business/FinancialSummary"
+import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Card } from "../../components/ui/Card"
@@ -50,7 +50,7 @@ export function UmkmDashboardOverviewPage() {
 
   const totalFundedAmount = projects?.reduce((sum, p) => {
     if (["FUNDRAISING", "DANA_TERPENUHI", "PROCUREMENT", "EXECUTION", "SUKSES_DITUTUP"].includes(p.status)) {
-      return sum + (p.fundedAmount || 0)
+      return sum + toFiniteNumber(p.fundedAmount, 0)
     }
     return sum
   }, 0) || 0

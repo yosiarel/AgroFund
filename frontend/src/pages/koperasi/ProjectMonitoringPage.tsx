@@ -10,9 +10,14 @@ import { formatRupiah } from "../../components/business/FinancialSummary"
 import { Activity, ArrowRight } from "lucide-react"
 
 export function ProjectMonitoringPage() {
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["koperasi-monitored-projects"],
-    queryFn: () => api.get("/koperasi/projects"),
+    queryFn: async () => {
+      const res: any = await api.get("/koperasi/projects")
+      if (Array.isArray(res)) return res
+      if (Array.isArray(res?.data)) return res.data
+      return []
+    },
   })
 
   if (isLoading) {
@@ -88,7 +93,7 @@ export function ProjectMonitoringPage() {
                   <div className="text-right">
                     <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Target Pendanaan</p>
                     <p className="text-[var(--text-body-l)] font-[700] text-[var(--color-neutral-900)]">
-                      {formatRupiah(proj.totalTarget)}
+                      {formatRupiah(proj.targetAmount)}
                     </p>
                   </div>
                   <div className="flex gap-2">

@@ -187,7 +187,7 @@ export function PublicationReviewPage() {
                 <p className="text-[var(--text-caption)] font-[600] text-[var(--color-neutral-700)]">Struktur Keuangan</p>
                 <div className="flex justify-between text-[var(--text-caption)]">
                   <span className="text-[var(--color-neutral-600)]">Target Pendanaan</span>
-                  <span className="font-[600] text-[var(--color-primary-700)]">{formatRupiah(project.totalTarget)}</span>
+                  <span className="font-[600] text-[var(--color-primary-700)]">{formatRupiah(project.targetAmount)}</span>
                 </div>
                 <div className="flex justify-between text-[var(--text-caption)]">
                   <span className="text-[var(--color-neutral-600)]">Guarantee (5% BPC)</span>

@@ -23,11 +23,7 @@ import { TrendingUp, AlertCircle, CheckCircle, Clock, XCircle, HelpCircle } from
  * No wallet terminology (Doc 4, Sec 4.6 & UX rule).
  */
 
-interface ContributionResponse {
-  contributions: Contribution[]
-}
-
-function fetchMyContributions(): Promise<ContributionResponse> {
+function fetchMyContributions(): Promise<Contribution[]> {
   // Backend returns contributions for the logged-in user
   return api.get("/finance/my-contributions")
 }
@@ -67,12 +63,10 @@ const STATUS_CONFIG: Record<Contribution["status"], {
 import * as React from "react"
 
 export function MyContributionsPage() {
-  const { data, isLoading, error } = useQuery<ContributionResponse>({
+  const { data: contributions = [], isLoading, error } = useQuery<Contribution[]>({
     queryKey: ["my-contributions"],
     queryFn: fetchMyContributions,
   })
-
-  const contributions = data?.contributions ?? []
 
   if (isLoading) {
     return (

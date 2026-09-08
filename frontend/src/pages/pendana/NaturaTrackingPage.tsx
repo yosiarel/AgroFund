@@ -16,7 +16,7 @@ export function NaturaTrackingPage() {
 
   const { data: contributions, isLoading } = useQuery<Contribution[]>({
     queryKey: ["pendana-contributions"],
-    queryFn: () => api.get("/contributions"),
+    queryFn: () => api.get("/finance/my-contributions"),
   })
 
   // Filter only contributions with NaturaPackage

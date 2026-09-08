@@ -8,6 +8,7 @@ import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { EmptyState } from "../../components/ui/EmptyState"
 import { Alert } from "../../components/ui/Alert"
 import { Search } from "lucide-react"
+import { toFiniteNumber } from "../../components/business/FinancialSummary"
 
 /**
  * Discover Projects Page (Doc 4, Sec 25 — Pendana Project Discovery)
@@ -76,7 +77,9 @@ export function DiscoverProjectsPage() {
 
 function ProjectCard({ project }: { project: Project }) {
   const location = useLocation()
-  const percentage = Math.round((project.fundedAmount / project.totalTarget) * 100)
+  const numFunded = toFiniteNumber(project.fundedAmount, 0)
+  const numTarget = toFiniteNumber(project.targetAmount, 0)
+  const percentage = numTarget > 0 ? Math.round((numFunded / numTarget) * 100) : 0
   const isFullyFunded = percentage >= 100
 
   const detailPath = location.pathname.startsWith("/projects")
@@ -96,7 +99,13 @@ function ProjectCard({ project }: { project: Project }) {
           <h2 className="text-[var(--text-h5)] font-[600] text-[var(--color-neutral-900)] line-clamp-2 group-hover:text-[var(--color-primary-700)] transition-colors">
             {project.title}
           </h2>
-          <ProjectStatusBadge status={project.status} size="sm" />
+          <ProjectStatusBadge
+            status={project.status}
+            fundedAmount={project.fundedAmount}
+            targetAmount={project.targetAmount}
+            deadline={project.fundraisingDeadline}
+            size="sm"
+          />
         </div>
         <p className="text-[var(--text-body-s)] text-[var(--color-neutral-600)] line-clamp-2">
           {project.description}
@@ -107,8 +116,8 @@ function ProjectCard({ project }: { project: Project }) {
       <div className="p-5">
         <FundingProgressBar
           fundedAmount={project.fundedAmount}
-          targetAmount={project.totalTarget}
-          deadline={project.fundraisingDeadline || ""}
+          targetAmount={project.targetAmount}
+          deadline={project.fundraisingDeadline}
           showRemainingLabel={false}
         />
       </div>

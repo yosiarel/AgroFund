@@ -7,15 +7,20 @@ import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
-import { formatRupiah } from "../../components/business/FinancialSummary"
+import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { RefreshCw, ShieldCheck, CheckCircle2 } from "lucide-react"
 
 export function RecoveryRefundsPage() {
   const queryClient = useQueryClient()
 
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["admin-recovery-projects"],
-    queryFn: () => api.get("/admin/projects"),
+    queryFn: async () => {
+      const res: any = await api.get("/projects")
+      if (Array.isArray(res)) return res
+      if (Array.isArray(res?.data)) return res.data
+      return []
+    },
   })
 
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -111,11 +116,11 @@ export function RecoveryRefundsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-[var(--color-neutral-50)] rounded-[var(--radius-s)] border border-[var(--color-neutral-200)] text-[var(--text-body-s)]">
                   <div>
                     <p className="text-[var(--color-neutral-500)]">Total Target Terdanai</p>
-                    <p className="font-[600] text-[var(--color-neutral-900)]">{formatRupiah(proj.fundedAmount || proj.totalTarget)}</p>
+                    <p className="font-[600] text-[var(--color-neutral-900)]">{formatRupiah(proj.fundedAmount || proj.targetAmount)}</p>
                   </div>
                   <div>
                     <p className="text-[var(--color-neutral-500)]">Nilai Jaminan (Guarantee 5%)</p>
-                    <p className="font-[600] text-[var(--color-primary-700)]">{formatRupiah(proj.basicProcurementCapital * 0.05)}</p>
+                    <p className="font-[600] text-[var(--color-primary-700)]">{formatRupiah(toFiniteNumber(proj.basicProcurementCapital) * 0.05)}</p>
                   </div>
                   <div>
                     <p className="text-[var(--color-neutral-500)]">Status Jaminan</p>

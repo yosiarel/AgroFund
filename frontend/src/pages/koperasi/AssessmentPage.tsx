@@ -138,7 +138,7 @@ export function AssessmentPage() {
               </div>
               <div>
                 <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Target Pendanaan</p>
-                <p className="text-[var(--text-body-m)] font-[600] text-[var(--color-primary-700)]">{formatRupiah(project.totalTarget)}</p>
+                <p className="text-[var(--text-body-m)] font-[600] text-[var(--color-primary-700)]">{formatRupiah(project.targetAmount)}</p>
               </div>
               <div>
                 <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)] mb-1">Deskripsi</p>

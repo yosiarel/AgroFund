@@ -13,9 +13,14 @@ import { Building2, Plus, ShieldCheck, UserPlus } from "lucide-react"
 export function CooperativesPage() {
   const queryClient = useQueryClient()
 
-  const { data: cooperatives, isLoading } = useQuery<CooperativePartner[]>({
+  const { data: cooperatives = [], isLoading } = useQuery<CooperativePartner[]>({
     queryKey: ["admin-cooperatives"],
-    queryFn: () => api.get("/admin/cooperatives"),
+    queryFn: async () => {
+      const res: any = await api.get("/admin/cooperatives")
+      if (Array.isArray(res)) return res
+      if (Array.isArray(res?.data)) return res.data
+      return []
+    },
   })
 
   const [isModalOpen, setIsModalOpen] = useState(false)

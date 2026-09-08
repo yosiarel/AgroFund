@@ -112,7 +112,7 @@ export function CreateProjectPage() {
   // Backend: project.service.ts calculateFinancials()
   const cooperativeFee = Math.round(0.025 * (bpc + reserve))
   const agrofundFee = Math.round(0.025 * bpc)
-  const totalTarget = bpc + reserve + cooperativeFee + agrofundFee + naturaCost
+  const calculatedTargetAmount = bpc + reserve + cooperativeFee + agrofundFee + naturaCost
   const guarantee = Math.round(bpc * 0.05)  // 5% BPC — Separate (Doc 4 Sec 20)
 
   const createMutation = useMutation({
@@ -124,13 +124,13 @@ export function CreateProjectPage() {
         basicProcurementCapital: bpc,
         priceReserve: reserve,
         naturaCost: naturaCost,
-        procurementNeeds: form.procurementNeeds.filter(n => n.item.trim()),
-        startDate: form.startDate,
-        endDate: form.endDate,
-        harvestDate: form.harvestDate,
-        riskDescription: form.riskDescription.trim(),
-        mitigationPlan: form.mitigationPlan.trim(),
-        naturaPackages: form.naturaPackages.filter(p => p.name.trim()),
+        naturaPackages: form.naturaPackages
+          .filter(p => p.name.trim())
+          .map(p => ({
+            name: p.name.trim(),
+            description: p.description.trim(),
+            amount: Number(p.amount) || 0,
+          })),
       }),
     onSuccess: () => navigate("/umkm/projects"),
   })
@@ -312,7 +312,7 @@ export function CreateProjectPage() {
                   <Row label="Biaya Layanan AgroFund (2,5% BPC)" value={formatRupiah(agrofundFee)} />
                 </div>
                 <div className="border-t pt-2 mt-1">
-                  <Row label="Total Target Pendanaan" value={formatRupiah(totalTarget)} bold />
+                  <Row label="Total Target Pendanaan" value={formatRupiah(calculatedTargetAmount)} bold />
                   <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)] mt-1">
                     Biaya layanan sudah termasuk dalam total target.
                   </p>
@@ -531,7 +531,7 @@ export function CreateProjectPage() {
               </ReviewSection>
 
               <ReviewSection title="Anggaran">
-                <ReviewBlock label="Total Target Pendanaan" value={formatRupiah(totalTarget)} />
+                <ReviewBlock label="Total Target Pendanaan" value={formatRupiah(calculatedTargetAmount)} />
                 <ReviewBlock label="Guarantee (5% BPC — Dibayar Terpisah)" value={formatRupiah(guarantee)} />
                 <ReviewBlock label="Biaya Layanan Koperasi" value={formatRupiah(cooperativeFee)} />
                 <ReviewBlock label="Biaya Layanan AgroFund" value={formatRupiah(agrofundFee)} />

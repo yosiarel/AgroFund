@@ -92,9 +92,9 @@ export function ProcurementValidationPage() {
         ) : (
           requests.map((req) => {
             const totalEst = req.items?.reduce(
-              (sum, item) => sum + (item.quantity || 0) * (item.estimatedUnitPrice || 0),
+              (sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.estimatedUnitPrice) || 0),
               0
-            )
+            ) || 0
 
             return (
               <Card key={req.id}>
@@ -145,10 +145,10 @@ export function ProcurementValidationPage() {
                         {req.items?.map((item) => (
                           <tr key={item.id} className="border-b border-[var(--color-neutral-100)] last:border-0">
                             <td className="py-2.5 font-[500] text-[var(--color-neutral-900)]">{item.name}</td>
-                            <td className="py-2.5 text-right">{item.quantity} {item.unit}</td>
+                            <td className="py-2.5 text-right">{item.quantity} {item.unit || "satuan"}</td>
                             <td className="py-2.5 text-right">{formatRupiah(item.estimatedUnitPrice)}</td>
                             <td className="py-2.5 text-right font-[600] text-[var(--color-neutral-900)]">
-                              {formatRupiah(item.quantity * item.estimatedUnitPrice)}
+                              {formatRupiah(Number(item.quantity || 0) * Number(item.estimatedUnitPrice || 0))}
                             </td>
                           </tr>
                         ))}

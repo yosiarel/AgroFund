@@ -99,7 +99,7 @@ export function ProjectDetailPage() {
             </CardContent>
           </Card>
 
-          {project.procurementNeeds && project.procurementNeeds.length > 0 && (
+          {(project.procurementRequests || project.procurements) && (project.procurementRequests || project.procurements)!.flatMap(p => p.items || []).length > 0 && (
             <Card>
               <CardHeader><CardTitle>Kebutuhan Pengadaan</CardTitle></CardHeader>
               <CardContent className="flex flex-col gap-3">
@@ -113,11 +113,11 @@ export function ProjectDetailPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {project.procurementNeeds.map((need, idx) => (
-                        <tr key={need.id || idx} className="border-b border-[var(--color-neutral-100)] last:border-0">
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] font-[500]">{need.item}</td>
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-700)] text-right whitespace-nowrap">{need.quantity} {need.unit}</td>
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] text-right whitespace-nowrap">{formatRupiah(Number(need.estimatedPrice))}</td>
+                      {(project.procurementRequests || project.procurements)!.flatMap(p => p.items || []).map((item, idx) => (
+                        <tr key={item.id || idx} className="border-b border-[var(--color-neutral-100)] last:border-0">
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] font-[500]">{item.name}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-700)] text-right whitespace-nowrap">{item.quantity} {item.unit || "satuan"}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] text-right whitespace-nowrap">{formatRupiah(item.estimatedUnitPrice)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -136,15 +136,15 @@ export function ProjectDetailPage() {
               <div>
                 <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)] mb-1">Total Target</p>
                 <p className="text-[var(--text-h3)] font-[700] text-[var(--color-primary-700)]">
-                  {formatRupiah(project.totalTarget)}
+                  {formatRupiah(project.targetAmount)}
                 </p>
               </div>
 
               {(project.status === "FUNDRAISING" || project.status === "DANA_TERPENUHI") && (
                 <FundingProgressBar 
                   fundedAmount={project.fundedAmount}
-                  targetAmount={project.totalTarget}
-                  deadline={project.fundraisingDeadline || ""}
+                  targetAmount={project.targetAmount}
+                  deadline={project.fundraisingDeadline}
                   showRemainingLabel
                 />
               )}

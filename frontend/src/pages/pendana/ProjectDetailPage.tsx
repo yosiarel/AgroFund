@@ -6,7 +6,7 @@ import api from "../../lib/axios"
 import type { Project, NaturaPackage } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
 import { FundingProgressBar } from "../../components/business/FundingProgressBar"
-import { formatRupiah } from "../../components/business/FinancialSummary"
+import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
@@ -61,9 +61,11 @@ export function ProjectDetailPage() {
     )
   }
 
-  const percentage = Math.round((project.fundedAmount / project.totalTarget) * 100)
+  const numFunded = toFiniteNumber(project.fundedAmount, 0)
+  const numTarget = toFiniteNumber(project.targetAmount, 0)
+  const percentage = numTarget > 0 ? Math.round((numFunded / numTarget) * 100) : 0
   const isFullyFunded = percentage >= 100
-  const isExpired = new Date() > new Date(project.fundraisingDeadline || "")
+  const isExpired = project.fundraisingDeadline ? new Date() > new Date(project.fundraisingDeadline) : false
 
   // CTA eligibility (Doc 4, Sec 27)
   const canContribute =
@@ -89,6 +91,8 @@ export function ProjectDetailPage() {
     }
   }
 
+  const allProcurementItems = (project.procurementRequests || project.procurements)?.flatMap(p => p.items || []) || []
+
   return (
     <div className="flex flex-col gap-6">
       {/* Breadcrumb */}
@@ -109,7 +113,13 @@ export function ProjectDetailPage() {
               <h1 className="text-[var(--text-h2)] leading-[var(--text-h2--line-height)] font-[700] text-[var(--color-neutral-900)]">
                 {project.title}
               </h1>
-              <ProjectStatusBadge status={project.status} showAuthority />
+              <ProjectStatusBadge
+                status={project.status}
+                fundedAmount={project.fundedAmount}
+                targetAmount={project.targetAmount}
+                deadline={project.fundraisingDeadline}
+                showAuthority
+              />
             </div>
 
             {/* Fully Funded banner replaces CTA per Sec 30 */}
@@ -150,8 +160,8 @@ export function ProjectDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Procurement Needs — Doc 4 Sec 26 */}
-          {project.procurementNeeds && project.procurementNeeds.length > 0 && (
+          {/* Procurement Items — Doc 4 Sec 26 */}
+          {allProcurementItems.length > 0 && (
             <Card>
               <CardHeader><CardTitle>Kebutuhan Pengadaan</CardTitle></CardHeader>
               <CardContent className="flex flex-col gap-3">
@@ -168,11 +178,11 @@ export function ProjectDetailPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {project.procurementNeeds.map((need, idx) => (
-                        <tr key={need.id || idx} className="border-b border-[var(--color-neutral-100)] last:border-0">
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] font-[500]">{need.item}</td>
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-700)] text-right whitespace-nowrap">{need.quantity} {need.unit}</td>
-                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] text-right whitespace-nowrap">{formatRupiah(Number(need.estimatedPrice))}</td>
+                      {allProcurementItems.map((item, idx) => (
+                        <tr key={item.id || idx} className="border-b border-[var(--color-neutral-100)] last:border-0">
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] font-[500]">{item.name}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-700)] text-right whitespace-nowrap">{item.quantity} {item.unit || "satuan"}</td>
+                          <td className="py-3 px-1 text-[var(--text-body-s)] text-[var(--color-neutral-900)] text-right whitespace-nowrap">{formatRupiah(item.estimatedUnitPrice)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -206,7 +216,7 @@ export function ProjectDetailPage() {
               <InfoRow
                 icon={<ShieldCheck className="w-5 h-5 text-[var(--color-primary-500)]" />}
                 label="Jaminan (Guarantee)"
-                value={`${formatRupiah(project.basicProcurementCapital * 0.05)} (5% dari Modal Pengadaan)`}
+                value={`${formatRupiah(toFiniteNumber(project.basicProcurementCapital) * 0.05)} (5% dari Modal Pengadaan)`}
               />
               <Alert variant="warning" title="Risiko Pendanaan">
                 Pendanaan ini bukan deposito. Dana tidak dijamin kembali 100% jika proyek mengalami kegagalan.
@@ -225,8 +235,8 @@ export function ProjectDetailPage() {
             <CardContent className="flex flex-col gap-5">
               <FundingProgressBar
                 fundedAmount={project.fundedAmount}
-                targetAmount={project.totalTarget}
-                deadline={project.fundraisingDeadline || ""}
+                targetAmount={project.targetAmount}
+                deadline={project.fundraisingDeadline}
                 showRemainingLabel
               />
 
@@ -235,7 +245,7 @@ export function ProjectDetailPage() {
                   <span className="text-[var(--color-neutral-600)]">Modal Pengadaan</span>
                   <span className="font-[600]">{formatRupiah(project.basicProcurementCapital)}</span>
                 </div>
-                {project.naturaCost > 0 && (
+                {toFiniteNumber(project.naturaCost) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-[var(--color-neutral-600)]">Biaya Natura</span>
                     <span className="font-[600]">{formatRupiah(project.naturaCost)}</span>
@@ -243,7 +253,7 @@ export function ProjectDetailPage() {
                 )}
                 <div className="flex justify-between border-t pt-2 mt-1">
                   <span className="font-[600] text-[var(--color-neutral-900)]">Total Target</span>
-                  <span className="font-[700] text-[var(--color-primary-700)]">{formatRupiah(project.totalTarget)}</span>
+                  <span className="font-[700] text-[var(--color-primary-700)]">{formatRupiah(project.targetAmount)}</span>
                 </div>
               </div>
 
@@ -339,7 +349,7 @@ function ContributeModal({
   const [amountError, setAmountError] = useState("")
   const navigate = useNavigate()
 
-  const remainingAmount = project.totalTarget - project.fundedAmount
+  const remainingAmount = Math.max(0, toFiniteNumber(project.targetAmount) - toFiniteNumber(project.fundedAmount))
   const numericAmount = Number(amount.replace(/\D/g, ""))
   const processingFee = Math.round(numericAmount * 0.025) // 2.5% processing fee
   const totalPayment = numericAmount + processingFee
@@ -364,6 +374,13 @@ function ContributeModal({
     if (numericAmount < 10000) {
       setAmountError("Kontribusi minimal Rp10.000.")
       return false
+    }
+    if (selectedNatura && project.naturaPackages) {
+      const selectedPkg = project.naturaPackages.find(p => p.id === selectedNatura)
+      if (selectedPkg && numericAmount < toFiniteNumber(selectedPkg.amount)) {
+        setAmountError(`Kontribusi minimal untuk paket ini adalah ${formatRupiah(selectedPkg.amount)}.`)
+        return false
+      }
     }
     // Doc 4 Sec 29: Contribution cannot exceed remaining target
     if (numericAmount > remainingAmount) {

@@ -1,6 +1,7 @@
 import { cn } from "../../lib/utils"
 import { Badge } from "../ui/Badge"
 import type { BadgeProps } from "../ui/Badge"
+import { toFiniteNumber } from "./FinancialSummary"
 
 /**
  * Project Status Badge (Doc 5, Sec 28, 29, 77)
@@ -119,9 +120,9 @@ const STATUS_CONFIG: Record<
 
 export interface ProjectStatusBadgeProps {
   status: ProjectStatus;
-  deadline?: string;
-  fundedAmount?: number;
-  totalTarget?: number;
+  deadline?: string | null;
+  fundedAmount?: number | string;
+  targetAmount?: number | string;
   /**
    * authority — shows who performed this action (Doc 5, Sec 54)
    * "Performed by Koperasi" / "Performed by AgroFund"
@@ -135,22 +136,25 @@ export function ProjectStatusBadge({
   status,
   deadline,
   fundedAmount,
-  totalTarget,
+  targetAmount,
   showAuthority = false,
   className,
   size = "md",
 }: ProjectStatusBadgeProps) {
-  let label = STATUS_CONFIG[status].label
-  let variant = STATUS_CONFIG[status].variant
+  let label = STATUS_CONFIG[status]?.label ?? status
+  let variant = STATUS_CONFIG[status]?.variant ?? "default"
 
   // Expiration check (Doc 4 Sec 33)
   if (
     status === "FUNDRAISING" &&
     deadline &&
     fundedAmount !== undefined &&
-    totalTarget !== undefined
+    targetAmount !== undefined
   ) {
-    if (new Date(deadline) < new Date() && fundedAmount < totalTarget) {
+    const d = new Date(deadline)
+    const numFunded = toFiniteNumber(fundedAmount, 0)
+    const numTarget = toFiniteNumber(targetAmount, 0)
+    if (!isNaN(d.getTime()) && d < new Date() && numFunded < numTarget) {
       label = "Funding Deadline Reached"
       variant = "risk"
     }

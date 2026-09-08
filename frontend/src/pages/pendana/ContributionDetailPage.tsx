@@ -7,7 +7,7 @@ import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Card, CardContent, CardHeader, CardFooter } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
-import { formatRupiah } from "../../components/business/FinancialSummary"
+import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { ArrowLeft, Receipt, ExternalLink, Leaf, AlertCircle } from "lucide-react"
 
 function fetchContribution(id: string): Promise<Contribution> {
@@ -18,7 +18,7 @@ export function ContributionDetailPage() {
   const { contributionId } = useParams<{ contributionId: string }>()
   const navigate = useNavigate()
 
-  const { data: contribution, isLoading, error } = useQuery<Contribution>({
+  const { data: contribution, isLoading } = useQuery<Contribution>({
     queryKey: ["contribution", contributionId],
     queryFn: () => fetchContribution(contributionId!),
     enabled: !!contributionId,
@@ -27,15 +27,15 @@ export function ContributionDetailPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-24">
-        <LoadingSpinner size="lg" label="Memuat rincian kontribusi..." />
+        <LoadingSpinner size="lg" label="Memuat rincian pendanaan..." />
       </div>
     )
   }
 
-  if (error || !contribution) {
+  if (!contribution) {
     return (
       <Alert variant="error">
-        Gagal memuat rincian kontribusi. Data mungkin tidak ditemukan.
+        Data kontribusi tidak ditemukan.
       </Alert>
     )
   }
@@ -55,7 +55,7 @@ export function ContributionDetailPage() {
   
   // Mock processing fee calculation
   const processingFee = 5000
-  const totalPayment = contribution.amount + processingFee
+  const totalPayment = toFiniteNumber(contribution.amount) + processingFee
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl mx-auto">

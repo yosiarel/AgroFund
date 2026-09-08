@@ -88,8 +88,8 @@ export class ProjectService {
     return this.prisma.project.findMany({
       where,
       include: {
-        user: { select: { name: true } },
-        koperasi: { select: { name: true } },
+        user: { select: { id: true, name: true, username: true } },
+        koperasi: { select: { id: true, name: true, username: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -99,8 +99,8 @@ export class ProjectService {
     return this.prisma.project.findMany({
       where: { userId },
       include: {
-        user: { select: { name: true } },
-        koperasi: { select: { name: true } },
+        user: { select: { id: true, name: true, username: true } },
+        koperasi: { select: { id: true, name: true, username: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -110,10 +110,20 @@ export class ProjectService {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
-        user: { select: { name: true, phone: true } },
-        koperasi: { select: { name: true } },
+        user: { select: { id: true, name: true, username: true, phone: true } },
+        koperasi: { select: { id: true, name: true, username: true } },
         naturaPackages: true,
         assessments: true,
+        procurementRequests: {
+          include: {
+            items: true,
+            orders: {
+              include: {
+                supplier: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!project) throw new NotFoundException('Project tidak ditemukan');

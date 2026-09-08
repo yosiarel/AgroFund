@@ -20,7 +20,7 @@ export function ComplaintsPage() {
 
   const { data: contributions } = useQuery<Contribution[]>({
     queryKey: ["pendana-contributions"],
-    queryFn: () => api.get("/contributions"),
+    queryFn: () => api.get("/finance/my-contributions"),
   })
 
   const [isModalOpen, setIsModalOpen] = useState(false)

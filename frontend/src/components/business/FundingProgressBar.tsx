@@ -1,4 +1,5 @@
 import { cn } from "../../lib/utils"
+import { formatRupiah, toFiniteNumber } from "./FinancialSummary"
 
 /**
  * Funding Progress Bar (Doc 5, Sec 32 & 31)
@@ -19,24 +20,14 @@ import { cn } from "../../lib/utils"
  */
 
 interface FundingProgressBarProps {
-  fundedAmount: number;    // amount collected (Rp)
-  targetAmount: number;    // target funding (Rp)
-  deadline: string;        // ISO date string
+  fundedAmount: number | string;    // amount collected (Rp)
+  targetAmount: number | string;    // target funding (Rp)
+  deadline?: string | null;        // ISO date string or null/undefined
   className?: string;
   showRemainingLabel?: boolean;  // show "Sisa Target" label
 }
 
-function formatRupiah(amount: number): string {
-  // Doc 5 Sec 76: "Rp10.000.000" format in formal financial context
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
-
-function formatDeadline(dateStr?: string): string {
+function formatDeadline(dateStr?: string | null): string {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "-";
@@ -47,10 +38,10 @@ function formatDeadline(dateStr?: string): string {
   }).format(date)
 }
 
-function getDaysRemaining(deadline?: string): number {
-  if (!deadline) return 0;
+function getDaysRemaining(deadline?: string | null): number | null {
+  if (!deadline) return null;
   const end = new Date(deadline);
-  if (isNaN(end.getTime())) return 0;
+  if (isNaN(end.getTime())) return null;
   const today = new Date()
   return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
@@ -62,12 +53,15 @@ export function FundingProgressBar({
   className,
   showRemainingLabel = true,
 }: FundingProgressBarProps) {
-  const percentage = Math.min(100, Math.round((fundedAmount / targetAmount) * 100))
+  const numFunded = toFiniteNumber(fundedAmount, 0)
+  const numTarget = toFiniteNumber(targetAmount, 0)
+  const percentage = numTarget > 0 ? Math.min(100, Math.max(0, Math.round((numFunded / numTarget) * 100))) : 0
   const isFullyFunded = percentage >= 100
-  const remainingAmount = Math.max(0, targetAmount - fundedAmount)
+  const remainingAmount = Math.max(0, numTarget - numFunded)
   const daysRemaining = getDaysRemaining(deadline)
-  const isDeadlineApproaching = daysRemaining <= 7 && daysRemaining > 0
-  const isExpired = daysRemaining <= 0 && !isFullyFunded
+  const hasDeadline = daysRemaining !== null
+  const isDeadlineApproaching = hasDeadline && daysRemaining <= 7 && daysRemaining > 0
+  const isExpired = hasDeadline && daysRemaining <= 0 && !isFullyFunded
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
@@ -89,10 +83,10 @@ export function FundingProgressBar({
         {/* Labels */}
         <div className="flex justify-between items-baseline mb-1.5">
           <span className="text-[var(--text-label)] font-[600] text-[var(--color-neutral-900)]">
-            {formatRupiah(Math.min(fundedAmount, targetAmount))}
+            {formatRupiah(Math.min(numFunded, numTarget))}
           </span>
           <span className="text-[var(--text-body-s)] text-[var(--color-neutral-500)]">
-            dari {formatRupiah(targetAmount)}
+            dari {formatRupiah(numTarget)}
           </span>
         </div>
 
