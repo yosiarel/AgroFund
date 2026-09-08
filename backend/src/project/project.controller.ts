@@ -18,6 +18,7 @@ import {
   ReportMaterialIssueDto,
 } from './dto/execution.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ProjectStatus } from '@prisma/client';
@@ -62,11 +63,12 @@ export class ProjectController {
     return this.projectService.getMyProjects(req.user.userId);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Melihat detail proyek' })
   @ApiResponse({ status: 200, description: 'Berhasil mengambil detail proyek' })
-  getProjectById(@Param('id') id: string) {
-    return this.projectService.getProjectById(id);
+  getProjectById(@Param('id') id: string, @Request() req: any) {
+    return this.projectService.getProjectById(id, req?.user);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

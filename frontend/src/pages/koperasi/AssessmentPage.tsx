@@ -81,7 +81,16 @@ export function AssessmentPage() {
   }
 
   if (error || !project) {
-    return <Alert variant="error">Gagal memuat data proyek.</Alert>
+    return (
+      <div className="flex flex-col gap-4">
+        <Alert variant="error" title="Akses Ditolak / Data Tidak Ditemukan">
+          Gagal memuat data proyek. Anda mungkin tidak memiliki wewenang untuk menilai proyek ini atau proyek tidak ditemukan.
+        </Alert>
+        <Button variant="tertiary" className="w-fit" onClick={() => navigate("/koperasi/projects")}>
+          Kembali ke Daftar Proyek
+        </Button>
+      </div>
+    )
   }
 
   if (project.status !== "COOPERATIVE_ASSESSMENT") {

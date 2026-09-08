@@ -13,7 +13,7 @@ import {
   ReportProgressDto,
   ReportMaterialIssueDto,
 } from './dto/execution.dto';
-import { ProjectStatus, AssessmentStatus } from '@prisma/client';
+import { ProjectStatus, AssessmentStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -106,7 +106,10 @@ export class ProjectService {
     });
   }
 
-  async getProjectById(id: string) {
+  async getProjectById(
+    id: string,
+    user?: { userId: string; username?: string; role: Role | string },
+  ) {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
@@ -127,6 +130,37 @@ export class ProjectService {
       },
     });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
+
+    const publicStatuses: ProjectStatus[] = [
+      ProjectStatus.FUNDRAISING,
+      ProjectStatus.DANA_TERPENUHI,
+      ProjectStatus.PROCUREMENT,
+      ProjectStatus.EXECUTION,
+      ProjectStatus.NATURA_FULFILLMENT,
+      ProjectStatus.SUKSES_DITUTUP,
+      ProjectStatus.GAGAL_DITUTUP,
+    ];
+
+    if (!publicStatuses.includes(project.status)) {
+      if (!user) {
+        throw new ForbiddenException(
+          'Akses ditolak: Silakan login terlebih dahulu',
+        );
+      }
+      if (user.role === Role.AGROFUND) {
+        return project;
+      }
+      if (user.role === Role.UMKM && project.userId === user.userId) {
+        return project;
+      }
+      if (user.role === Role.KOPERASI && project.koperasiId === user.userId) {
+        return project;
+      }
+      throw new ForbiddenException(
+        'Akses ditolak: Anda tidak memiliki wewenang atas proyek ini',
+      );
+    }
+
     return project;
   }
 
