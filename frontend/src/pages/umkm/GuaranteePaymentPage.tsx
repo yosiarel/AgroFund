@@ -13,6 +13,14 @@ function fetchProject(id: string): Promise<Project> {
   return api.get(`/projects/${id}`)
 }
 
+export function calculateGuaranteeFinancials(basicProcurementCapital: number | string) {
+  const bpc = toFiniteNumber(basicProcurementCapital)
+  const guaranteeAmount = Math.round(bpc * 0.05)
+  const processingFee = 4000
+  const totalPayment = guaranteeAmount + processingFee
+  return { bpc, guaranteeAmount, processingFee, totalPayment }
+}
+
 export function GuaranteePaymentPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
@@ -26,12 +34,13 @@ export function GuaranteePaymentPage() {
   const payMutation = useMutation({
     mutationFn: () => api.post(`/finance/projects/${projectId}/guarantee/pay`),
     onSuccess: (data: any) => {
-      if (data?.invoiceUrl) {
-        window.location.href = data.invoiceUrl
+      const redirectUrl = data?.paymentUrl
+      if (redirectUrl) {
+        window.location.href = redirectUrl
       } else {
         navigate(`/umkm/projects/${projectId}`)
       }
-    }
+    },
   })
 
   if (isLoading) {
@@ -51,10 +60,9 @@ export function GuaranteePaymentPage() {
   }
 
   // Calculate Guarantee (5% of Basic Procurement Capital)
-  const bpc = toFiniteNumber(project.basicProcurementCapital)
-  const guaranteeAmount = Math.round(bpc * 0.05)
-  const processingFee = 4000 // Mock admin fee
-  const totalPayment = guaranteeAmount + processingFee
+  const { bpc, guaranteeAmount, processingFee, totalPayment } = calculateGuaranteeFinancials(
+    project.basicProcurementCapital,
+  )
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-6">

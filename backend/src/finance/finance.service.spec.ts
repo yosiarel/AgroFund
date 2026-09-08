@@ -74,19 +74,32 @@ describe('FinanceService', () => {
   });
 
   describe('generateGuaranteePayment', () => {
-    it('should generate guarantee payment url', async () => {
+    it('should generate guarantee payment url with processing fee included in Xendit invoice', async () => {
       const project = {
         id: 'proj-1',
+        title: 'Proyek Hidroponik',
         userId: 'user-1',
         status: ProjectStatus.GUARANTEE_PLACEMENT,
         guaranteeStatus: GuaranteeStatus.PENDING_PAYMENT,
-        guaranteeAmount: 500000n,
+        guaranteeAmount: 2000000n,
       };
       prisma.project.findUnique.mockResolvedValue(project);
 
       const result = await service.generateGuaranteePayment('proj-1', 'user-1');
-      expect(result.paymentUrl).toBeDefined();
+
+      expect(result.guaranteeAmount).toBe('2000000');
+      expect(result.processingFee).toBe('4000');
+      expect(result.totalPayment).toBe('2004000');
+      expect(result.paymentUrl).toBe('https://checkout.xendit.co/test');
       expect(result.externalId).toContain('GUARANTEE_proj-1_');
+
+      const xenditMockInstance = (service as any).xenditClient;
+      expect(xenditMockInstance.Invoice.createInvoice).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          amount: 2004000,
+          description: 'Pembayaran Jaminan Proyek: Proyek Hidroponik',
+        }),
+      });
     });
 
     it('should throw ForbiddenException if user is not the owner', async () => {
@@ -172,6 +185,14 @@ describe('FinanceService', () => {
         data: expect.objectContaining({
           guaranteeStatus: GuaranteeStatus.HELD,
           status: ProjectStatus.FUNDRAISING,
+        }),
+      });
+
+      expect(prisma.guaranteeTransaction.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          amount: 500000n,
+          status: 'HELD',
+          reason: 'Setoran Awal UMKM',
         }),
       });
     });

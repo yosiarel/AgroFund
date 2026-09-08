@@ -39,6 +39,8 @@ export class FinanceService {
       throw new BadRequestException('Uang jaminan sudah disetorkan');
     }
 
+    const processingFee = 4000;
+    const totalPayment = Number(project.guaranteeAmount) + processingFee;
     const externalId = `GUARANTEE_${projectId}_${Date.now()}`;
 
     // Create Real Xendit Invoice
@@ -51,7 +53,7 @@ export class FinanceService {
     const invoice = await this.xenditClient.Invoice.createInvoice({
       data: {
         externalId: externalId,
-        amount: Number(project.guaranteeAmount),
+        amount: totalPayment,
         description: `Pembayaran Jaminan Proyek: ${project.title}`,
       },
     });
@@ -61,6 +63,8 @@ export class FinanceService {
     return {
       message: 'Silakan lakukan pembayaran jaminan',
       guaranteeAmount: project.guaranteeAmount.toString(),
+      processingFee: processingFee.toString(),
+      totalPayment: totalPayment.toString(),
       paymentUrl: paymentUrl,
       externalId: externalId,
     };

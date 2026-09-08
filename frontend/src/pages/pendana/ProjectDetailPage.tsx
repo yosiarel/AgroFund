@@ -360,9 +360,10 @@ function ContributeModal({
       naturaPackageId: selectedNatura ?? undefined,
     }),
     onSuccess: (data: any) => {
-      // Redirect to Xendit payment page (invoice URL)
-      if (data?.invoiceUrl) {
-        window.location.href = data.invoiceUrl
+      // Redirect to Xendit payment page (payment URL)
+      const redirectUrl = data?.paymentUrl || data?.invoiceUrl
+      if (redirectUrl) {
+        window.location.href = redirectUrl
       } else {
         navigate("/pendana/contributions")
       }
