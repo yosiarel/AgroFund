@@ -11,7 +11,6 @@ import { BigIntInterceptor } from './common/interceptors/bigint.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.setGlobalPrefix('api/v1');
   app.useGlobalInterceptors(new BigIntInterceptor());
   app.set('trust proxy', 1);
 
@@ -43,7 +42,13 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
+
+  app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
     new ValidationPipe({
