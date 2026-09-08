@@ -101,7 +101,7 @@ async function main() {
       fundedAmount: 20000000n, publishedAt: new Date(), fundraisingDeadline: new Date(Date.now() + 30 * 86400000)
     }
   });
-  await prisma.contribution.create({ data: { projectId: projFundraising.id, investorId: pendanaSultan.id, amount: 20000000n, processingFee: 4000n, totalPayment: 20004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projFundraising.id, investorId: pendanaSultan.id, amount: 20000000n, processingFee: 4000n, totalPayment: 20004000n, status: 'PAID' } });
 
   // 6. DANA_TERPENUHI (Target dana sudah 100%)
   const projTerpenuhi = await prisma.project.create({
@@ -112,7 +112,7 @@ async function main() {
       fundedAmount: 60000000n, fundingCompletedAt: new Date(), fundraisingDeadline: new Date(Date.now() + 15 * 86400000)
     }
   });
-  await prisma.contribution.create({ data: { projectId: projTerpenuhi.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projTerpenuhi.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
 
   // 7. PROCUREMENT (Proses belanja barang)
   const projProcurement = await prisma.project.create({
@@ -123,7 +123,7 @@ async function main() {
       fundedAmount: 60000000n, fundingCompletedAt: new Date(Date.now() - 5 * 86400000), fundraisingDeadline: new Date(Date.now() - 5 * 86400000)
     }
   });
-  await prisma.contribution.create({ data: { projectId: projProcurement.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projProcurement.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
   
   const supplier = await prisma.supplierRecord.create({ data: { name: 'Toko Mesin Nelayan' } });
   const procReq = await prisma.procurementRequest.create({ data: { projectId: projProcurement.id, status: 'PO_ISSUED', supplierId: supplier.id } });
@@ -138,7 +138,7 @@ async function main() {
       fundedAmount: 60000000n, executionStartedAt: new Date(Date.now() - 20 * 86400000)
     }
   });
-  await prisma.contribution.create({ data: { projectId: projExecution.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projExecution.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
   const milestone = await prisma.milestone.create({ data: { projectId: projExecution.id, name: 'Bulan 1', status: 'IN_PROGRESS' } });
   await prisma.progressReport.create({ data: { milestoneId: milestone.id, progressPercentage: 50, description: 'Tumbuh baik', status: 'VALIDATED' } });
 
@@ -152,7 +152,7 @@ async function main() {
     }
   });
   const pkg = await prisma.naturaPackage.create({ data: { projectId: projNatura.id, name: 'Paket Ikan Asin 5Kg', description: 'Ikan asin premium', amount: 500000n } });
-  await prisma.contribution.create({ data: { projectId: projNatura.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS', naturaPackageId: pkg.id } });
+  await prisma.contribution.create({ data: { projectId: projNatura.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID', naturaPackageId: pkg.id } });
 
   // 10. SUKSES_DITUTUP (Semua Selesai, Jaminan Dikembalikan)
   const projSukses = await prisma.project.create({
@@ -163,7 +163,7 @@ async function main() {
       fundedAmount: 60000000n
     }
   });
-  await prisma.contribution.create({ data: { projectId: projSukses.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projSukses.id, investorId: pendanaDermawan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
 
   // 11. GAGAL_DITUTUP (Proyek hancur / Badai / Gagal)
   const projGagal = await prisma.project.create({
@@ -174,7 +174,7 @@ async function main() {
       fundedAmount: 60000000n
     }
   });
-  await prisma.contribution.create({ data: { projectId: projGagal.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'SUCCESS' } });
+  await prisma.contribution.create({ data: { projectId: projGagal.id, investorId: pendanaSultan.id, amount: 60000000n, processingFee: 4000n, totalPayment: 60004000n, status: 'PAID' } });
   await prisma.incident.create({ data: { projectId: projGagal.id, category: 'FORCE_MAJEURE', severity: 'HIGH', description: 'Hancur karena badai', status: 'RESOLVED', decision: 'Gagal Total' } });
 
   console.log('✅ 11 Proyek berhasil dibuat mencakup SELURUH 11 STATUS SIKLUS PROYEK (Dari Draft hingga Sukses/Gagal)');

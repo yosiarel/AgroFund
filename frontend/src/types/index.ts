@@ -60,7 +60,7 @@ export interface Project {
 export interface Contribution {
   id: string
   amount: number
-  status: "PENDING" | "PROCESSING" | "SUCCESS" | "FAILED" | "AWAITING_CONFIRMATION"
+  status: "PENDING_PAYMENT" | "PAID" | "CANCELLED" | "REFUNDED"
   invoiceUrl?: string
   naturaPackageId?: string
   naturaPackage?: NaturaPackage

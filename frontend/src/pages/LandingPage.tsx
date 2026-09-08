@@ -46,7 +46,7 @@ export const LandingPage: React.FC = () => {
     } else if (user.role === 'KOPERASI') {
       return <Navigate to="/koperasi/projects" replace />;
     }
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/unauthorized" replace />;
   }
 
   const publicNavItems: NavItem[] = [

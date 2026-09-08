@@ -104,7 +104,7 @@ export function PublicationReviewPage() {
   const reviewMutation = useMutation({
     mutationFn: () =>
       api.post(`/projects/${projectId}/review`, { decision, notes }),
-    onSuccess: () => navigate("/agrofund/projects"),
+    onSuccess: () => navigate("/admin/projects"),
   })
 
   const toggleCheck = (id: ReviewItem) => {
@@ -135,7 +135,7 @@ export function PublicationReviewPage() {
           Proyek ini tidak sedang berada dalam tahap Publication Review.
           Status saat ini: {project.status}
         </Alert>
-        <Button variant="tertiary" className="w-fit" onClick={() => navigate("/agrofund/projects")}>
+        <Button variant="tertiary" className="w-fit" onClick={() => navigate("/admin/projects")}>
           Kembali ke Daftar Proyek
         </Button>
       </div>
@@ -148,7 +148,7 @@ export function PublicationReviewPage() {
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
       <div>
-        <button onClick={() => navigate("/agrofund/projects")} className="text-[var(--text-caption)] text-[var(--color-neutral-500)] hover:text-[var(--color-primary-600)] mb-2 transition-colors">
+        <button onClick={() => navigate("/admin/projects")} className="text-[var(--text-caption)] text-[var(--color-neutral-500)] hover:text-[var(--color-primary-600)] mb-2 transition-colors">
           ← Kembali ke Daftar Proyek
         </button>
         <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-neutral-900)]">

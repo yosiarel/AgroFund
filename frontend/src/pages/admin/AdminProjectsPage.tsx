@@ -94,20 +94,16 @@ function AdminProjectCard({ project }: { project: Project }) {
             </div>
           </div>
           
-          <div className="flex-shrink-0">
-            {needsReview ? (
+          {needsReview && (
+            <div className="flex-shrink-0">
               <Link to={`/admin/projects/${project.id}/review`}>
                 <Button variant="primary">
                   <ShieldCheck className="w-4 h-4 mr-2" />
                   Mulai Tinjauan Publikasi
                 </Button>
               </Link>
-            ) : (
-              <Link to={`/admin/projects/${project.id}`}>
-                <Button variant="secondary">Lihat Detail Sistem</Button>
-              </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {needsReview && (

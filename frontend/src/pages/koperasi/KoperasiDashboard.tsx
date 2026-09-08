@@ -16,7 +16,7 @@ import { Outlet } from "react-router-dom"
 export function KoperasiDashboard() {
   const sidebarItems: SidebarItem[] = [
     { title: "Proyek Ditugaskan", href: "/koperasi/projects", icon: <Briefcase className="w-5 h-5" /> },
-    { title: "Penilaian Kelayakan", href: "/koperasi/assessment", icon: <ClipboardCheck className="w-5 h-5" /> },
+    { title: "Penilaian Kelayakan", href: "/koperasi/projects", icon: <ClipboardCheck className="w-5 h-5" /> },
     { title: "Pengadaan Barang", href: "/koperasi/procurement", icon: <PackageSearch className="w-5 h-5" /> },
     { title: "Validasi Bukti", href: "/koperasi/evidence", icon: <FileCheck className="w-5 h-5" /> },
     { title: "Pemantauan Proyek", href: "/koperasi/monitoring", icon: <Activity className="w-5 h-5" /> },
