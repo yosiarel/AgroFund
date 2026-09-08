@@ -42,6 +42,8 @@ const EvidenceReviewPage = lazy(() => import('./pages/koperasi/EvidenceReviewPag
 const KoperasiProjectMonitoringPage = lazy(() => import('./pages/koperasi/ProjectMonitoringPage').then(m => ({ default: m.ProjectMonitoringPage })));
 const IncidentReportingPage = lazy(() => import('./pages/koperasi/IncidentReportingPage').then(m => ({ default: m.IncidentReportingPage })));
 
+// Admin Pages
+const AdminDashboardOverviewPage = lazy(() => import('./pages/admin/AdminDashboardOverviewPage').then(m => ({ default: m.AdminDashboardOverviewPage })));
 const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage').then(m => ({ default: m.AdminProjectsPage })));
 const PublicationReviewPage = lazy(() => import('./pages/admin/PublicationReviewPage').then(m => ({ default: m.PublicationReviewPage })));
 const CooperativesPage = lazy(() => import('./pages/admin/CooperativesPage').then(m => ({ default: m.CooperativesPage })));
@@ -192,7 +194,7 @@ const router = createBrowserRouter([
           {
             element: <AdminDashboard />,
             children: [
-              { index: true, element: <Navigate to="/admin/projects" replace /> },
+              { index: true, element: <AdminDashboardOverviewPage /> },
               { path: 'projects', element: <AdminProjectsPage /> },
               { path: 'projects/:projectId/review', element: <PublicationReviewPage /> },
               { path: 'cooperatives', element: <CooperativesPage /> },

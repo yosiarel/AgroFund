@@ -11,6 +11,7 @@ export interface SidebarItem {
   title: string
   href: string
   icon?: React.ReactNode
+  exact?: boolean
 }
 
 interface DashboardLayoutProps {
@@ -97,7 +98,9 @@ export function DashboardLayout({ children, sidebarItems, title }: DashboardLayo
 
         <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
           {sidebarItems.map((item) => {
-            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
+            const isActive = item.exact 
+              ? location.pathname === item.href 
+              : location.pathname === item.href || location.pathname.startsWith(item.href + "/")
             return (
               <Link
                 key={item.href}

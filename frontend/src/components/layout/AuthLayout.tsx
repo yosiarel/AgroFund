@@ -8,7 +8,7 @@ export const AuthLayout: React.FC = () => {
 
   if (user) {
     if (user.role === 'AGROFUND') {
-      return <Navigate to="/admin/projects" replace />;
+      return <Navigate to="/admin" replace />;
     } else if (user.role === 'PENDANA') {
       return <Navigate to="/pendana/discover" replace />;
     } else if (user.role === 'UMKM') {
