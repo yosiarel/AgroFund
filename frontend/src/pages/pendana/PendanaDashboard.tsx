@@ -3,9 +3,6 @@ import type { NavItem } from "../../components/layout/TopBarLayout"
 import { User, Leaf, AlertTriangle } from "lucide-react"
 import { Outlet } from "react-router-dom"
 
-/**
- * Pendana Dashboard (Doc 4, Sec 6)
- */
 export function PendanaDashboard() {
   const navItems: NavItem[] = [
     { title: "Dasbor", href: "/pendana", end: true },
