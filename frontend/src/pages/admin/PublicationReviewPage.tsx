@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import api from "../../lib/axios"
-import type { Project } from "../../types"
+import type { Project, AssessmentStatus } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
 import { formatRupiah } from "../../components/business/FinancialSummary"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
@@ -85,7 +85,22 @@ const REVIEW_CHECKLIST = [
 ] as const
 
 type ReviewItem = typeof REVIEW_CHECKLIST[number]["id"]
-type ReviewDecision = "APPROVED" | "NEEDS_CORRECTION" | "REJECTED"
+export type ReviewDecision = "APPROVED" | "NEEDS_CORRECTION" | "REJECTED"
+
+export interface ReviewProjectPayload {
+  status: AssessmentStatus
+  notes?: string
+}
+
+export function buildReviewProjectPayload(
+  status: AssessmentStatus,
+  notes?: string,
+): ReviewProjectPayload {
+  return {
+    status,
+    notes: notes?.trim() || undefined,
+  }
+}
 
 export function PublicationReviewPage() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -102,8 +117,13 @@ export function PublicationReviewPage() {
   })
 
   const reviewMutation = useMutation({
-    mutationFn: () =>
-      api.post(`/projects/${projectId}/review`, { decision, notes }),
+    mutationFn: () => {
+      if (!decision) throw new Error("Keputusan tinjauan wajib dipilih")
+      return api.post(
+        `/projects/${projectId}/review`,
+        buildReviewProjectPayload(decision, notes),
+      )
+    },
     onSuccess: () => navigate("/admin/projects"),
   })
 
@@ -376,7 +396,10 @@ export function PublicationReviewPage() {
                     />
 
                     {reviewMutation.isError && (
-                      <Alert variant="error">Terjadi kesalahan saat menyimpan keputusan. Silakan coba lagi.</Alert>
+                      <Alert variant="error">
+                        {(reviewMutation.error as any)?.message ||
+                          "Terjadi kesalahan saat menyimpan keputusan. Silakan coba lagi."}
+                      </Alert>
                     )}
 
                     <Button
