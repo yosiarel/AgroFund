@@ -10,7 +10,7 @@ import { Alert } from "../../components/ui/Alert"
 import { Badge } from "../../components/ui/Badge"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
-import { Wallet, AlertCircle, CheckCircle, Clock, XCircle, HelpCircle } from "lucide-react"
+import { TrendingUp, AlertCircle, CheckCircle, Clock, XCircle, HelpCircle } from "lucide-react"
 
 /**
  * My Contributions Page (Doc 4, Sec 32 — Contribution Payment States)
@@ -38,38 +38,29 @@ const STATUS_CONFIG: Record<Contribution["status"], {
   Icon: React.ComponentType<{ className?: string }>
   description: string
 }> = {
-  PENDING: {
+  PENDING_PAYMENT: {
     label: "Menunggu Pembayaran",
     variant: "warning",
     Icon: Clock,
     description: "Pembayaran belum dilakukan. Selesaikan pembayaran untuk mengkonfirmasi kontribusi Anda.",
   },
-  PROCESSING: {
-    label: "Sedang Diproses",
-    variant: "info",
-    Icon: Clock,
-    description: "Pembayaran sedang diproses oleh sistem.",
-  },
-  SUCCESS: {
+  PAID: {
     label: "Berhasil",
     variant: "success",
     Icon: CheckCircle,
     description: "Kontribusi telah terkonfirmasi.",
   },
-  FAILED: {
-    label: "Gagal",
+  CANCELLED: {
+    label: "Dibatalkan",
     variant: "error",
     Icon: XCircle,
-    description: "Pembayaran gagal. Silakan hubungi kami jika dana sudah terpotong.",
+    description: "Kontribusi telah dibatalkan.",
   },
-  // Doc 4 Sec 32 & Doc 5 Sec 43 — AWAITING_CONFIRMATION:
-  // - MUST NOT use visual success
-  // - MUST be visually DISTINCT from PENDING (sudah bayar, belum dikonfirmasi sistem)
-  AWAITING_CONFIRMATION: {
-    label: "Menunggu Konfirmasi Sistem",
-    variant: "default",      // Neutral — bukan warning, bukan success
-    Icon: HelpCircle,        // Icon berbeda dari PENDING (Clock)
-    description: "Pembayaran sudah dilakukan, namun belum dikonfirmasi oleh sistem. Kontribusi BELUM dianggap selesai.",
+  REFUNDED: {
+    label: "Dikembalikan",
+    variant: "info",
+    Icon: HelpCircle,
+    description: "Dana kontribusi telah dikembalikan ke rekening Anda.",
   },
 }
 
@@ -86,7 +77,7 @@ export function MyContributionsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-24">
-        <LoadingSpinner size="lg" label="Memuat kontribusi..." />
+        <LoadingSpinner size="lg" label="Memuat kontribusi Anda..." />
       </div>
     )
   }
@@ -101,25 +92,34 @@ export function MyContributionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[var(--text-h2)] leading-[var(--text-h2--line-height)] font-[700] text-[var(--color-neutral-900)]">
-          My Contributions
-        </h1>
-        <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)] mt-1">
-          Riwayat kontribusi pendanaan Anda ke proyek-proyek agrikultur.
-        </p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-[var(--text-h2)] leading-[var(--text-h2--line-height)] font-[700] text-[var(--color-neutral-900)]">
+            My Contributions
+          </h1>
+          <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)] mt-1">
+            Riwayat dan status seluruh kontribusi pendanaan Anda.
+          </p>
+        </div>
+        <Link to="/pendana/discover">
+          <Button variant="primary">
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Danai Proyek Baru
+          </Button>
+        </Link>
       </div>
 
       {contributions.length === 0 ? (
         <EmptyState
           title="Belum Ada Kontribusi"
-          description="Anda belum mendanai proyek manapun. Mulai jelajahi proyek yang tersedia."
-          icon={<Wallet className="w-8 h-8" />}
+          description="Anda belum mendanai proyek apapun. Jelajahi etalase untuk mulai mendanai proyek agrikultur potensial."
+          icon={<TrendingUp className="w-8 h-8" />}
           action={
             <Link to="/pendana/discover">
-              <button className="px-4 py-2 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] hover:bg-[var(--color-primary-700)] transition-colors text-[var(--text-body-s)] font-[500]">
-                Jelajahi Proyek
-              </button>
+              <Button variant="primary">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Mulai Mendanai
+              </Button>
             </Link>
           }
         />
@@ -140,31 +140,29 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
 
   return (
     <Card>
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-6 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <Link
               to={`/pendana/discover/${contribution.project.id}`}
-              className="text-[var(--text-h5)] font-[600] text-[var(--color-neutral-900)] hover:text-[var(--color-primary-700)] transition-colors"
+              className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)] hover:text-[var(--color-primary-700)] transition-colors"
             >
               {contribution.project.title}
             </Link>
-            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <div className="mt-1">
               <ProjectStatusBadge status={contribution.project.status} size="sm" />
             </div>
           </div>
           <div className="text-right flex-shrink-0">
+            <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Nominal Kontribusi</p>
             <p className="text-[var(--text-h4)] font-[700] text-[var(--color-primary-700)]">
               {formatRupiah(contribution.amount)}
-            </p>
-            <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
-              {new Date(contribution.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
         </div>
 
         {/* Contribution Status (Sec 32) */}
-        <div className="flex items-start gap-3 p-3 rounded-[var(--radius-m)] bg-[var(--color-neutral-50)] border border-[var(--color-neutral-100)]">
+        <div className="p-4 bg-[var(--color-neutral-50)] rounded-[var(--radius-m)] flex items-start gap-3 border border-[var(--color-neutral-100)]">
           <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${statusCfg.variant === "success" ? "text-[var(--color-success-500)]" : statusCfg.variant === "error" ? "text-[var(--color-error-500)]" : "text-[var(--color-warning-500)]"}`} />
           <div>
             <p className="text-[var(--text-label)] font-[600] text-[var(--color-neutral-900)]">{statusCfg.label}</p>
@@ -175,7 +173,7 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
           </Badge>
         </div>
 
-        {/* Natura info if selected */}
+        {/* Natura details if selected */}
         {contribution.naturaPackage && (
           <div className="text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
             Paket Natura: <span className="font-[600] text-[var(--color-neutral-900)]">{contribution.naturaPackage.name}</span>
@@ -184,7 +182,7 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
 
         {/* Pay/Retry CTA for pending and View Detail */}
         <div className="flex flex-wrap items-center gap-3">
-          {(contribution.status === "PENDING" || contribution.status === "FAILED") && contribution.invoiceUrl && (
+          {contribution.status === "PENDING_PAYMENT" && contribution.invoiceUrl && (
             <a
               href={contribution.invoiceUrl}
               target="_blank"
@@ -192,7 +190,7 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
               className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] text-[var(--text-body-s)] font-[500] hover:bg-[var(--color-primary-700)] transition-colors w-fit"
             >
               <AlertCircle className="w-4 h-4" />
-              {contribution.status === "FAILED" ? "Coba Bayar Lagi" : "Lanjutkan Pembayaran"}
+              Lanjutkan Pembayaran
             </a>
           )}
           <Link to={`/pendana/contributions/${contribution.id}`}>

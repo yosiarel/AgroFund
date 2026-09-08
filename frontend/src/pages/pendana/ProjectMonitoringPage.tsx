@@ -26,7 +26,7 @@ export function ProjectMonitoringPage() {
 
   // Filter only paid contributions
   const activeFundedProjects = contributions?.filter(
-    (c) => c.status === "SUCCESS" || c.status === "PROCESSING"
+    (c) => c.status === "PAID"
   )
 
   return (

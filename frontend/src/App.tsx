@@ -50,6 +50,22 @@ import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
 import { LandingPage } from './pages/LandingPage';
 import { FAQ } from './pages/FAQ';
+import { TopBarLayout } from './components/layout/TopBarLayout';
+import type { NavItem } from './components/layout/TopBarLayout';
+
+const publicNavItems: NavItem[] = [
+  { title: 'Beranda', href: '/' },
+  { title: 'Proyek', href: '/projects' },
+  { title: 'FAQ', href: '/faq' },
+];
+
+const PublicLayout = () => {
+  return (
+    <TopBarLayout navItems={publicNavItems}>
+      <Outlet />
+    </TopBarLayout>
+  );
+};
 
 const RootLayout = () => {
   return (
@@ -81,6 +97,13 @@ const router = createBrowserRouter([
       { path: '/faq', element: <FAQ /> },
       { path: '/unauthorized', element: <UnauthorizedPage /> },
       {
+        element: <PublicLayout />,
+        children: [
+          { path: '/projects', element: <DiscoverProjectsPage /> },
+          { path: '/projects/:projectId', element: <ProjectDetailPage /> },
+        ]
+      },
+      {
         element: <AuthLayout />,
         children: [
           { path: '/login', element: <LoginPage /> },
@@ -104,6 +127,7 @@ const router = createBrowserRouter([
               { path: 'monitoring', element: <PendanaProjectMonitoringPage /> },
               { path: 'natura', element: <NaturaTrackingPage /> },
               { path: 'complaints', element: <ComplaintsPage /> },
+              { path: 'profile', element: <ProfilePage /> },
             ]
           }
         ]

@@ -1,6 +1,7 @@
 import { useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
+import { useAuth } from "../../contexts/AuthContext"
 import api from "../../lib/axios"
 import type { Project, NaturaPackage } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
@@ -15,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Ca
 import { Building2, Users, CalendarDays, ShieldCheck } from "lucide-react"
 
 /**
- * Project Detail Page — for Pendana (Doc 4, Sec 26, 27, 28, 29)
+ * Project Detail Page — for Pendana & Public (Doc 4, Sec 26, 27, 28, 29)
  *
  * Must display (Sec 26):
  * - Project: purpose, scope, UMKM, Koperasi
@@ -25,9 +26,6 @@ import { Building2, Users, CalendarDays, ShieldCheck } from "lucide-react"
  *
  * CTA "Contribute" (Sec 27):
  *   ONLY if: status == FUNDRAISING AND funding < 100% AND deadline not reached
- *
- * Awaiting Confirmation rule (Sec 32):
- *   If status is AWAITING_CONFIRMATION: do NOT show as completed.
  */
 
 function fetchProject(id: string): Promise<Project> {
@@ -37,6 +35,8 @@ function fetchProject(id: string): Promise<Project> {
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useAuth()
   const [isContributeModalOpen, setIsContributeModalOpen] = useState(false)
 
   const { data: project, isLoading, error } = useQuery<Project>({
@@ -69,11 +69,31 @@ export function ProjectDetailPage() {
   const canContribute =
     project.status === "FUNDRAISING" && !isFullyFunded && !isExpired
 
+  const handleContributeClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: location } })
+      return
+    }
+    if (user.role === "PENDANA") {
+      setIsContributeModalOpen(true)
+    }
+  }
+
+  const handleBackNavigation = () => {
+    if (location.pathname.startsWith("/projects")) {
+      navigate("/projects")
+    } else if (location.pathname.startsWith("/umkm")) {
+      navigate("/umkm/discover")
+    } else {
+      navigate("/pendana/discover")
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Breadcrumb */}
       <nav className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
-        <button onClick={() => navigate("/pendana/discover")} className="hover:text-[var(--color-primary-600)] transition-colors">
+        <button onClick={handleBackNavigation} className="hover:text-[var(--color-primary-600)] transition-colors">
           Discover Projects
         </button>
         <span className="mx-2">›</span>
@@ -229,13 +249,20 @@ export function ProjectDetailPage() {
 
               {/* CTA — only visible when canContribute (Doc 4 Sec 27) */}
               {canContribute && (
-                <Button
-                  variant="primary"
-                  className="w-full"
-                  onClick={() => setIsContributeModalOpen(true)}
-                >
-                  Danai Proyek Ini
-                </Button>
+                <>
+                  <Button
+                    variant="primary"
+                    className="w-full"
+                    onClick={handleContributeClick}
+                  >
+                    Danai Proyek Ini
+                  </Button>
+                  {user && user.role !== "PENDANA" && (
+                    <p className="text-[var(--text-caption)] text-[var(--color-warning-700)] text-center">
+                      Akun Anda ({user.role}) tidak memiliki izin mendanai. Gunakan akun Pendana.
+                    </p>
+                  )}
+                </>
               )}
 
               <div className="flex items-center gap-2 text-[var(--text-caption)] text-[var(--color-neutral-500)]">

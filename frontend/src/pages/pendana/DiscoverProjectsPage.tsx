@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import api from "../../lib/axios"
 import type { Project } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
@@ -75,12 +75,19 @@ export function DiscoverProjectsPage() {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const location = useLocation()
   const percentage = Math.round((project.fundedAmount / project.totalTarget) * 100)
   const isFullyFunded = percentage >= 100
 
+  const detailPath = location.pathname.startsWith("/projects")
+    ? `/projects/${project.id}`
+    : location.pathname.startsWith("/umkm")
+    ? `/umkm/discover/${project.id}`
+    : `/pendana/discover/${project.id}`
+
   return (
     <Link
-      to={`/pendana/discover/${project.id}`}
+      to={detailPath}
       className="group block bg-white rounded-[var(--radius-l)] border border-[var(--color-neutral-200)] shadow-[var(--shadow-e1)] hover:shadow-[var(--shadow-e2)] hover:border-[var(--color-primary-200)] transition-all duration-200 overflow-hidden"
     >
       {/* Card Header */}

@@ -43,10 +43,10 @@ export function ContributionDetailPage() {
   // Get status configuration (Doc 4 Sec 32)
   const getStatusCfg = (status: string) => {
     switch (status) {
-      case "SUCCESS": return { label: "Sukses", variant: "success" as const }
-      case "FAILED": return { label: "Gagal", variant: "error" as const }
-      case "AWAITING_CONFIRMATION": return { label: "Menunggu Konfirmasi", variant: "warning" as const }
-      case "PROCESSING": return { label: "Sedang Diproses", variant: "info" as const }
+      case "PAID": return { label: "Berhasil", variant: "success" as const }
+      case "CANCELLED": return { label: "Dibatalkan", variant: "error" as const }
+      case "REFUNDED": return { label: "Dikembalikan", variant: "info" as const }
+      case "PENDING_PAYMENT":
       default: return { label: "Menunggu Pembayaran", variant: "warning" as const }
     }
   }
@@ -68,15 +68,15 @@ export function ContributionDetailPage() {
         </h1>
       </div>
 
-      {contribution.status === "AWAITING_CONFIRMATION" && (
-        <Alert variant="warning" className="mb-2">
-          Pembayaran Anda sedang dalam verifikasi sistem. Harap tunggu hingga status berubah menjadi Sukses.
+      {contribution.status === "CANCELLED" && (
+        <Alert variant="error" className="mb-2">
+          Pembayaran untuk pendanaan ini telah dibatalkan atau kedaluwarsa. Silakan ulangi proses pendanaan.
         </Alert>
       )}
 
-      {contribution.status === "FAILED" && (
-        <Alert variant="error" className="mb-2">
-          Pembayaran untuk pendanaan ini gagal atau kedaluwarsa. Silakan ulangi proses pendanaan.
+      {contribution.status === "REFUNDED" && (
+        <Alert variant="info" className="mb-2">
+          Dana pendanaan ini telah dikembalikan ke rekening bank Anda.
         </Alert>
       )}
 
@@ -159,7 +159,7 @@ export function ContributionDetailPage() {
         </CardContent>
         
         {/* Payment CTA for PENDING */}
-        {(contribution.status === "PENDING" || contribution.status === "FAILED") && contribution.invoiceUrl && (
+        {contribution.status === "PENDING_PAYMENT" && contribution.invoiceUrl && (
           <CardFooter className="bg-[var(--color-neutral-50)] border-t border-[var(--color-neutral-100)] p-6">
             <a 
               href={contribution.invoiceUrl}
@@ -168,7 +168,7 @@ export function ContributionDetailPage() {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-primary-600)] text-white rounded-[var(--radius-m)] font-[600] hover:bg-[var(--color-primary-700)] transition-colors"
             >
               <Receipt className="w-5 h-5" />
-              {contribution.status === "FAILED" ? "Coba Bayar Lagi" : "Lanjutkan ke Pembayaran"}
+              Lanjutkan ke Pembayaran
             </a>
           </CardFooter>
         )}
