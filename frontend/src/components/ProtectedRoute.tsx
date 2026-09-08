@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import type { Role } from "../contexts/AuthContext"
-import { LoadingSpinner } from "./ui/LoadingSpinner"
 
 interface ProtectedRouteProps {
   allowedRoles?: Role[]
