@@ -94,8 +94,42 @@ export function MyProjectsPage() {
   )
 }
 
-function UmkmProjectCard({ project }: { project: Project }) {
+export interface ProjectCardActions {
+  detailHref: string
+  detailLabel: string
+  detailVariant: "primary" | "secondary"
+  contextualAction?: {
+    label: string
+    ctaLabel: string
+    href: string
+    variant: "primary"
+  }
+}
+
+export function getCardActions(project: Project): ProjectCardActions {
   const nextAction = getNextAction(project)
+  const hasDistinctContextualAction =
+    nextAction?.href && nextAction.ctaLabel !== "Lihat Detail"
+
+  return {
+    detailHref: `/umkm/projects/${project.id}`,
+    detailLabel: "Lihat Detail",
+    detailVariant: hasDistinctContextualAction ? "secondary" : "primary",
+    contextualAction:
+      hasDistinctContextualAction && nextAction?.href
+        ? {
+            label: nextAction.label,
+            ctaLabel: nextAction.ctaLabel,
+            href: nextAction.href,
+            variant: "primary",
+          }
+        : undefined,
+  }
+}
+
+export function UmkmProjectCard({ project }: { project: Project }) {
+  const nextAction = getNextAction(project)
+  const actions = getCardActions(project)
 
   return (
     <Card>
@@ -103,7 +137,7 @@ function UmkmProjectCard({ project }: { project: Project }) {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <Link
-              to={`/umkm/projects/${project.id}`}
+              to={actions.detailHref}
               className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)] hover:text-[var(--color-primary-700)] transition-colors"
             >
               {project.title}
@@ -130,24 +164,43 @@ function UmkmProjectCard({ project }: { project: Project }) {
           />
         )}
 
-        {/* Next required action (Doc 4 Sec 34) */}
-        {nextAction && (
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pt-2 border-t border-[var(--color-neutral-100)]">
+        {/* Next required action and actions bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pt-3 border-t border-[var(--color-neutral-100)]">
+          {nextAction ? (
             <div>
               <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Tindakan Berikutnya</p>
               <p className="text-[var(--text-body-s)] font-[500] text-[var(--color-neutral-800)]">
                 {nextAction.label}
               </p>
             </div>
-            {nextAction.href && (
-              <Link to={nextAction.href} className="w-full lg:w-auto">
-                <Button variant="primary" size="sm" className="w-full lg:w-auto">
-                  {nextAction.ctaLabel}
+          ) : (
+            <div>
+              <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Status Proyek</p>
+              <p className="text-[var(--text-body-s)] font-[500] text-[var(--color-neutral-800)]">
+                Proyek telah selesai.
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto justify-end">
+            <Link to={actions.detailHref} className="w-full sm:w-auto">
+              <Button
+                variant={actions.detailVariant}
+                size="sm"
+                className="w-full sm:w-auto"
+              >
+                {actions.detailLabel}
+              </Button>
+            </Link>
+            {actions.contextualAction && (
+              <Link to={actions.contextualAction.href} className="w-full sm:w-auto">
+                <Button variant={actions.contextualAction.variant} size="sm" className="w-full sm:w-auto">
+                  {actions.contextualAction.ctaLabel}
                 </Button>
               </Link>
             )}
           </div>
-        )}
+        </div>
       </div>
     </Card>
   )
@@ -157,7 +210,7 @@ function UmkmProjectCard({ project }: { project: Project }) {
  * Next action per project state (Doc 4, Sec 4.3 — Action Must Follow Eligibility)
  * UI must show what UMKM can do at each stage.
  */
-function getNextAction(project: Project): {
+export function getNextAction(project: Project): {
   label: string
   ctaLabel: string
   href?: string
@@ -172,13 +225,13 @@ function getNextAction(project: Project): {
     case "COOPERATIVE_ASSESSMENT":
       return {
         label: "Sedang dalam penilaian Koperasi. Tidak ada tindakan yang diperlukan.",
-        ctaLabel: "Lihat Status",
+        ctaLabel: "Lihat Detail",
         href: `/umkm/projects/${project.id}`,
       }
     case "PUBLICATION_REVIEW":
       return {
         label: "Sedang dalam tinjauan publikasi AgroFund.",
-        ctaLabel: "Lihat Status",
+        ctaLabel: "Lihat Detail",
         href: `/umkm/projects/${project.id}`,
       }
     case "GUARANTEE_PLACEMENT":
