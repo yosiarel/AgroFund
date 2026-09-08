@@ -111,9 +111,9 @@ export function ProjectMonitoringPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                     <div className="flex items-center gap-2 text-[var(--text-body-s)] text-[var(--color-neutral-600)]">
-                      <Clock className="w-4 h-4 text-[var(--color-primary-600)]" />
+                      <Clock className="w-4 h-4 text-[var(--color-primary-600)] flex-shrink-0" />
                       <span>
                         Tahap Saat Ini:{" "}
                         <strong className="text-[var(--color-neutral-900)]">
@@ -134,8 +134,8 @@ export function ProjectMonitoringPage() {
                       </span>
                     </div>
 
-                    <Link to={`/pendana/discover/${proj.id}`}>
-                      <Button variant="secondary" size="sm">
+                    <Link to={`/pendana/discover/${proj.id}`} className="w-full sm:w-auto">
+                      <Button variant="secondary" size="sm" className="w-full sm:w-auto">
                         <Eye className="w-4 h-4 mr-1.5" /> Lihat Detail Transparansi
                       </Button>
                     </Link>
