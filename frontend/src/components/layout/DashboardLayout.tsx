@@ -5,6 +5,7 @@ import { cn } from "../../lib/utils"
 import { LogOut, Menu, X, User as UserIcon, ChevronRight } from "lucide-react"
 import { Button } from "../ui/Button"
 import logoAgroFund from "../../assets/logo-agrofund.jpeg"
+import { customAlert } from "../../utils/alert"
 
 export interface SidebarItem {
   title: string
@@ -18,11 +19,6 @@ interface DashboardLayoutProps {
   title: string
 }
 
-/**
- * Dashboard Layout (Doc 4, Sec 6 Global Information Architecture)
- * Provides consistent layout across all roles.
- * Includes responsive sidebar, top navbar, and user profile actions.
- */
 export function DashboardLayout({ children, sidebarItems, title }: DashboardLayoutProps) {
   const { user, logout } = useAuth()
   const location = useLocation()
@@ -30,11 +26,23 @@ export function DashboardLayout({ children, sidebarItems, title }: DashboardLayo
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   const handleLogout = async () => {
-    await logout()
-    navigate("/login")
+    const result = await customAlert({
+      type: 'warning',
+      title: 'Konfirmasi Logout',
+      text: 'Yakin ingin keluar dari akun ini?',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Keluar',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#9CA3AF'
+    })
+
+    if (result.isConfirmed) {
+      await logout()
+      navigate("/login")
+    }
   }
 
-  // Close mobile menu when route changes
   React.useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [location.pathname])
@@ -63,8 +71,8 @@ export function DashboardLayout({ children, sidebarItems, title }: DashboardLayo
 
       {/* Sidebar Overlay (Mobile) */}
       {isMobileMenuOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-40" 
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

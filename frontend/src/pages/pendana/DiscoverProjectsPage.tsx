@@ -4,7 +4,7 @@ import api from "../../lib/axios"
 import type { Project } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
 import { FundingProgressBar } from "../../components/business/FundingProgressBar"
-import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
+import { Skeleton } from "../../components/ui/Skeleton"
 import { EmptyState } from "../../components/ui/EmptyState"
 import { Alert } from "../../components/ui/Alert"
 import { Search } from "lucide-react"
@@ -31,8 +31,16 @@ export function DiscoverProjectsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-24">
-        <LoadingSpinner size="lg" label="Memuat proyek..." />
+      <div className="flex flex-col gap-6">
+        <div>
+          <Skeleton className="h-10 w-64 mb-2" />
+          <Skeleton className="h-5 w-96 max-w-full" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProjectCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     )
   }
@@ -137,3 +145,36 @@ function ProjectCard({ project }: { project: Project }) {
     </Link>
   )
 }
+
+function ProjectCardSkeleton() {
+  return (
+    <div className="bg-white rounded-[var(--radius-l)] border border-[var(--color-neutral-200)] shadow-[var(--shadow-e1)] overflow-hidden flex flex-col h-full">
+      {/* Card Header Skeleton */}
+      <div className="p-5 border-b border-[var(--color-neutral-100)]">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-6 w-16 rounded-full" />
+        </div>
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+
+      {/* Card Body Skeleton */}
+      <div className="p-5">
+        <div className="flex justify-between items-end mb-2">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-5 w-20" />
+        </div>
+        <Skeleton className="h-2.5 w-full rounded-full mb-2" />
+        <Skeleton className="h-4 w-1/3" />
+      </div>
+
+      {/* Card Footer Skeleton */}
+      <div className="mt-auto px-5 py-4 bg-[var(--color-neutral-50)] border-t border-[var(--color-neutral-100)] flex items-center justify-between">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+    </div>
+  )
+}
+

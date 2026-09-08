@@ -50,6 +50,7 @@ import { AuditTrailPage } from './pages/admin/AuditTrailPage';
 
 import { LandingPage } from './pages/LandingPage';
 import { FAQ } from './pages/FAQ';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { TopBarLayout } from './components/layout/TopBarLayout';
 import type { NavItem } from './components/layout/TopBarLayout';
 
@@ -198,7 +199,10 @@ const router = createBrowserRouter([
             ]
           }
         ]
-      }
+      },
+
+      // ── Catch-all (404 Not Found) ───────────────────────────────────
+      { path: '*', element: <NotFoundPage /> }
     ]
   }
 ]);

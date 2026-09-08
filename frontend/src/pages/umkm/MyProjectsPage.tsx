@@ -5,30 +5,14 @@ import type { Project } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
 import { FundingProgressBar } from "../../components/business/FundingProgressBar"
 import { formatRupiah } from "../../components/business/FinancialSummary"
-import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
+import { Skeleton } from "../../components/ui/Skeleton"
 import { EmptyState } from "../../components/ui/EmptyState"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
 import { Card } from "../../components/ui/Card"
 import { FolderGit2, Plus } from "lucide-react"
 
-/**
- * UMKM My Projects Page (Doc 4, Sec 34)
- *
- * UMKM can see:
- * - funding progress, target, deadline, contributor count
- * - current project state, next required action
- *
- * No Wallet Balance (Doc 4, Sec 34 & 4.6).
- *
- * Per lifecycle:
- * - DRAFT → CTA: Submit for Assessment
- * - COOPERATIVE_ASSESSMENT → pending, no action
- * - GUARANTEE_PLACEMENT → CTA: Pay Guarantee
- * - FUNDRAISING → monitoring view
- * - DANA_TERPENUHI → CTA: Create Procurement Request
- * - etc.
- */
+
 function fetchMyProjects(): Promise<Project[]> {
   return api.get("/projects/my")
 }
@@ -41,8 +25,19 @@ export function MyProjectsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-24">
-        <LoadingSpinner size="lg" label="Memuat proyek..." />
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <Skeleton className="h-10 w-48 mb-2" />
+            <Skeleton className="h-5 w-80 max-w-full" />
+          </div>
+          <Skeleton className="h-10 w-40 rounded-[var(--radius-m)]" />
+        </div>
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <UmkmProjectCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     )
   }
@@ -223,3 +218,42 @@ function getNextAction(project: Project): {
       return null
   }
 }
+
+function UmkmProjectCardSkeleton() {
+  return (
+    <Card>
+      <div className="p-6 flex flex-col gap-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <Skeleton className="h-7 w-64 mb-3" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <div className="text-right flex-shrink-0">
+            <Skeleton className="h-4 w-20 mb-1 ml-auto" />
+            <Skeleton className="h-7 w-32 ml-auto" />
+          </div>
+        </div>
+
+        {/* Progress Bar Area */}
+        <div className="pt-2">
+          <div className="flex justify-between items-end mb-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-20" />
+          </div>
+          <Skeleton className="h-2.5 w-full rounded-full mb-2" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+
+        {/* Next Action Area */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pt-2 border-t border-[var(--color-neutral-100)]">
+          <div className="w-full">
+            <Skeleton className="h-4 w-32 mb-1" />
+            <Skeleton className="h-5 w-64" />
+          </div>
+          <Skeleton className="h-10 w-full lg:w-32 rounded-[var(--radius-m)]" />
+        </div>
+      </div>
+    </Card>
+  )
+}
+
