@@ -1,52 +1,6 @@
 import { cn } from "../../lib/utils"
 
-/**
- * Financial Summary Display (Doc 5, Sec 33 & 34 & 35 & 36)
- *
- * Financial information ALWAYS in project context — NEVER as "Wallet Balance"
- *
- * Sections:
- * 1. Project Funding: Target, funded, allocated, used, remaining
- * 2. Guarantee: initial, used, remaining, status (SEPARATE from funding, Sec 35)
- * 3. Fee: provision, vested, unvested (Sec 36)
- * 4. Recovery/Refund: recoverable, Recovery Pool, refund (Sec 47 & 48)
- *
- * CRITICAL RULES:
- * - "Remaining" MUST have contextual label — NOT just "Balance" (Sec 33)
- * - Guarantee must be VISUALLY SEPARATE from funding (Sec 35)
- * - Guarantee ≠ contribution Pendana (Sec 35)
- * - Fee must NOT look like financial return for Pendana (Sec 36)
- * - "Rp10.000.000" format in formal context (Sec 76)
- * - Distinguish positive/negative movement (Sec 76)
- */
-
-export function toFiniteNumber(value: unknown, fallback = 0): number {
-  if (value === null || value === undefined) return fallback
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : fallback
-  }
-  if (typeof value === "bigint") {
-    const num = Number(value)
-    return Number.isFinite(num) ? num : fallback
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim()
-    if (trimmed === "") return fallback
-    const num = Number(trimmed)
-    return Number.isFinite(num) ? num : fallback
-  }
-  return fallback
-}
-
-export function formatRupiah(amount: unknown): string {
-  const num = toFiniteNumber(amount, 0)
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num)
-}
+import { toFiniteNumber, formatRupiah } from "../../utils/formatter"
 
 // ─── Project Funding Section ──────────────────────────────────────────────────
 
@@ -61,10 +15,10 @@ function ProjectFundingSection({ data }: { data: ProjectFundingData }) {
   const remaining = data.allocated - data.used
   return (
     <Section title="Pendanaan Proyek">
-      <Row label="Target Pendanaan"           value={formatRupiah(data.target)} />
-      <Row label="Dana Terkumpul"             value={formatRupiah(data.funded)} highlight />
-      <Row label="Dialokasikan ke Pengadaan"  value={formatRupiah(data.allocated)} />
-      <Row label="Telah Digunakan"            value={formatRupiah(data.used)} />
+      <Row label="Target Pendanaan" value={formatRupiah(data.target)} />
+      <Row label="Dana Terkumpul" value={formatRupiah(data.funded)} highlight />
+      <Row label="Dialokasikan ke Pengadaan" value={formatRupiah(data.allocated)} />
+      <Row label="Telah Digunakan" value={formatRupiah(data.used)} />
       <Divider />
       {/* Contextual label for remaining (Sec 33 — NOT "Balance") */}
       <Row
@@ -86,10 +40,10 @@ interface GuaranteeData {
 }
 
 const GUARANTEE_STATUS_LABEL: Record<GuaranteeData["status"], { label: string; color: string }> = {
-  HELD:           { label: "Ditahan (Active)",          color: "text-[var(--color-info-700)]" },
-  PARTIALLY_USED: { label: "Sebagian Digunakan",        color: "text-[var(--color-warning-700)]" },
-  FULLY_USED:     { label: "Seluruhnya Digunakan",      color: "text-[var(--color-risk-700)]" },
-  RETURNED:       { label: "Dikembalikan",              color: "text-[var(--color-success-700)]" },
+  HELD: { label: "Ditahan (Active)", color: "text-[var(--color-info-700)]" },
+  PARTIALLY_USED: { label: "Sebagian Digunakan", color: "text-[var(--color-warning-700)]" },
+  FULLY_USED: { label: "Seluruhnya Digunakan", color: "text-[var(--color-risk-700)]" },
+  RETURNED: { label: "Dikembalikan", color: "text-[var(--color-success-700)]" },
 }
 
 function GuaranteeSection({ data }: { data: GuaranteeData }) {
@@ -102,11 +56,11 @@ function GuaranteeSection({ data }: { data: GuaranteeData }) {
       title="Guarantee UMKM"
       description="Guarantee bukan bagian dari Target Pendanaan."   // Doc 4 Sec 20
     >
-      <Row label="Guarantee Awal (5% BPC)"  value={formatRupiah(data.initial)} />
-      <Row label="Guarantee Digunakan"      value={formatRupiah(data.used)} />
+      <Row label="Guarantee Awal (5% BPC)" value={formatRupiah(data.initial)} />
+      <Row label="Guarantee Digunakan" value={formatRupiah(data.used)} />
       <Divider />
       {/* Initial − Used = Remaining (Sec 35 formula) */}
-      <Row label="Sisa Guarantee"           value={formatRupiah(remaining)} bold
+      <Row label="Sisa Guarantee" value={formatRupiah(remaining)} bold
         valueClassName={remaining <= 0 ? "text-[var(--color-error-700)]" : undefined}
       />
       <div className="flex justify-between items-center">
@@ -133,12 +87,12 @@ function FeeSection({ data }: { data: FeeData }) {
       title="Biaya Layanan"
       description="Biaya layanan bukan return finansial Pendana."  // Sec 36
     >
-      <Row label="Total Provisi (2,5% BPC)"  value={formatRupiah(data.provision)} />
+      <Row label="Total Provisi (2,5% BPC)" value={formatRupiah(data.provision)} />
       {/* Vested ≠ Unvested must be visually distinct (Sec 36) */}
-      <Row label="Sudah Divestedkan"         value={formatRupiah(data.vested)}
+      <Row label="Sudah Divestedkan" value={formatRupiah(data.vested)}
         valueClassName="text-[var(--color-success-700)]"
       />
-      <Row label="Belum Divested"            value={formatRupiah(data.unvested)}
+      <Row label="Belum Divested" value={formatRupiah(data.unvested)}
         valueClassName="text-[var(--color-neutral-500)]"
       />
     </Section>
@@ -164,8 +118,8 @@ function RecoverySection({ data }: { data: RecoveryData }) {
           : "Recovery tidak menjamin pengembalian penuh."  // Sec 47
       }
     >
-      <Row label="Nilai yang Dipulihkan"    value={formatRupiah(data.recoverable)} />
-      <Row label="Recovery Pool"            value={formatRupiah(data.recoveryPool)} />
+      <Row label="Nilai yang Dipulihkan" value={formatRupiah(data.recoverable)} />
+      <Row label="Recovery Pool" value={formatRupiah(data.recoveryPool)} />
       <Divider />
       <Row
         label={data.isPartialRefund ? "Pengembalian (Partial)" : "Pengembalian"}
@@ -270,10 +224,10 @@ export function FinancialSummary({
 }: FinancialSummaryProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      {funding   && <ProjectFundingSection data={funding} />}
-      {guarantee && <GuaranteeSection     data={guarantee} />}
-      {fee       && <FeeSection           data={fee} />}
-      {recovery  && <RecoverySection      data={recovery} />}
+      {funding && <ProjectFundingSection data={funding} />}
+      {guarantee && <GuaranteeSection data={guarantee} />}
+      {fee && <FeeSection data={fee} />}
+      {recovery && <RecoverySection data={recovery} />}
     </div>
   )
 }
@@ -285,3 +239,5 @@ export {
   FeeSection,
   RecoverySection,
 }
+
+export { toFiniteNumber, formatRupiah }

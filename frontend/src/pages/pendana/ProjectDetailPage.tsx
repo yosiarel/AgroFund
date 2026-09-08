@@ -1,19 +1,18 @@
 import { useState } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import * as React from "react"
-import { useMutation } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "../../contexts/AuthContext"
 import api from "../../lib/axios"
-import type { Project, NaturaPackage } from "../../types"
+import type { Project } from "../../types"
 import { ProjectStatusBadge } from "../../components/business/ProjectStatusBadge"
 import { FundingProgressBar } from "../../components/business/FundingProgressBar"
+import { NaturaPackageCard } from "./components/project-detail/NaturaPackageCard"
+import { ContributeModal } from "./components/project-detail/ContributeModal"
 import { formatRupiah, toFiniteNumber } from "../../components/business/FinancialSummary"
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner"
 import { Alert } from "../../components/ui/Alert"
 import { Button } from "../../components/ui/Button"
-import { Modal } from "../../components/ui/Modal"
-import { Input } from "../../components/ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Building2, Users, CalendarDays, ShieldCheck } from "lucide-react"
 
@@ -303,236 +302,6 @@ function InfoRow({ icon, label, value }: { icon?: React.ReactNode; label: string
         <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">{label}</p>
         <p className="text-[var(--text-body-m)] font-[500] text-[var(--color-neutral-900)]">{value}</p>
       </div>
-    </div>
-  )
-}
-
-function NaturaPackageCard({ pkg }: { pkg: NaturaPackage }) {
-  return (
-    <div className="p-3 border border-[var(--color-neutral-200)] rounded-[var(--radius-m)] flex justify-between items-center">
-      <div>
-        <p className="text-[var(--text-label)] font-[600] text-[var(--color-neutral-900)]">{pkg.name}</p>
-        <p className="text-[var(--text-caption)] text-[var(--color-neutral-600)]">{pkg.description}</p>
-      </div>
-      <div className="text-right flex-shrink-0">
-        <p className="text-[var(--text-body-s)] text-[var(--color-neutral-500)]">Min. Kontribusi</p>
-        <p className="text-[var(--text-label)] font-[600] text-[var(--color-primary-700)]">
-          {formatRupiah(pkg.amount)}
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function ContributeModal({
-  isOpen, onClose, project
-}: {
-  isOpen: boolean
-  onClose: () => void
-  project: Project
-}) {
-  const [amount, setAmount] = useState("")
-  const [selectedNatura, setSelectedNatura] = useState<string | null>(null)
-  const [step, setStep] = useState<"enter" | "review">("enter")
-  const [amountError, setAmountError] = useState("")
-  const navigate = useNavigate()
-
-  const remainingAmount = Math.max(0, toFiniteNumber(project.targetAmount) - toFiniteNumber(project.fundedAmount))
-  const numericAmount = Number(amount.replace(/\D/g, ""))
-  const processingFee = Math.round(numericAmount * 0.025) // 2.5% processing fee
-  const totalPayment = numericAmount + processingFee
-
-  const contributeMutation = useMutation({
-    mutationFn: () => api.post(`/finance/projects/${project.id}/contribute`, {
-      amount: numericAmount,
-      naturaPackageId: selectedNatura ?? undefined,
-    }),
-    onSuccess: (data: any) => {
-      // Redirect to Xendit payment page (payment URL)
-      const redirectUrl = data?.paymentUrl || data?.invoiceUrl
-      if (redirectUrl) {
-        window.location.href = redirectUrl
-      } else {
-        navigate("/pendana/contributions")
-      }
-    },
-  })
-
-  const validateAmount = () => {
-    setAmountError("")
-    if (numericAmount < 10000) {
-      setAmountError("Kontribusi minimal Rp10.000.")
-      return false
-    }
-    if (selectedNatura && project.naturaPackages) {
-      const selectedPkg = project.naturaPackages.find(p => p.id === selectedNatura)
-      if (selectedPkg && numericAmount < toFiniteNumber(selectedPkg.amount)) {
-        setAmountError(`Kontribusi minimal untuk paket ini adalah ${formatRupiah(selectedPkg.amount)}.`)
-        return false
-      }
-    }
-    // Doc 4 Sec 29: Contribution cannot exceed remaining target
-    if (numericAmount > remainingAmount) {
-      setAmountError(`Kontribusi melebihi sisa target. Maksimum: ${formatRupiah(remainingAmount)}.`)
-      return false
-    }
-    return true
-  }
-
-  const handleNext = () => {
-    if (validateAmount()) setStep("review")
-  }
-
-  const handleBack = () => {
-    setStep("enter")
-    contributeMutation.reset()
-  }
-
-  const handleClose = () => {
-    setStep("enter")
-    setAmount("")
-    setSelectedNatura(null)
-    setAmountError("")
-    contributeMutation.reset()
-    onClose()
-  }
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Danai Proyek"
-      size="md"
-      footer={
-        step === "enter" ? (
-          <>
-            <Button variant="tertiary" onClick={handleClose}>Batal</Button>
-            <Button variant="primary" onClick={handleNext}>Lanjutkan</Button>
-          </>
-        ) : (
-          <>
-            <Button variant="tertiary" onClick={handleBack}>Kembali</Button>
-            <Button
-              variant="primary"
-              onClick={() => contributeMutation.mutate()}
-              isLoading={contributeMutation.isPending}
-            >
-              Konfirmasi & Bayar
-            </Button>
-          </>
-        )
-      }
-    >
-      {step === "enter" ? (
-        <div className="flex flex-col gap-5">
-          {/* Remaining target (Doc 4 Sec 29) */}
-          <div className="p-3 bg-[var(--color-primary-50)] rounded-[var(--radius-m)] border border-[var(--color-primary-100)]">
-            <p className="text-[var(--text-caption)] text-[var(--color-primary-600)]">Sisa Target Pendanaan</p>
-            <p className="text-[var(--text-h4)] font-[700] text-[var(--color-primary-700)]">
-              {formatRupiah(remainingAmount)}
-            </p>
-          </div>
-
-          <Input
-            label="Jumlah Kontribusi"
-            required
-            helperText="Minimal Rp10.000. Tidak boleh melebihi sisa target."
-            error={amountError}
-            value={amount}
-            onChange={(e) => {
-              // Format as number input
-              const val = e.target.value.replace(/\D/g, "")
-              setAmount(val)
-              setAmountError("")
-            }}
-            placeholder="Contoh: 500000"
-          />
-
-          {/* Natura selection */}
-          {project.naturaPackages && project.naturaPackages.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <p className="text-[var(--text-label)] font-[500] text-[var(--color-neutral-700)]">
-                Pilih Paket Natura (Opsional)
-              </p>
-              <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
-                Natura adalah kompensasi produk pertanian — bukan bunga atau dividen.
-              </p>
-              <button
-                onClick={() => setSelectedNatura(null)}
-                className={`text-left p-3 rounded-[var(--radius-m)] border transition-colors ${!selectedNatura
-                  ? "border-[var(--color-primary-500)] bg-[var(--color-primary-50)]"
-                  : "border-[var(--color-neutral-200)] hover:border-[var(--color-neutral-300)]"
-                  }`}
-              >
-                <p className="text-[var(--text-body-s)] font-[500] text-[var(--color-neutral-700)]">
-                  Tidak memilih Natura
-                </p>
-              </button>
-              {project.naturaPackages.map((pkg) => (
-                <button
-                  key={pkg.id}
-                  onClick={() => setSelectedNatura(pkg.id)}
-                  className={`text-left p-3 rounded-[var(--radius-m)] border transition-colors ${selectedNatura === pkg.id
-                    ? "border-[var(--color-primary-500)] bg-[var(--color-primary-50)]"
-                    : "border-[var(--color-neutral-200)] hover:border-[var(--color-neutral-300)]"
-                    }`}
-                >
-                  <p className="text-[var(--text-body-s)] font-[600]">{pkg.name}</p>
-                  <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">{pkg.description}</p>
-                  <p className="text-[var(--text-caption)] text-[var(--color-primary-600)] mt-1">Min. {formatRupiah(pkg.amount)}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          <Alert variant="info">
-            Mohon periksa kembali detail kontribusi Anda sebelum melakukan pembayaran.
-          </Alert>
-
-          {/* Review breakdown (Doc 4 Sec 31) */}
-          <div className="flex flex-col gap-2 bg-[var(--color-neutral-50)] rounded-[var(--radius-m)] p-4 border border-[var(--color-neutral-100)]">
-            <ReviewRow label="Kontribusi" value={formatRupiah(numericAmount)} />
-            {selectedNatura && project.naturaPackages && (
-              <ReviewRow
-                label="Paket Natura"
-                value={project.naturaPackages.find(p => p.id === selectedNatura)?.name ?? "-"}
-              />
-            )}
-            {!selectedNatura && <ReviewRow label="Natura" value="Tidak dipilih" />}
-            <ReviewRow label="Biaya Layanan (2.5%)" value={formatRupiah(processingFee)} />
-            <div className="border-t border-[var(--color-neutral-200)] pt-2 mt-1">
-              <ReviewRow label="Total Pembayaran" value={formatRupiah(totalPayment)} bold />
-            </div>
-          </div>
-
-          {/* Cancellation / refund information (Doc 4 Sec 31) */}
-          <Alert variant="warning" title="Informasi Pembatalan">
-            Setelah pembayaran terkonfirmasi, kontribusi tidak dapat dibatalkan secara sepihak.
-            Pengembalian dana hanya mungkin dilakukan sesuai ketentuan Recovery & Refund platform.
-          </Alert>
-
-          {contributeMutation.isError && (
-            <Alert variant="error">
-              Gagal memproses kontribusi. Silakan coba lagi.
-            </Alert>
-          )}
-        </div>
-      )}
-    </Modal>
-  )
-}
-
-function ReviewRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
-  return (
-    <div className="flex justify-between items-center">
-      <span className={`text-[var(--text-body-s)] ${bold ? "font-[700] text-[var(--color-neutral-900)]" : "text-[var(--color-neutral-600)]"}`}>
-        {label}
-      </span>
-      <span className={`text-[var(--text-body-s)] ${bold ? "font-[700] text-[var(--color-primary-700)]" : "font-[500] text-[var(--color-neutral-900)]"}`}>
-        {value}
-      </span>
     </div>
   )
 }
