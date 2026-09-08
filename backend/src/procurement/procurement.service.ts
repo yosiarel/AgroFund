@@ -228,6 +228,21 @@ export class ProcurementService {
     });
     if (!project) throw new NotFoundException('Project tidak ditemukan');
 
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User tidak ditemukan');
+
+    if (user.role === Role.AGROFUND) {
+      // Admin allowed
+    } else if (user.role === Role.UMKM && project.userId === userId) {
+      // UMKM Owner allowed
+    } else if (user.role === Role.KOPERASI && project.koperasiId === userId) {
+      // Assigned Koperasi allowed
+    } else {
+      throw new ForbiddenException(
+        'Akses ditolak, Anda tidak memiliki wewenang atas pengadaan proyek ini',
+      );
+    }
+
     return this.prisma.procurementRequest.findMany({
       where: { projectId },
       include: { items: true, orders: { include: { supplier: true } } },
