@@ -10,15 +10,6 @@ import { Alert } from "../../components/ui/Alert"
 import { Search } from "lucide-react"
 import { toFiniteNumber } from "../../components/business/FinancialSummary"
 
-/**
- * Discover Projects Page (Doc 4, Sec 25 — Pendana Project Discovery)
- *
- * Shows FUNDRAISING projects only — only these can be contributed to.
- * Filter & Search available per spec.
- *
- * Rule: CTA "Contribute" only visible if:
- *   status = FUNDRAISING AND funding < 100% AND deadline not reached (Doc 4 Sec 27)
- */
 function fetchFundraisingProjects(): Promise<Project[]> {
   return api.get("/projects?status=FUNDRAISING")
 }
@@ -93,8 +84,8 @@ function ProjectCard({ project }: { project: Project }) {
   const detailPath = location.pathname.startsWith("/projects")
     ? `/projects/${project.id}`
     : location.pathname.startsWith("/umkm")
-    ? `/umkm/discover/${project.id}`
-    : `/pendana/discover/${project.id}`
+      ? `/umkm/discover/${project.id}`
+      : `/pendana/discover/${project.id}`
 
   return (
     <Link

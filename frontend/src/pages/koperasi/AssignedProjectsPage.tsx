@@ -11,12 +11,6 @@ import { Button } from "../../components/ui/Button"
 import { Card } from "../../components/ui/Card"
 import { Briefcase, ClipboardCheck } from "lucide-react"
 
-/**
- * Koperasi Assigned Projects Page (Doc 4, Sec 6)
- *
- * Displays projects where project.koperasiId === currentUser.id
- * Emphasizes projects that need Assessment action.
- */
 function fetchProjects(): Promise<Project[]> {
   return api.get("/projects")
 }
@@ -113,7 +107,7 @@ function KoperasiProjectCard({ project }: { project: Project }) {
               </span>
             </div>
           </div>
-          
+
           {/* Action CTA for Koperasi */}
           <div className="flex-shrink-0">
             <Link to={ctaLink}>

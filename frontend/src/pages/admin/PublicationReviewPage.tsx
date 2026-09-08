@@ -14,75 +14,15 @@ import {
   CheckCircle2,
   XCircle,
   RotateCcw,
-  CheckSquare,
-  Square,
   ShieldCheck,
+  CheckSquare,
+  Square
 } from "lucide-react"
-
-/**
- * AgroFund Publication Review Page (Doc 4, Sec 17, 18)
- *
- * Flow (Doc 4 Sec 17):
- * Projects → Pending Publication Review → Project Detail → Publication Review → Decision
- *
- * AgroFund memeriksa (Doc 4 Sec 17):
- * - completeness
- * - assessment result (Koperasi approved?)
- * - financial structure (Target, Guarantee requirement, Natura)
- * - disclosure (rules, cancellation, failure, recovery/refund info)
- * - publication requirements
- *
- * Decision (Doc 4 Sec 18):
- * - Approve
- * - Needs Correction → UMKM correct → resubmit → AgroFund Review
- * - Reject
- *
- * Authority: AgroFund — NOT Koperasi (Doc 5 Sec 30)
- * AgroFund does NOT redo field assessment (Doc 4 Sec 17)
- */
+import { REVIEW_CHECKLIST } from "../../constants/publicationReview"
 
 function fetchProject(id: string): Promise<Project> {
   return api.get(`/projects/${id}`)
 }
-
-// Publication review checklist per Doc 4 Sec 17
-const REVIEW_CHECKLIST = [
-  {
-    id: "completeness",
-    label: "Kelengkapan Data",
-    description: "Seluruh informasi wajib telah diisi (judul, deskripsi, timeline, pengadaan).",
-  },
-  {
-    id: "assessment_approved",
-    label: "Hasil Penilaian Koperasi",
-    description: "Koperasi telah menyetujui proyek (Cooperative Assessment = Approved).",
-  },
-  {
-    id: "financial_structure",
-    label: "Struktur Keuangan",
-    description: "Target pendanaan, Guarantee (5% BPC), dan biaya layanan sudah sesuai formula.",
-  },
-  {
-    id: "guarantee_requirement",
-    label: "Persyaratan Guarantee",
-    description: "UMKM memahami kewajiban Guarantee yang harus dibayar setelah approval.",
-  },
-  {
-    id: "natura_disclosure",
-    label: "Disclosure Natura",
-    description: "Paket Natura (jika ada) tidak disajikan sebagai guaranteed financial return.",
-  },
-  {
-    id: "risk_disclosure",
-    label: "Disclosure Risiko",
-    description: "Risiko proyek teridentifikasi dan dikomunikasikan secara transparan.",
-  },
-  {
-    id: "publication_ready",
-    label: "Siap Dipublikasikan",
-    description: "Proyek memenuhi semua persyaratan publikasi platform AgroFund.",
-  },
-] as const
 
 type ReviewItem = typeof REVIEW_CHECKLIST[number]["id"]
 export type ReviewDecision = "APPROVED" | "NEEDS_CORRECTION" | "REJECTED"
@@ -236,11 +176,10 @@ export function PublicationReviewPage() {
           <div className="flex gap-1 bg-[var(--color-neutral-100)] p-1 rounded-[var(--radius-m)]">
             <button
               onClick={() => setActiveTab("review")}
-              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${
-                activeTab === "review"
-                  ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
-                  : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
-              }`}
+              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${activeTab === "review"
+                ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
+                : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
+                }`}
             >
               Review Checklist
               {checkedItems.size > 0 && (
@@ -251,11 +190,10 @@ export function PublicationReviewPage() {
             </button>
             <button
               onClick={() => setActiveTab("decision")}
-              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${
-                activeTab === "decision"
-                  ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
-                  : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
-              }`}
+              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${activeTab === "decision"
+                ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
+                : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
+                }`}
             >
               Keputusan
             </button>
@@ -276,11 +214,10 @@ export function PublicationReviewPage() {
                     <button
                       key={item.id}
                       onClick={() => toggleCheck(item.id)}
-                      className={`flex items-start gap-3 p-3 rounded-[var(--radius-m)] border text-left transition-all w-full ${
-                        checked
-                          ? "border-[var(--color-success-500)] bg-[var(--color-success-100)]"
-                          : "border-[var(--color-neutral-200)] hover:border-[var(--color-neutral-400)] hover:bg-[var(--color-neutral-50)]"
-                      }`}
+                      className={`flex items-start gap-3 p-3 rounded-[var(--radius-m)] border text-left transition-all w-full ${checked
+                        ? "border-[var(--color-success-500)] bg-[var(--color-success-100)]"
+                        : "border-[var(--color-neutral-200)] hover:border-[var(--color-neutral-400)] hover:bg-[var(--color-neutral-50)]"
+                        }`}
                     >
                       <span className="mt-0.5 flex-shrink-0">
                         {checked
@@ -330,11 +267,10 @@ export function PublicationReviewPage() {
                   <button
                     onClick={() => setDecision("APPROVED")}
                     disabled={!allChecked}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                      decision === "APPROVED"
-                        ? "border-[var(--color-success-500)] bg-[var(--color-success-50)] ring-1 ring-[var(--color-success-500)]"
-                        : "border-[var(--color-neutral-200)] hover:border-[var(--color-success-300)]"
-                    }`}
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed ${decision === "APPROVED"
+                      ? "border-[var(--color-success-500)] bg-[var(--color-success-50)] ring-1 ring-[var(--color-success-500)]"
+                      : "border-[var(--color-neutral-200)] hover:border-[var(--color-success-300)]"
+                      }`}
                   >
                     <CheckCircle2 className={`w-6 h-6 mb-2 ${decision === "APPROVED" ? "text-[var(--color-success-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Approve</p>
@@ -345,11 +281,10 @@ export function PublicationReviewPage() {
 
                   <button
                     onClick={() => setDecision("NEEDS_CORRECTION")}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${
-                      decision === "NEEDS_CORRECTION"
-                        ? "border-[var(--color-warning-500)] bg-[var(--color-warning-50)] ring-1 ring-[var(--color-warning-500)]"
-                        : "border-[var(--color-neutral-200)] hover:border-[var(--color-warning-300)]"
-                    }`}
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${decision === "NEEDS_CORRECTION"
+                      ? "border-[var(--color-warning-500)] bg-[var(--color-warning-50)] ring-1 ring-[var(--color-warning-500)]"
+                      : "border-[var(--color-neutral-200)] hover:border-[var(--color-warning-300)]"
+                      }`}
                   >
                     <RotateCcw className={`w-6 h-6 mb-2 ${decision === "NEEDS_CORRECTION" ? "text-[var(--color-warning-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Needs Correction</p>
@@ -360,11 +295,10 @@ export function PublicationReviewPage() {
 
                   <button
                     onClick={() => setDecision("REJECTED")}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${
-                      decision === "REJECTED"
-                        ? "border-[var(--color-error-500)] bg-[var(--color-error-50)] ring-1 ring-[var(--color-error-500)]"
-                        : "border-[var(--color-neutral-200)] hover:border-[var(--color-error-300)]"
-                    }`}
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${decision === "REJECTED"
+                      ? "border-[var(--color-error-500)] bg-[var(--color-error-50)] ring-1 ring-[var(--color-error-500)]"
+                      : "border-[var(--color-neutral-200)] hover:border-[var(--color-error-300)]"
+                      }`}
                   >
                     <XCircle className={`w-6 h-6 mb-2 ${decision === "REJECTED" ? "text-[var(--color-error-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Reject</p>
