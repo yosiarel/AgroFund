@@ -59,12 +59,12 @@ export const LandingPage: React.FC = () => {
     <TopBarLayout navItems={publicNavItems} fullWidth={true}>
       <div className="w-full flex flex-col items-center -mt-8">
         <section
-          className="relative w-full bg-cover bg-center bg-no-repeat border-b border-[var(--color-neutral-100)]"
+          className="relative w-full min-h-screen bg-cover bg-center bg-no-repeat border-b border-[var(--color-neutral-100)] flex items-center justify-center"
           style={{ backgroundImage: 'url("https://res.cloudinary.com/dznn7frej/image/upload/hero_aaql6u")' }}
         >
           <div className="absolute inset-0 bg-white/90"></div>
 
-          <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
+          <div className="relative w-full max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               animate="visible"
