@@ -3,16 +3,6 @@ import type { SidebarItem } from "../../components/layout/DashboardLayout"
 import { ClipboardCheck, PackageSearch, FileCheck, Activity, AlertOctagon, Briefcase, LayoutDashboard } from "lucide-react"
 import { Outlet } from "react-router-dom"
 
-/**
- * Koperasi Dashboard (Doc 4, Sec 6)
- * Information Architecture:
- * ├── Assigned Projects
- * ├── Assessment
- * ├── Procurement
- * ├── Evidence
- * ├── Monitoring
- * └── Incident / Cases
- */
 export function KoperasiDashboard() {
   const sidebarItems: SidebarItem[] = [
     { title: "Ringkasan Dasbor", href: "/koperasi", icon: <LayoutDashboard className="w-5 h-5" />, exact: true },

@@ -13,19 +13,8 @@ import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
 import { TrendingUp, AlertCircle, CheckCircle, Clock, XCircle, HelpCircle } from "lucide-react"
 
-/**
- * My Contributions Page (Doc 4, Sec 32 — Contribution Payment States)
- *
- * States: Pending, Processing, Success, Failed, Awaiting Confirmation
- *
- * Rule (Sec 32): If status is AWAITING_CONFIRMATION:
- *   → do NOT show as completed.
- *
- * No wallet terminology (Doc 4, Sec 4.6 & UX rule).
- */
 
 function fetchMyContributions(): Promise<Contribution[]> {
-  // Backend returns contributions for the logged-in user
   return api.get("/finance/my-contributions")
 }
 

@@ -12,25 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Ca
 import { Textarea } from "../../components/ui/Textarea"
 import { ClipboardCheck, CheckCircle2, XCircle, FileWarning, CheckSquare, Square } from "lucide-react"
 
-/**
- * Koperasi Assessment Page (Doc 4, Sec 15, 16)
- *
- * Flow (EXACT per Doc 4 Sec 15):
- * Assigned Projects → Project Detail → Assessment → Assessment Checklist → Evidence → Decision
- *
- * Decision options (Doc 4 Sec 16):
- * - Approve → project moves to PUBLICATION_REVIEW
- * - Request Correction (NEEDS_CORRECTION) → UMKM must correct & resubmit
- * - Reject
- *
- * Authority: Koperasi (NOT AgroFund — Doc 5 Sec 30)
- */
-
 function fetchProject(id: string): Promise<Project> {
   return api.get(`/projects/${id}`)
 }
 
-// Assessment checklist items per Doc 4 Sec 15
 const ASSESSMENT_CHECKLIST = [
   { id: "umkm_identity", label: "Identitas UMKM/Petani terverifikasi" },
   { id: "location_visited", label: "Lokasi usaha/lahan sudah dikunjungi" },
@@ -119,7 +104,6 @@ export function AssessmentPage() {
         <h1 className="text-[var(--text-h2)] font-[700] text-[var(--color-neutral-900)]">
           Operational / Field Assessment
         </h1>
-        {/* Authority context (Doc 5 Sec 54): must show who performs this */}
         <p className="text-[var(--text-body-m)] text-[var(--color-neutral-600)] mt-1">
           Dilakukan oleh <span className="font-[600] text-[var(--color-neutral-900)]">Koperasi</span> — validasi lapangan dan kelayakan operasional.
         </p>
@@ -163,11 +147,10 @@ export function AssessmentPage() {
           <div className="flex gap-1 bg-[var(--color-neutral-100)] p-1 rounded-[var(--radius-m)]">
             <button
               onClick={() => setActiveTab("checklist")}
-              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${
-                activeTab === "checklist"
+              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${activeTab === "checklist"
                   ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
                   : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
-              }`}
+                }`}
             >
               Assessment Checklist
               {checkedItems.size > 0 && (
@@ -178,11 +161,10 @@ export function AssessmentPage() {
             </button>
             <button
               onClick={() => setActiveTab("decision")}
-              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${
-                activeTab === "decision"
+              className={`flex-1 py-2 px-3 rounded-[var(--radius-s)] text-[var(--text-body-s)] font-[500] transition-colors ${activeTab === "decision"
                   ? "bg-white text-[var(--color-primary-700)] shadow-[var(--shadow-e1)]"
                   : "text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)]"
-              }`}
+                }`}
             >
               Keputusan
             </button>
@@ -206,11 +188,10 @@ export function AssessmentPage() {
                     <button
                       key={item.id}
                       onClick={() => toggleCheck(item.id)}
-                      className={`flex items-center gap-3 p-3 rounded-[var(--radius-m)] border text-left transition-all w-full ${
-                        checked
+                      className={`flex items-center gap-3 p-3 rounded-[var(--radius-m)] border text-left transition-all w-full ${checked
                           ? "border-[var(--color-success-500)] bg-[var(--color-success-100)]"
                           : "border-[var(--color-neutral-200)] hover:border-[var(--color-neutral-400)] hover:bg-[var(--color-neutral-50)]"
-                      }`}
+                        }`}
                     >
                       {checked
                         ? <CheckSquare className="w-5 h-5 text-[var(--color-success-600)] flex-shrink-0" />
@@ -255,11 +236,10 @@ export function AssessmentPage() {
                   <button
                     onClick={() => setStatus("APPROVED")}
                     disabled={!allChecked}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                      status === "APPROVED"
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed ${status === "APPROVED"
                         ? "border-[var(--color-success-500)] bg-[var(--color-success-50)] ring-1 ring-[var(--color-success-500)]"
                         : "border-[var(--color-neutral-200)] hover:border-[var(--color-success-300)]"
-                    }`}
+                      }`}
                   >
                     <CheckCircle2 className={`w-6 h-6 mb-2 ${status === "APPROVED" ? "text-[var(--color-success-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Approved</p>
@@ -268,11 +248,10 @@ export function AssessmentPage() {
 
                   <button
                     onClick={() => setStatus("NEEDS_CORRECTION")}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${
-                      status === "NEEDS_CORRECTION"
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${status === "NEEDS_CORRECTION"
                         ? "border-[var(--color-warning-500)] bg-[var(--color-warning-50)] ring-1 ring-[var(--color-warning-500)]"
                         : "border-[var(--color-neutral-200)] hover:border-[var(--color-warning-300)]"
-                    }`}
+                      }`}
                   >
                     <FileWarning className={`w-6 h-6 mb-2 ${status === "NEEDS_CORRECTION" ? "text-[var(--color-warning-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Needs Correction</p>
@@ -281,11 +260,10 @@ export function AssessmentPage() {
 
                   <button
                     onClick={() => setStatus("REJECTED")}
-                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${
-                      status === "REJECTED"
+                    className={`p-4 rounded-[var(--radius-m)] border text-left transition-all ${status === "REJECTED"
                         ? "border-[var(--color-error-500)] bg-[var(--color-error-50)] ring-1 ring-[var(--color-error-500)]"
                         : "border-[var(--color-neutral-200)] hover:border-[var(--color-error-300)]"
-                    }`}
+                      }`}
                   >
                     <XCircle className={`w-6 h-6 mb-2 ${status === "REJECTED" ? "text-[var(--color-error-600)]" : "text-[var(--color-neutral-400)]"}`} />
                     <p className="font-[600] text-[var(--color-neutral-900)]">Rejected</p>

@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
+import * as React from "react"
+import { useMutation } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "../../contexts/AuthContext"
 import api from "../../lib/axios"
@@ -14,19 +16,6 @@ import { Modal } from "../../components/ui/Modal"
 import { Input } from "../../components/ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import { Building2, Users, CalendarDays, ShieldCheck } from "lucide-react"
-
-/**
- * Project Detail Page — for Pendana & Public (Doc 4, Sec 26, 27, 28, 29)
- *
- * Must display (Sec 26):
- * - Project: purpose, scope, UMKM, Koperasi
- * - Funding: Target, funded amount, progress, deadline
- * - Natura: package, availability, quantity, quality, fulfillment policy
- * - Rules: Guarantee, cancellation, failure, recovery/refund
- *
- * CTA "Contribute" (Sec 27):
- *   ONLY if: status == FUNDRAISING AND funding < 100% AND deadline not reached
- */
 
 function fetchProject(id: string): Promise<Project> {
   return api.get(`/projects/${id}`)
@@ -160,7 +149,6 @@ export function ProjectDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Procurement Items — Doc 4 Sec 26 */}
           {allProcurementItems.length > 0 && (
             <Card>
               <CardHeader><CardTitle>Kebutuhan Pengadaan</CardTitle></CardHeader>
@@ -331,11 +319,6 @@ function NaturaPackageCard({ pkg }: { pkg: NaturaPackage }) {
   )
 }
 
-// ─── Contribute Modal (Doc 4, Sec 28, 29, 31) ────────────────────────────────
-
-import * as React from "react"
-import { useMutation } from "@tanstack/react-query"
-
 function ContributeModal({
   isOpen, onClose, project
 }: {
@@ -498,7 +481,6 @@ function ContributeModal({
           )}
         </div>
       ) : (
-        /* Step 2: Review — Doc 4 Sec 31 */
         <div className="flex flex-col gap-4">
           <Alert variant="info">
             Mohon periksa kembali detail kontribusi Anda sebelum melakukan pembayaran.
