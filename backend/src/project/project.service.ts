@@ -30,22 +30,6 @@ export class ProjectService {
   }
 
   async createDraft(userId: string, dto: CreateDraftDto) {
-    // Check if UMKM already has an active project
-    const activeProject = await this.prisma.project.findFirst({
-      where: {
-        userId,
-        status: {
-          notIn: [ProjectStatus.SUKSES_DITUTUP, ProjectStatus.GAGAL_DITUTUP],
-        },
-      },
-    });
-
-    if (activeProject) {
-      throw new BadRequestException(
-        'Satu UMKM hanya boleh memiliki satu project aktif',
-      );
-    }
-
     const basic = dto.basicProcurementCapital;
     const reserve = dto.priceReserve || 0;
     const natura = dto.naturaCost || 0;

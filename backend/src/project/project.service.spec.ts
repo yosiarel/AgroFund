@@ -76,7 +76,6 @@ describe('ProjectService', () => {
         naturaCost: 500000,
       };
 
-      prisma.project.findFirst.mockResolvedValue(null);
       prisma.project.create.mockImplementation(({ data }: any) =>
         Promise.resolve({ id: 'proj-1', ...data }),
       );
@@ -100,20 +99,35 @@ describe('ProjectService', () => {
       expect(result.status).toBe(ProjectStatus.DRAFT);
     });
 
-    it('should throw error if UMKM already has an active project', async () => {
-      prisma.project.findFirst.mockResolvedValue({
-        id: 'proj-1',
-        status: ProjectStatus.FUNDRAISING,
-      });
+    it('should allow UMKM to create a second active project when an active project already exists (BUG-UMKM-001)', async () => {
+      const userId = 'user-1';
+      const dto = {
+        title: 'Proyek Kedua UMKM',
+        description: 'Proyek kedua yang valid',
+        koperasiId: 'kop-1',
+        basicProcurementCapital: 20000000,
+        priceReserve: 2000000,
+        naturaCost: 1000000,
+      };
 
-      await expect(
-        service.createDraft('user-1', {
-          title: 'Kebun',
-          description: 'Test',
-          koperasiId: 'kop-1',
-          basicProcurementCapital: 10000,
+      prisma.project.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'proj-2', ...data }),
+      );
+
+      const result = await service.createDraft(userId, dto);
+
+      expect(result.id).toBe('proj-2');
+      expect(result.userId).toBe(userId);
+      expect(result.title).toBe('Proyek Kedua UMKM');
+      expect(result.status).toBe(ProjectStatus.DRAFT);
+      expect(prisma.project.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId,
+            title: 'Proyek Kedua UMKM',
+          }),
         }),
-      ).rejects.toThrow(BadRequestException);
+      );
     });
   });
 
