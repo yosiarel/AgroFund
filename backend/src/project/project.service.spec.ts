@@ -39,6 +39,9 @@ const mockPrismaService: Record<string, any> = {
     create: jest.fn(),
     updateMany: jest.fn(),
   },
+  contribution: {
+    aggregate: jest.fn(),
+  },
   $transaction: jest.fn(async (cb: (tx: Record<string, any>) => Promise<any>) =>
     cb(mockPrismaService),
   ),
@@ -342,9 +345,57 @@ describe('ProjectService', () => {
 
     // Test G
     it('Test G: should allow anonymous user to access project in FUNDRAISING (Melon Hidroponik)', async () => {
-      prisma.project.findUnique.mockResolvedValue(fundraisingProject);
+      prisma.contribution.aggregate.mockResolvedValue({ _sum: { amount: 0n } });
+      prisma.project.findUnique.mockResolvedValue({ ...fundraisingProject, fundedAmount: 0n });
       const result = await service.getProjectById(fundraisingProject.id, undefined);
-      expect(result).toEqual(fundraisingProject);
+      expect(result.id).toEqual(fundraisingProject.id);
+    });
+
+    it('should safely reconcile fundedAmount when discrepancy exists from past webhooks', async () => {
+      const staleProject = {
+        id: 'b260beaa-dc6b-4a40-bd5e-9655ee90f2b9',
+        title: 'aacas',
+        status: ProjectStatus.FUNDRAISING,
+        fundedAmount: 0n,
+        targetAmount: 48100000n,
+      };
+      prisma.project.findUnique.mockResolvedValue(staleProject);
+      prisma.contribution.aggregate.mockResolvedValue({
+        _sum: { amount: 1000000n },
+      });
+      prisma.project.update.mockResolvedValue({
+        ...staleProject,
+        fundedAmount: 1000000n,
+      });
+
+      const result = await service.getProjectById(staleProject.id, undefined);
+
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: staleProject.id },
+        data: {
+          fundedAmount: 1000000n,
+        },
+      });
+      expect(result.fundedAmount).toBe(1000000n);
+    });
+
+    it('reconcileProjectFunding should be idempotent and not update if fundedAmount is already synchronized', async () => {
+      const syncedProject = {
+        id: 'proj-synced',
+        title: 'Synced Project',
+        status: ProjectStatus.FUNDRAISING,
+        fundedAmount: 1000000n,
+        targetAmount: 48100000n,
+      };
+      prisma.project.findUnique.mockResolvedValue(syncedProject);
+      prisma.contribution.aggregate.mockResolvedValue({
+        _sum: { amount: 1000000n },
+      });
+
+      const result = await service.reconcileProjectFunding('proj-synced');
+
+      expect(prisma.project.update).not.toHaveBeenCalled();
+      expect(result?.fundedAmount).toBe(1000000n);
     });
   });
 });

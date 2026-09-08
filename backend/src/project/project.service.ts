@@ -145,6 +145,63 @@ export class ProjectService {
       );
     }
 
+    // Reconcile fundedAmount if discrepancies exist from past webhooks
+    const totalPaidAgg = await this.prisma.contribution.aggregate({
+      where: { projectId: id, status: 'PAID' },
+      _sum: { amount: true },
+    });
+    const totalPaid = totalPaidAgg._sum.amount || BigInt(0);
+    if (project.fundedAmount !== totalPaid) {
+      project.fundedAmount = totalPaid;
+      const isTargetReached = totalPaid >= project.targetAmount;
+      await this.prisma.project.update({
+        where: { id },
+        data: {
+          fundedAmount: totalPaid,
+          ...(isTargetReached && project.status === ProjectStatus.FUNDRAISING
+            ? {
+                status: ProjectStatus.DANA_TERPENUHI,
+                fundingCompletedAt: project.fundingCompletedAt || new Date(),
+              }
+            : {}),
+        },
+      });
+      if (isTargetReached && project.status === ProjectStatus.FUNDRAISING) {
+        project.status = ProjectStatus.DANA_TERPENUHI;
+      }
+    }
+
+    return project;
+  }
+
+  async reconcileProjectFunding(projectId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    if (!project) return null;
+
+    const totalPaidAgg = await this.prisma.contribution.aggregate({
+      where: { projectId, status: 'PAID' },
+      _sum: { amount: true },
+    });
+    const totalPaid = totalPaidAgg._sum.amount || BigInt(0);
+
+    if (project.fundedAmount !== totalPaid) {
+      const isTargetReached = totalPaid >= project.targetAmount;
+      const updated = await this.prisma.project.update({
+        where: { id: projectId },
+        data: {
+          fundedAmount: totalPaid,
+          ...(isTargetReached && project.status === ProjectStatus.FUNDRAISING
+            ? {
+                status: ProjectStatus.DANA_TERPENUHI,
+                fundingCompletedAt: project.fundingCompletedAt || new Date(),
+              }
+            : {}),
+        },
+      });
+      return updated;
+    }
     return project;
   }
 

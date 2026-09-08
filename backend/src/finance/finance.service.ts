@@ -164,6 +164,9 @@ export class FinanceService {
       });
       if (!project)
         return { success: true, message: 'Ignored (Project tidak ditemukan)' };
+      if (project.guaranteeStatus === GuaranteeStatus.HELD) {
+        return { message: 'Already processed' };
+      }
 
       // Update project guarantee status and create transaction
       await this.prisma.$transaction(async (tx) => {
@@ -252,19 +255,23 @@ export class FinanceService {
           where: { projectId: contribution.projectId },
         });
 
-        if (
+        const isTargetReached =
           newLedger &&
-          newLedger.remainingBalance >= contribution.project.targetAmount
-        ) {
-          await tx.project.update({
-            where: { id: contribution.projectId },
-            data: {
-              status: ProjectStatus.DANA_TERPENUHI,
-              fundingCompletedAt:
-                contribution.project.fundingCompletedAt || new Date(),
-            },
-          });
-        }
+          newLedger.remainingBalance >= contribution.project.targetAmount;
+
+        await tx.project.update({
+          where: { id: contribution.projectId },
+          data: {
+            fundedAmount: { increment: contribution.amount },
+            ...(isTargetReached
+              ? {
+                  status: ProjectStatus.DANA_TERPENUHI,
+                  fundingCompletedAt:
+                    contribution.project.fundingCompletedAt || new Date(),
+                }
+              : {}),
+          },
+        });
       });
 
       return { message: 'Contribution Payment Processed' };

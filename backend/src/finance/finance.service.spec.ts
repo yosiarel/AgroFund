@@ -207,9 +207,78 @@ describe('FinanceService', () => {
       expect(prisma.project.findUnique).not.toHaveBeenCalled();
     });
 
-    it('should update ledger properly on CONTRIBUTION and trigger DANA_TERPENUHI if target is reached', async () => {
+    it('should return early if guarantee is already HELD (idempotent duplicate webhook)', async () => {
+      const project = {
+        id: 'proj-1',
+        guaranteeAmount: 2000000n,
+        guaranteeStatus: GuaranteeStatus.HELD,
+      };
+      prisma.project.findUnique.mockResolvedValue(project);
+
+      const result = await service.handleWebhook('test_token', {
+        external_id: 'GUARANTEE_proj-1_12345',
+        status: 'PAID',
+      });
+
+      expect(result?.message).toBe('Already processed');
+      expect(prisma.project.update).not.toHaveBeenCalled();
+      expect(prisma.guaranteeTransaction.create).not.toHaveBeenCalled();
+    });
+
+    it('should handle Xendit dashboard dummy test ping', async () => {
+      const result = await service.handleWebhook('test_token', {
+        external_id: 'invoice_123124123',
+        status: 'PAID',
+      });
+
+      expect(result?.message).toBe('Test webhook successfully received');
+      expect(prisma.project.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('should atomically increment fundedAmount on partial contribution and preserve FUNDRAISING status', async () => {
       const contribution = {
         id: 'contrib-1',
+        projectId: 'proj-1',
+        amount: 1000000n,
+        status: 'PENDING_PAYMENT',
+        project: { targetAmount: 48100000n },
+      };
+      prisma.contribution.findUnique.mockResolvedValue(contribution);
+
+      // Ledger starts at 0, incremented to 1,000,000 (below 48,100,000 target)
+      prisma.projectFinancialLedger.findFirst
+        .mockResolvedValueOnce(null) // no previous ledger
+        .mockResolvedValueOnce({ id: 'ledger-1', remainingBalance: 1000000n }); // after create
+
+      await service.handleWebhook('test_token', {
+        external_id: 'contrib-1',
+        status: 'PAID',
+      });
+
+      expect(prisma.contribution.update).toHaveBeenCalledWith({
+        where: { id: 'contrib-1' },
+        data: { status: 'PAID' },
+      });
+
+      expect(prisma.financialTransaction.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          projectId: 'proj-1',
+          amount: 1000000n,
+          type: 'CONTRIBUTION',
+        }),
+      });
+
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: 'proj-1' },
+        data: {
+          fundedAmount: { increment: 1000000n },
+        },
+      });
+    });
+
+    it('should update ledger properly on CONTRIBUTION and trigger DANA_TERPENUHI with fundedAmount increment if target is reached', async () => {
+      const contribution = {
+        id: 'contrib-2',
         projectId: 'proj-1',
         amount: 500000n,
         status: 'PENDING_PAYMENT',
@@ -224,7 +293,7 @@ describe('FinanceService', () => {
         .mockResolvedValueOnce({ id: 'ledger-1', remainingBalance: 1000000n }); // check after increment
 
       await service.handleWebhook('test_token', {
-        external_id: 'contrib-1',
+        external_id: 'contrib-2',
         status: 'PAID',
       });
 
@@ -236,10 +305,32 @@ describe('FinanceService', () => {
       expect(prisma.project.update).toHaveBeenCalledWith({
         where: { id: 'proj-1' },
         data: {
+          fundedAmount: { increment: 500000n },
           status: ProjectStatus.DANA_TERPENUHI,
           fundingCompletedAt: expect.any(Date),
         },
       });
+    });
+
+    it('should return early if contribution is already PAID (idempotent duplicate webhook)', async () => {
+      const contribution = {
+        id: 'contrib-1',
+        projectId: 'proj-1',
+        amount: 1000000n,
+        status: 'PAID',
+        project: { targetAmount: 48100000n },
+      };
+      prisma.contribution.findUnique.mockResolvedValue(contribution);
+
+      const result = await service.handleWebhook('test_token', {
+        external_id: 'contrib-1',
+        status: 'PAID',
+      });
+
+      expect(result?.message).toBe('Already paid');
+      expect(prisma.project.update).not.toHaveBeenCalled();
+      expect(prisma.financialTransaction.create).not.toHaveBeenCalled();
+      expect(prisma.projectFinancialLedger.update).not.toHaveBeenCalled();
     });
   });
 });
