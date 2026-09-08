@@ -33,8 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res: any = await api.get("/user/profile")
       const profile = res?.data !== undefined ? res.data : (res || null)
       setUser(profile) // Will be null if not logged in
+      return profile
     } catch (error) {
       setUser(null)
+      return null
     } finally {
       setIsLoading(false)
     }
@@ -47,14 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: any) => {
     // JWT is handled by backend HTTP-Only cookies, we just need to hit the endpoint
     await api.post("/auth/login", credentials)
-    await fetchProfile()
+    return await fetchProfile()
   }
 
   const register = async (userData: any) => {
     await api.post("/auth/register", userData)
     // Auto login after register is standard, but if backend doesn't set cookie on register,
     // we need to call login immediately after. Let's call login:
-    await login({ username: userData.username, password: userData.password })
+    return await login({ username: userData.username, password: userData.password })
   }
 
   const logout = async () => {

@@ -12,6 +12,7 @@ const api = axios.create({
 // The browser will automatically include the 'Authentication' cookie in every request.
 api.interceptors.request.use(
   (config) => {
+    config.withCredentials = true;
     return config;
   },
   (error) => Promise.reject(error)

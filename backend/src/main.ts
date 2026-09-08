@@ -15,12 +15,30 @@ async function bootstrap() {
   app.useGlobalInterceptors(new BigIntInterceptor());
   app.set('trust proxy', 1);
 
-  const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  const rawOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
     .split(',')
-    .map((o) => o.trim());
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const explicitOrigins = [
+    'https://agrofund.vercel.app',
+    'http://localhost:5173',
+    ...rawOrigins,
+  ];
 
   app.enableCors({
-    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, '');
+      if (
+        explicitOrigins.includes(cleanOrigin) ||
+        /^https?:\/\/localhost(:\d+)?$/.test(cleanOrigin) ||
+        /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(cleanOrigin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   });
 
@@ -34,8 +52,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  app.setGlobalPrefix('api/v1');
 
   // Setup Swagger
   const config = new DocumentBuilder()

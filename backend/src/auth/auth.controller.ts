@@ -41,8 +41,9 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      partitioned: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
+    } as any);
     return { message: 'Berhasil masuk' };
   }
 
@@ -55,8 +56,9 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      partitioned: process.env.NODE_ENV === 'production',
       expires: new Date(0),
-    });
+    } as any);
     return { message: 'Berhasil Logout' };
   }
 
