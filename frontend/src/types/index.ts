@@ -40,6 +40,7 @@ export interface Project {
   fundedAmount: number | string
   guaranteeAmount: number | string
   fundraisingDeadline?: string | null
+  imageUrl?: string | null
   createdAt: string
   user: { id: string; name: string; username: string }
   koperasi?: { id: string; name: string; username: string }

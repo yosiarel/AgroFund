@@ -135,15 +135,20 @@ export function UmkmProjectCard({ project }: { project: Project }) {
     <Card>
       <div className="p-6 flex flex-col gap-5">
         <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div>
-            <Link
-              to={actions.detailHref}
+          <div className="flex items-start gap-4">
+            {project.imageUrl && (
+              <img src={project.imageUrl} alt={project.title} className="w-16 h-16 rounded-[var(--radius-m)] object-cover border border-[var(--color-neutral-200)] flex-shrink-0" />
+            )}
+            <div>
+              <Link
+                to={actions.detailHref}
               className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)] hover:text-[var(--color-primary-700)] transition-colors"
             >
               {project.title}
             </Link>
             <div className="mt-2">
               <ProjectStatusBadge status={project.status} />
+            </div>
             </div>
           </div>
           <div className="text-right flex-shrink-0">

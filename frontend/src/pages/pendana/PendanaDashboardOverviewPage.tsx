@@ -133,6 +133,11 @@ export function PendanaDashboardOverviewPage() {
               <Card key={contrib.id} className="hover:shadow-[var(--shadow-e2)] transition-shadow">
                 <div className="p-6 flex flex-col h-full gap-5">
                   <div>
+                    {contrib.project.imageUrl && (
+                      <div className="mb-4 aspect-video w-full rounded-[var(--radius-m)] overflow-hidden border border-[var(--color-neutral-200)]">
+                        <img src={contrib.project.imageUrl} alt={contrib.project.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
                     <h4 className="font-bold text-[var(--text-h4)] text-[var(--color-neutral-900)] line-clamp-2" title={contrib.project.title}>
                       {contrib.project.title}
                     </h4>

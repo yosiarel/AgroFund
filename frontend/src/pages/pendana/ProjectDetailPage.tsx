@@ -128,6 +128,11 @@ export function ProjectDetailPage() {
           <Card>
             <CardHeader><CardTitle>Tentang Proyek</CardTitle></CardHeader>
             <CardContent>
+              {project.imageUrl && (
+                <div className="mb-4 aspect-video w-full max-w-2xl rounded-[var(--radius-m)] overflow-hidden border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)]">
+                  <img src={project.imageUrl} alt={project.title} className="w-full h-full object-contain" />
+                </div>
+              )}
               <p className="text-[var(--text-body-m)] text-[var(--color-neutral-700)] leading-[var(--text-body-m--line-height)] whitespace-pre-line">
                 {project.description}
               </p>
