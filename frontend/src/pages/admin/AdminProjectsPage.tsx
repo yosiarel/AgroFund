@@ -81,7 +81,7 @@ function AdminProjectCard({ project }: { project: Project }) {
             <h2 className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)]">
               {project.title}
             </h2>
-            <div className="mt-2 flex items-center gap-3">
+            <div className="mt-2 flex items-center gap-3 flex-wrap">
               <ProjectStatusBadge status={project.status} />
               <span className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
                 Oleh: <span className="font-[600] text-[var(--color-neutral-900)]">{project.user.name}</span>
@@ -95,9 +95,9 @@ function AdminProjectCard({ project }: { project: Project }) {
           </div>
           
           {needsReview && (
-            <div className="flex-shrink-0">
-              <Link to={`/admin/projects/${project.id}/review`}>
-                <Button variant="primary">
+            <div className="w-full sm:w-auto flex-shrink-0">
+              <Link to={`/admin/projects/${project.id}/review`} className="w-full sm:w-auto block">
+                <Button variant="primary" className="w-full sm:w-auto">
                   <ShieldCheck className="w-4 h-4 mr-2" />
                   Mulai Tinjauan Publikasi
                 </Button>
