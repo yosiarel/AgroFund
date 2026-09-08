@@ -45,7 +45,7 @@ export function ProcurementPage() {
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button variant="tertiary" className="px-2" onClick={() => navigate(`/umkm/projects/${projectId}`)}>
             <ArrowLeft className="w-5 h-5" />
@@ -61,8 +61,8 @@ export function ProcurementPage() {
         </div>
 
         {canCreateProcurement && (
-          <Link to={`/umkm/projects/${projectId}/procurement/create`} className="w-full sm:w-auto">
-            <Button variant="primary" className="w-full sm:w-auto">
+          <Link to={`/umkm/projects/${projectId}/procurement/create`} className="w-full lg:w-auto">
+            <Button variant="primary" className="w-full lg:w-auto">
               <Plus className="w-4 h-4 mr-1.5" />
               Buat Pengajuan Pengadaan
             </Button>

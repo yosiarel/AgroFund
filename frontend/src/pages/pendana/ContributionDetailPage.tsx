@@ -103,13 +103,13 @@ export function ContributionDetailPage() {
           {/* Project Summary */}
           <div>
             <h3 className="text-[var(--text-h5)] font-[600] text-[var(--color-neutral-900)] mb-2">Proyek</h3>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-[var(--color-neutral-50)] rounded-[var(--radius-m)] border border-[var(--color-neutral-200)]">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 p-4 bg-[var(--color-neutral-50)] rounded-[var(--radius-m)] border border-[var(--color-neutral-200)]">
               <div>
                 <p className="font-[500] text-[var(--color-neutral-900)]">{contribution.project.title}</p>
                 <p className="text-[var(--text-caption)] text-[var(--color-neutral-600)]">ID: {contribution.project.id}</p>
               </div>
-              <Link to={`/pendana/discover/${contribution.project.id}`} className="w-full sm:w-auto">
-                <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+              <Link to={`/pendana/discover/${contribution.project.id}`} className="w-full lg:w-auto">
+                <Button variant="secondary" size="sm" className="w-full lg:w-auto">
                   Lihat Proyek <ExternalLink className="w-3.5 h-3.5 ml-2" />
                 </Button>
               </Link>

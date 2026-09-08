@@ -137,7 +137,7 @@ function UmkmProjectCard({ project }: { project: Project }) {
 
         {/* Next required action (Doc 4 Sec 34) */}
         {nextAction && (
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-[var(--color-neutral-100)]">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pt-2 border-t border-[var(--color-neutral-100)]">
             <div>
               <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Tindakan Berikutnya</p>
               <p className="text-[var(--text-body-s)] font-[500] text-[var(--color-neutral-800)]">
@@ -145,8 +145,8 @@ function UmkmProjectCard({ project }: { project: Project }) {
               </p>
             </div>
             {nextAction.href && (
-              <Link to={nextAction.href} className="w-full sm:w-auto">
-                <Button variant="primary" size="sm" className="w-full sm:w-auto">
+              <Link to={nextAction.href} className="w-full lg:w-auto">
+                <Button variant="primary" size="sm" className="w-full lg:w-auto">
                   {nextAction.ctaLabel}
                 </Button>
               </Link>
