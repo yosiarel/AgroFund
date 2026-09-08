@@ -1,3 +1,4 @@
+import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import api from "../../lib/axios"
@@ -28,7 +29,7 @@ function fetchMyContributions(): Promise<Contribution[]> {
   return api.get("/finance/my-contributions")
 }
 
-const STATUS_CONFIG: Record<Contribution["status"], {
+const STATUS_CONFIG: Record<string, {
   label: string
   variant: "default" | "success" | "warning" | "risk" | "error" | "info"
   Icon: React.ComponentType<{ className?: string }>
@@ -39,6 +40,18 @@ const STATUS_CONFIG: Record<Contribution["status"], {
     variant: "warning",
     Icon: Clock,
     description: "Pembayaran belum dilakukan. Selesaikan pembayaran untuk mengkonfirmasi kontribusi Anda.",
+  },
+  PENDING: {
+    label: "Menunggu Pembayaran",
+    variant: "warning",
+    Icon: Clock,
+    description: "Pembayaran belum dilakukan. Selesaikan pembayaran untuk mengkonfirmasi kontribusi Anda.",
+  },
+  AWAITING_CONFIRMATION: {
+    label: "Menunggu Konfirmasi",
+    variant: "warning",
+    Icon: Clock,
+    description: "Pembayaran sedang diverifikasi oleh sistem.",
   },
   PAID: {
     label: "Berhasil",
@@ -60,7 +73,22 @@ const STATUS_CONFIG: Record<Contribution["status"], {
   },
 }
 
-import * as React from "react"
+const DEFAULT_STATUS_CONFIG = {
+  label: "Menunggu Pembayaran",
+  variant: "warning" as const,
+  Icon: Clock,
+  description: "Status kontribusi sedang diproses.",
+}
+
+export function getStatusConfig(status?: string) {
+  if (!status) return DEFAULT_STATUS_CONFIG
+  return STATUS_CONFIG[status] || {
+    label: status,
+    variant: "warning" as const,
+    Icon: Clock,
+    description: "Status kontribusi: " + status,
+  }
+}
 
 export function MyContributionsPage() {
   const { data: contributions = [], isLoading, error } = useQuery<Contribution[]>({
@@ -129,8 +157,8 @@ export function MyContributionsPage() {
 }
 
 function ContributionCard({ contribution }: { contribution: Contribution }) {
-  const statusCfg = STATUS_CONFIG[contribution.status]
-  const { Icon } = statusCfg
+  const statusCfg = getStatusConfig(contribution?.status)
+  const Icon = statusCfg.Icon
 
   return (
     <Card>
@@ -138,19 +166,19 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <Link
-              to={`/pendana/discover/${contribution.project.id}`}
+              to={`/pendana/discover/${contribution?.project?.id || ""}`}
               className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)] hover:text-[var(--color-primary-700)] transition-colors"
             >
-              {contribution.project.title}
+              {contribution?.project?.title || "Proyek"}
             </Link>
             <div className="mt-1">
-              <ProjectStatusBadge status={contribution.project.status} size="sm" />
+              <ProjectStatusBadge status={contribution?.project?.status || "FUNDRAISING"} size="sm" />
             </div>
           </div>
           <div className="text-right flex-shrink-0">
             <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">Nominal Kontribusi</p>
             <p className="text-[var(--text-h4)] font-[700] text-[var(--color-primary-700)]">
-              {formatRupiah(contribution.amount)}
+              {formatRupiah(contribution?.amount)}
             </p>
           </div>
         </div>
