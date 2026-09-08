@@ -95,4 +95,23 @@ export class KoperasiController {
       dto.status,
     );
   }
+
+  @Get('analytics')
+  @Roles('KOPERASI')
+  @ApiOperation({
+    summary: 'Melihat ringkasan dasbor Koperasi',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Berhasil mengambil data analitik koperasi',
+  })
+  async getAnalyticsSummary(@Request() req: any) {
+    const data = await this.koperasiService.getAnalyticsSummary(
+      req.user.userId,
+    );
+    return {
+      message: 'Berhasil mengambil data analitik koperasi',
+      data,
+    };
+  }
 }

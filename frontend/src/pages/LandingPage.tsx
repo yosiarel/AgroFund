@@ -44,7 +44,7 @@ export const LandingPage: React.FC = () => {
     } else if (user.role === 'UMKM') {
       return <Navigate to="/umkm" replace />;
     } else if (user.role === 'KOPERASI') {
-      return <Navigate to="/koperasi/projects" replace />;
+      return <Navigate to="/koperasi" replace />;
     }
     return <Navigate to="/unauthorized" replace />;
   }

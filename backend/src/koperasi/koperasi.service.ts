@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { ProjectStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class KoperasiService {
@@ -102,6 +102,61 @@ export class KoperasiService {
     return {
       message: `Bukti progres berhasil ditandai sebagai ${status}`,
       report: updatedReport,
+    };
+  }
+
+  async getAnalyticsSummary(koperasiUserId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: koperasiUserId },
+    });
+    if (!user) throw new NotFoundException('Koperasi tidak ditemukan');
+
+    const [
+      totalProjects,
+      pendingAssessment,
+      pendingProcurement,
+      pendingEvidences,
+      recentProjects,
+    ] = await Promise.all([
+      // Total Proyek Binaan
+      this.prisma.project.count({
+        where: { koperasiId: user.id },
+      }),
+      // Proyek di tahap ASSESSMENT
+      this.prisma.project.count({
+        where: { koperasiId: user.id, status: ProjectStatus.COOPERATIVE_ASSESSMENT },
+      }),
+      // Proyek di tahap PROCUREMENT
+      this.prisma.project.count({
+        where: { koperasiId: user.id, status: ProjectStatus.PROCUREMENT },
+      }),
+      // Bukti Laporan yang menunggu verifikasi
+      this.prisma.progressReport.count({
+        where: {
+          milestone: { project: { koperasiId: user.id } },
+          status: 'SUBMITTED',
+        },
+      }),
+      // Proyek terbaru
+      this.prisma.project.findMany({
+        where: { koperasiId: user.id },
+        take: 4,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    return {
+      totalProjects,
+      pendingAssessment,
+      pendingProcurement,
+      pendingEvidences,
+      recentProjects,
     };
   }
 }

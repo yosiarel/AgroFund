@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { ColdStartProvider } from './components/ColdStartProvider';
@@ -35,6 +35,7 @@ const ProjectExecutionPage = lazy(() => import('./pages/umkm/ProjectExecutionPag
 const ProfilePage = lazy(() => import('./pages/umkm/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const UmkmDashboardOverviewPage = lazy(() => import('./pages/umkm/UmkmDashboardOverviewPage').then(m => ({ default: m.UmkmDashboardOverviewPage })));
 
+const KoperasiDashboardOverviewPage = lazy(() => import('./pages/koperasi/KoperasiDashboardOverviewPage').then(m => ({ default: m.KoperasiDashboardOverviewPage })));
 const AssignedProjectsPage = lazy(() => import('./pages/koperasi/AssignedProjectsPage').then(m => ({ default: m.AssignedProjectsPage })));
 const AssessmentPage = lazy(() => import('./pages/koperasi/AssessmentPage').then(m => ({ default: m.AssessmentPage })));
 const ProcurementValidationPage = lazy(() => import('./pages/koperasi/ProcurementValidationPage').then(m => ({ default: m.ProcurementValidationPage })));
@@ -174,7 +175,7 @@ const router = createBrowserRouter([
           {
             element: <KoperasiDashboard />,
             children: [
-              { index: true, element: <Navigate to="/koperasi/projects" replace /> },
+              { index: true, element: <KoperasiDashboardOverviewPage /> },
               { path: 'projects', element: <AssignedProjectsPage /> },
               { path: 'assessment/:projectId', element: <AssessmentPage /> },
               { path: 'procurement', element: <ProcurementValidationPage /> },
