@@ -206,14 +206,15 @@ export function EvidenceReviewPage() {
                   )}
 
                   {rep.status === "SUBMITTED" && (
-                    <div className="flex items-center justify-between pt-2 border-t border-[var(--color-neutral-100)] flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-[var(--color-neutral-100)] gap-3">
                       <p className="text-[var(--text-caption)] text-[var(--color-neutral-500)] italic">
                         Pastikan bukti fisik sesuai dengan kemajuan {rep.progressPercentage}% yang dilaporkan.
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Button
                           variant="destructive"
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => {
                             setConfirmAction({
                               reportId: rep.id,
@@ -229,6 +230,7 @@ export function EvidenceReviewPage() {
                         <Button
                           variant="primary"
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => {
                             setConfirmAction({
                               reportId: rep.id,

@@ -134,7 +134,14 @@ export function ProjectMonitoringPage() {
                       </span>
                     </div>
 
-                    <Link to={`/pendana/discover/${proj.id}`} className="w-full lg:w-auto">
+                    <Link
+                      to={`/pendana/discover/${proj.id}`}
+                      state={{
+                        from: "/pendana/monitoring",
+                        label: "Pemantauan Proyek",
+                      }}
+                      className="w-full lg:w-auto"
+                    >
                       <Button variant="secondary" size="sm" className="w-full lg:w-auto">
                         <Eye className="w-4 h-4 mr-1.5" /> Lihat Detail Transparansi
                       </Button>

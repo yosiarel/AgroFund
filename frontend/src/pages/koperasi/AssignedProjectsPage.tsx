@@ -100,7 +100,7 @@ function KoperasiProjectCard({ project }: { project: Project }) {
             <h2 className="text-[var(--text-h4)] font-[600] text-[var(--color-neutral-900)]">
               {project.title}
             </h2>
-            <div className="mt-2 flex items-center gap-3">
+            <div className="mt-2 flex items-center gap-2 sm:gap-3 flex-wrap">
               <ProjectStatusBadge status={project.status} />
               <span className="text-[var(--text-caption)] text-[var(--color-neutral-500)]">
                 Petani/UMKM: <span className="font-[600] text-[var(--color-neutral-900)]">{project.user.name}</span>
@@ -109,9 +109,9 @@ function KoperasiProjectCard({ project }: { project: Project }) {
           </div>
 
           {/* Action CTA for Koperasi */}
-          <div className="flex-shrink-0">
-            <Link to={ctaLink}>
-              <Button variant={ctaVariant}>
+          <div className="w-full sm:w-auto flex-shrink-0">
+            <Link to={ctaLink} className="w-full sm:w-auto block">
+              <Button variant={ctaVariant} className="w-full sm:w-auto">
                 {needsAssessment && <ClipboardCheck className="w-4 h-4 mr-2" />}
                 {ctaLabel}
               </Button>

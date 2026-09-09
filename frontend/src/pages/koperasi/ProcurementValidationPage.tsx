@@ -166,7 +166,7 @@ export function ProcurementValidationPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                     <div>
                       <span className="text-[var(--text-body-s)] text-[var(--color-neutral-500)]">Total Alokasi: </span>
                       <span className="font-[700] text-[var(--color-primary-700)] text-[var(--text-body-l)]">
@@ -175,10 +175,11 @@ export function ProcurementValidationPage() {
                     </div>
 
                     {req.status === "REQUESTED" && (
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Button
                           variant="destructive"
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => {
                             setRejectRequest({
                               id: req.id,
@@ -192,6 +193,7 @@ export function ProcurementValidationPage() {
                         <Button
                           variant="secondary"
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => approveMutation.mutate(req.id)}
                           disabled={approveMutation.isPending}
                         >
@@ -204,6 +206,7 @@ export function ProcurementValidationPage() {
                       <Button
                         variant="primary"
                         size="sm"
+                        className="w-full sm:w-auto"
                         onClick={() => issuePoMutation.mutate(req.id)}
                         disabled={issuePoMutation.isPending}
                       >

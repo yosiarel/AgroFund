@@ -133,7 +133,7 @@ export function GuaranteePaymentPage() {
           <Button 
             variant="tertiary" 
             className="w-full"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/umkm/projects/${projectId}`)}
             disabled={payMutation.isPending}
           >
             Kembali
